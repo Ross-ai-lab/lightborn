@@ -25,7 +25,7 @@ of his own.
 
 1. Install **Minecraft Java 26.3** with **Fabric Loader 0.20.1** or newer and **Fabric API**, on **Java 25**.
 2. Download `lightborn-1.0.0.jar` from this repository's [Releases](../../releases) and put it in your `mods` folder.
-3. Optional, the way it is meant to be played: the companion mods in [Companion mods](#15-companion-mods) (pinned in
+3. Optional, the way it is meant to be played: the companion mods in [Companion mods](#17-companion-mods) (pinned in
    `tools/companion-mods.lock.json`). Lightborn runs without them.
 4. Start a **new world**. Every world is locked to Normal difficulty.
 
@@ -52,7 +52,7 @@ Lightborn is server-authoritative, so a multiplayer server needs it too, and so 
 
 ## The design document
 
-Everything below is the full design of the game: every rule is a standing decision, and changing the game means
+Everything below is the full design of the game, in the order a playthrough meets it: every rule is a standing decision, and changing the game means
 changing it here first. Dates in brackets, such as "(owner, 2026-11-18)", mark when the author made or changed a
 decision; they explain why a rule is the way it is.
 
@@ -62,13 +62,24 @@ Server-authoritative throughout, so co-op later only needs both players to have 
 `LightShop.java`.
 
 **Contents:** [1. Vision](#1-vision-three-equal-thirds) ·
-[2. Sparks and gear](#2-sparks-and-gear-no-levels) · [3. Spells](#3-spells-and-tomes) · [4. Spell upgrades](#4-spell-upgrades) ·
-[5. Monsters](#5-monsters) · [6. Bosses](#6-bosses) · [7. Moon nights and the Cleanse](#7-moon-nights-and-the-cleanse) ·
-[8. The Chest of Light](#8-the-chest-of-light) · [9. Food, sleep and home](#9-food-sleep-and-home) ·
-[10. Atmosphere](#10-atmosphere-and-music) · [11. The Light Dragon](#11-the-light-dragon) ·
-[12. The Dragon's Tale](#12-the-dragons-tale) · [13. Loot](#13-loot) · [14. Spawn hut](#14-spawn-hut-and-first-night) ·
-[15. Companion mods](#15-companion-mods) · [16. Build](#16-build-and-test) · [17. The Dark](#17-the-dark) ·
-[18. The Hollow](#18-the-hollow) · [19. To do](#19-to-do)
+[2. First night](#2-spawn-hut-and-first-night) ·
+[3. The Chest of Light](#3-the-chest-of-light) ·
+[4. Sparks and gear](#4-sparks-and-gear-no-levels) ·
+[5. Spells](#5-spells-and-tomes) ·
+[6. Spell upgrades](#6-spell-upgrades) ·
+[7. Loot](#7-loot) ·
+[8. Monsters](#8-monsters) ·
+[9. Moon nights and the Cleanse](#9-moon-nights-and-the-cleanse) ·
+[10. Bosses](#10-bosses) ·
+[11. The Light Dragon](#11-the-light-dragon) ·
+[12. The Dragon's Tale](#12-the-dragons-tale) ·
+[13. Food, sleep and home](#13-food-sleep-and-home) ·
+[14. Atmosphere](#14-atmosphere-and-music) ·
+[15. The Dark](#15-the-dark) ·
+[16. The Hollow](#16-the-hollow) ·
+[17. Companion mods](#17-companion-mods) ·
+[18. Build and test](#18-build-and-test) ·
+[19. To do](#19-to-do)
 
 ## 1. Vision: three equal thirds
 
@@ -92,21 +103,422 @@ the player's things or builds.
 
 **World rules.** Every world is locked to Normal: at creation, in settings and through difficulty commands; Hardcore
 cannot override it. Ordinary Minecraft ambient spawning stays, with about 50% more monsters at night
-([Monsters](#5-monsters)). The every-night zombie rush is replaced by the eight-night moon cycle of scouts
-([Moon nights](#7-moon-nights-and-the-cleanse)).
+([Monsters](#8-monsters)). The every-night zombie rush is replaced by the eight-night moon cycle of scouts
+([Moon nights](#9-moon-nights-and-the-cleanse)).
 
 **No runes.** Runes do not exist in Lightborn, in words or in art (owner, 2026-11-18: the mod was renamed from Runeborn, and the
 story, item marks and particles lost their runes). The old support runes (Haste, Thrift, Endurance, Ruin, Echo, Blood)
 were removed (owner, 2026-11-15) with their items, recipes and drops: a tome improves only through its
-[spell upgrades](#4-spell-upgrades) and awakening. No effect uses the enchanting table's glyph particles.
+[spell upgrades](#6-spell-upgrades) and awakening. No effect uses the enchanting table's glyph particles.
 
-## 2. Sparks and gear: no levels
+## 2. Spawn hut and first night
+
+Every fresh world gets a plain spruce room at spawn: 7 by 7 outside, 5 by 5 inside and five blocks high, so the
+full-size Dragon fits over his chest, with solid walls and log corners, a dark-oak gable roof overhanging the front
+and back by a block (its gable ends stop flush with the side walls, so it stays inside the starting ward; owner,
+2026-11-17) and a south door. It contains the bed, the lectern with the Dragon's guide, and the Chest of Light against
+the back wall at its centre, with the bed to its left and lectern to its right, facing into the room. New players
+arrive in the middle of the room, facing the chest. There is no wooden chest, crafting table, furnace or bookshelf.
+The coarse-dirt front path stays; there is no campfire or log seats.
+
+First-time players receive, once, an unrolled, attribute-free **Simple Staff** equipped in the main hand (no
+spell-power implicit, affixes or leech: it only enables casting; drawn as a real wooden walking staff with a crook head
+and a wrapped grip, owner 2026-11-15), a **Spellstone** in the off hand holding the **Bolt tome** (right-click) and
+**one random Basic tome** beside it (owner, 2026-11-23; never one only given), then **Homeward** and **Ender
+Pocket** (owner, 2026-11-23); the Book of Souls is found, and **5 apples**, no torches (owner, 2026-11-23). No wooden tools, loose guide book or pumpkins.
+
+**The Dragon's guide** (the lectern book, The Dragon's Notes) is **never longer than 3 pages and holds only the
+story** (owner, 2026-11-18: no page of hints; `SelfTestWorld` and the `guide` visual scene check the length). It is a
+letter in the Dragon's own voice (owner, 2026-11-18: rewritten from scratch):
+
+1. Who he is: the Dragon under this world, chained long ago beneath the stone; where his light can't reach, the dark
+   gathers, a little more every night.
+2. What the dark does: it stirs the dead and swells some of them, and they hunt whatever carries light. A little of
+   his light runs in the player.
+3. The chest is his hearth and its ward keeps the night off the home, so build inside it. He can't leave the stone;
+   the player can. Stay near the chest tonight and he will visit. Signed by the Dragon.
+
+The letter never tells what his chapters reveal later (why he was chained, his blood, the Keepers, Orvane). Every page
+fits the book's 14 lines at GUI width.
+
+## 3. The Chest of Light
+
+The hub of the game: collection, storage, spell upgrades, the Cleanse, shop and travel. **A chest made of flowing
+light** (owner, 2026-11-16; motes of light; its own block light is 10, so it dies at the smallest ward's wall and the client glow lights the inside): every face is an animated, interpolated strip from
+`tools/make_textures.py` (`light_chest()`, which also writes the block model). Currents of white light stream up an
+amber body, two bright pulses run round the gilt rim and along the lid seam, the small suns on the sides and the lid's sun breathe,
+and the lid washes rings of light outward. Over the body sits a translucent shell: wisps of light rising up the sides
+and three spiral arms turning on the lid (26.x puts a sprite with translucent pixels in the translucent layer by
+itself, so no render-layer code exists). A broad outer light ring is supplemented with high room fill and symmetrical doorway
+fill. Only chest-owned sources are removed when it moves; temporary spell lights and player-placed blocks are
+preserved. Fixed source positions are reconciled with the ward, without scanning the world.
+
+**It is unique for now.** One chest stands at the back centre of the spawn hut. It has no crafting recipe and no
+shop, quest or loot source. **It cannot be broken, pushed or blown up** (owner, 2026-11-15; strength -1 like
+bedrock, immovable): a home moves whole, from the Travel tab ([Move Your Home](#move-your-home)). It cannot be donated to itself, so
+completion never asks the player to give away the only hub.
+
+**Opening and giving.** A plain right-click opens its book. **Ctrl + right-click** with an item gives one of it (the
+client reads Ctrl and asks the server); an ordinary click never donates by accident. Both live in the Collection
+tab's footer (owner, 2026-11-17: moved out of the tab column, smaller): a small Give all new button at its right and,
+beside it, one dim line scaled to fit: Ctrl + right-click the chest: give the held item.
+
+**One Sparks count** (owner, 2026-11-16): the chest's title bar shows the player's Sparks (carried plus stored) once,
+beside "Chest of Light", for every tab. No tab shows its own count.
+
+**Tabs.** Up to seven tabs in a column 90 px wide (owner, 2026-11-17: 40% slimmer), in this order: **Upgrade Spells (red), Upgrade Gear (pale gold, [Light gear](#light-gear-the-dragons-gifts)),
+Cleanse (violet), Shop (blue), Travel (green), Spirits (purple), Collection (gold)**. **Four appear only as the game
+reaches them** (owner, 2026-11-18; `ChestTabs`, counts saved on the player and synced to them): the **Shop** after
+surviving one night (in the Overworld at nightfall and alive at dawn; joining mid-night or dying starts the watch
+over), the **Cleanse** after beating one Dark Fountain, **Travel** after beating eight, **Spirits** once the Book of
+Souls has been carried (loose or in a Spellstone). The server refuses a hidden tab's actions too. Creative players see
+all seven. A chest opens on the Shop once it is there, else on the Collection. Each tab is its own class
+(`CollectionScreen` keeps the frame, column and scrollbar; `UpgradeTab`, `CleanseTab`, `ShopTab`, `TravelTab`,
+`SpiritsTab`, `CollectionTab`, `UnlockedWindow`).
+**Upgrade Spells sees the tomes inside a carried Spellstone** (owner, 2026-11-18), each in its stone's place in the
+strip on a violet rim, and upgrades them where they sit (`Spellstone.tomeAt`). **Upgrade Gear groups its strip by
+kind** (owner, 2026-11-18: the staffs lay scattered): helms, chests, leggings, boots and so on together, each kind in
+carried order. **Double-clicking an item in the Collection takes what the chest keeps of it** into the bag (owner,
+2026-11-18). **An item no hand can make says where it is found** in the recipe's place (owner, 2026-11-18): a Lightborn
+item where the mod hands it out (dropped by monsters, by a named boss, a gift from the Dragon), anything else read from
+the loot tables, the mods' included: which monsters drop it, which blocks it is mined from, which chests hold it,
+fishing, bartering, brushing (`Sources`). **A button's label always fits it**: buttons widen to their text (owner,
+2026-11-18: "Upgrade ward · 20 Sparks" was cut), and the visual test fails on any cut label. **Collection is a mega tab**
+(owner, 2026-11-17): the ten sets are chips along the top of its page (icon, name, count or ✔; the open one lit
+gold), drawn at 92% size (owner, 2026-11-17: 40% bigger, then 10% more) and wrapping onto a second row when narrow, with the set's item grid below; it opens on the
+set seen last and shows the given-of-all count in the tab list. The grid's rows take all the height down to the
+panel under it: that panel sits on the footer, half height for a set's milestones (the next milestone with the four
+quarter marks on its line, then what it gives) and the same height for an opened item (owner, 2026-11-17: they must
+match): its icon, name, given or not with the count kept, the Take 1 / Take all / Put in buttons under them, and the
+recipe in small 13 px slots at the right with its kind and pager beside it. The grid's scrollbar can be dragged with
+the mouse as well as wheeled, and so can the Spirits list's, which scrolls when its kinds do not fit above the picked
+spirit's lines and buttons (owner, 2026-11-17: the Claim button hung over the frame). The visual test opens every tab
+at 1920 x 1080, GUI scale 4, and fails if any button crosses the chest's frame or any label runs past its button. The Dragon Quest tab is gone (owner, 2026-11-15): the Dragon
+tells his story in his talks. There is no Overview. Selected and hovered tab backgrounds use their
+tab's colour. The seven tabs fit in one column at any window size (16 px, down to 12 on a short window). Spirits shows how many earned spirits wait to be claimed. Its page lists the book's slots (a placed spirit's chip
+spans the slots it takes; slots filled out of slots owned), every kind in two columns (placed ◆, rank, or "claim"),
+and the picked kind's rank, slots taken, bonus and buttons: Claim, Rank up (with its price), Place in book / Take out,
+and Buy a slot. **A kind not yet slain shows as "???"** (owner, 2026-11-16: no spoilers) until the first kill.
+
+### The ward
+
+Each Chest of Light wards **9 blocks** in its dimension (owner, 2026-11-16: half the old 18). It grows only when its
+owner pays: the Shop tab's ward card's **Upgrade ward** button buys the next of five sizes, 9 → 13 → 18 → 26 → 36 → 48, for 20, 40,
+80, 150 and 250 Sparks. Gifts no longer grow it. The step bought is the player's and survives death. Overlapping wards cooperate, so the largest covering a position
+protects it. Owner and radius save with the world, including when the owner is offline. The spawn hut's chest counts.
+Moving a home carries its ward and owner with it.
+
+**No night drag** (owner, 2026-11-23): the old deep-water night (slower walking, lower jumps, slow falls, and the
+camera zoom the slowdown caused) is gone for good; never bring it back. The Ward spell's dome counts as a ward for
+the threshold's dark rain: inside it at night no drops run down the screen (`WardThreshold`).
+
+**The monsters hear you at night** (owner, 2026-11-19: dramatically, even inside the ward). Every two seconds, from
+dusk to dawn in the Overworld, each monster within 48 blocks of a survival player with nothing to chase turns on that
+player through walls, and its follow range grows by 48 so it keeps coming; a player inside a ward is heard too, so the
+dark gathers at its edge. Neutral kinds (endermen, piglins), frozen monsters and creative or spectator players are left
+out (`NightHearing`).
+
+**The Dragon-friend ending lifts the night's weight** (owner, 2026-11-19): the moon's chains break with his, nights are
+lit as in an ordinary game (no darker skylight), and the monsters' far hearing ends. Night monsters,
+hordes and the Cleanse go on. The world's ending is synced to clients (`DragonStory.ENDING`, `nightLifted`).
+
+**The lighthouse** (owner, 2026-11-16; 2026-11-23: day and night). At any hour, more than 128 blocks (horizontally) from home, a faint gold pillar
+stands on the horizon where the player's nearest own ward is: a slim beam over the chest's column, brightest at its
+foot and gone 320 blocks up, with light drifting slowly up it, fading in over the first 64 blocks past the threshold.
+Home is usually beyond the render distance, so the pillar stands on the true bearing at seven tenths of it, the same
+apparent width at any range, and by day it burns 1.6 times brighter so it reads against the sky. Only its owner sees it (`Lighthouse`, synced per player; `LighthouseView`).
+
+- **A wall.** A self-lit golden dome of light marks the exact ward radius (owner, 2026-11-15: tight enough to feel
+  safe inside, and alive). A dense criss-cross lattice, gaps under a block wide at any radius, of fine deep-gold core
+  lines (alpha cutout, writing depth, so a cloud behind the ward cannot wash out its colour; terrain and genuinely
+  nearer clouds still occlude it) inside a soft glowing halo that brightens where the eye grazes the wall. Comets of
+  light stream up both line families toward the crown, two slow veils of warm shimmer drift against each other between
+  the lines, every crossing twinkles on its own rhythm, and every eight seconds a heartbeat ring of light rises from
+  the sphere's lowest point to the crown, lifting every layer it passes; the whole dome breathes gently. Light flows
+  through the lower half below ground as well as the upper (owner, 2026-11-16). **Drawn on the GPU, with no flicker**
+  (owner, 2026-11-18: it still flickered and cost frames): one fixed 48 x 24 sphere mesh and two passes of
+  `shaders/core/ward.vsh/.fsh`, the core lines (opaque, writing depth) and the soft light (premultiplied, no depth
+  write), every effect worked out per pixel from the game clock. Every line, comet and star is filtered to the pixel it
+  lands in: widened by the pixel's footprint and dimmed to match, never thinner than a pixel, settling into its even
+  glow far off. The flicker was the old lattice textures, which had no smaller copies for distance, crawling as the
+  camera moved. Both passes land on identical depth (an invariant position), so their tie resolves the same way
+  every frame. The CPU only copies the mesh (no per-point maths, no sorting). No cross, plus-sign or rune ornaments.
+  Only the veil is still a texture (`tools/make_ward_texture.py`); the previous, sparser lattice is kept in
+  `design-references/ward-classic/`. Hostile mobs cannot walk, fly, leap or
+  teleport across it, bosses included, except during that chest's [Cleanse](#the-cleanse). **They slide along it,
+  never stick to it** (owner, 2026-11-23: monsters froze where they touched it and hung on its upper half): only the
+  part of a move that pushes in is taken away, so they walk round it and fall down it. **A monster that has pressed
+  at the wall for 3 s after someone inside gives them up and prowls** a quarter turn or so round it, 3 to 7 blocks
+  out, for 8 to 12 s, unable to take anyone inside as a target; then the night's hearing turns it back and it comes
+  again (`LightWards.prowl`). Animals that are angry, aggressive or pursuing a target
+  (Naturalist bears included) are blocked the same way; calm animals can enter again. Hostile natural spawns are
+  prevented inside; a hostile creature already inside when a chest is placed is moved to clear ground outside.
+  Players, friendly tamed pets, calm farm animals, friendly Dragon echoes, summons and thralls pass
+  freely. One cached mesh/render anchor per loaded chest avoids particle swarms.
+- **Torchlit inside, black outside** (owner, 2026-11-16: "bright inside, glow by shader"). Every block and creature
+  inside the dome's sphere reads as light 14 on each client (`WardGlow`), with an exact edge at the wall, so the night
+  beyond stays black and a small ward is as bright as a big one. A mixin on the client world's block `LightEngine`
+  answers both read paths: `getLightValue` (vanilla terrain and every entity) and `getDataLayerData` (Sodium copies
+  whole section layers). The sections around a ward rebuild when it appears, moves or grows. The server still keeps
+  its dim fill lights (level = blocks left to the wall), which also stop natural spawns; only their look is replaced.
+- **The threshold** (owner, 2026-11-15; 2026-11-16: five times longer, both ways, day and night): crossing the dome
+  is never seamless. Walking out, its light holds you like warm syrup for **5 seconds** (sprinting tears it twice as
+  fast, owner 2026-11-16) (you barely advance while gold
+  creeps in from the screen's edges), then it tears and you break free. Walking in meets the same membrane for the
+  same time. **Walking in, the ward pulls you in** (owner, 2026-11-23: from a mine shaft below, its wall held you
+  off the stairs): touching the membrane from outside flashes gold and draws you toward its centre. At night,
+  outside, a slow heartbeat sounds (no darkened screen and no red pulse: owner, 2026-11-23), and
+  dark rain runs down the screen (owner, 2026-11-17: dark raindrops, not small dots): near-black beads that streak
+  downward, a new one about every two thirds of a second, at most seven (owner, 2026-11-23: half). Coming home at
+  night plays a
+  soft chime. Client-side (`WardThreshold`); other dimensions, spectators, creative flight and riding are left alone.
+- **A sanctuary, not a firing position** (outside a Cleanse). Players inside cannot harm hostile creatures with melee, arrows, spells,
+  reflected hits or attacks by their pets and summons. Projectiles keep their inside-ward launch origin, so stepping
+  out after firing does not bypass it. Damaging spells refuse without spending mana. Step outside to
+  fight. Damage prevention is server-authoritative.
+- **Protection.** Hostile damage to creatures inside is rejected (the same hostility rule as the wall), and hostile
+  projectiles are intercepted at the boundary. Monster explosions skip protected positions when destroying blocks or
+  starting fires, including blasts from outside. Player-placed TNT keeps its ordinary block interaction.
+
+### Collection
+
+"Collect them all", for the Light. The chest is also storage: it keeps up to one stack of every catalogue item (a
+later copy only adds to that stack, same variant only), per player like an ender chest. The book has a tab per set
+with its reward, given items lit and the rest dimmed, the count kept shown on each, in a scrolling grid. Clicking an
+item opens it below the grid: Take 1, Take all (back into the inventory, dropped at your feet when full), Put in
+(every carried copy up to the stack), and how it is made, sent by the server from the recipe manager: crafting
+(shaped or any order), furnace / smoker / blast furnace / campfire, stonecutter, smithing, up to 8 ways with page
+arrows, tag ingredients cycling each second. Taking an item out, or breaking the chest, never un-gives it.
+
+**The catalogue must feel like collecting Minecraft, not collecting other mods.** It is curated from the original
+creative-tab ownership, so rejected block variants cannot slip back in through a second tab. **Never more than 999
+collectible items and exactly 10 collection sets, each named in one word**: check every addition, and get a new
+owner decision before exceeding either. Operator/technical items, spawn eggs and the Chest of Light itself are
+excluded. It has **937 items in ten sets** (measured by the self-test after the restore): Materials 43, Treasures 54, Home 61, Earth 99, Plants 142, Tools 166, Combat 73, Food 69, Ingredients 131 and Lightborn 99. Counts
+vary with the installed pack.
+
+**The ten sets**, in tab order: **Materials, Treasures, Home, Earth, Plants, Tools, Combat, Food, Ingredients,
+Lightborn.** Earth and Plants split the Natural Blocks creative tab: logs, leaves, saplings, flowers, crops, seeds,
+mushrooms, vines, coral, moss, cacti, bamboo, pumpkins, melons and other growing things are Plants; stone, ores,
+dirt, sand, gravel, ice, terrain and the rest are Earth (grass block and nylium count as Earth).
+
+**Retired groups.** Building Blocks, Colored Blocks, Redstone Blocks and Functional Blocks are not collection
+sets: their items are boring to collect, too niche, or merely variants of one item. Do not refill the catalogue with
+those decorative or technical families. Stairs, slabs, walls, waxed/oxidized copper variants, colour variants and
+damaged/chipped anvils stay out. The excluded items still exist in Minecraft; they are only not collectible. A few
+named survivors come back from them (owner's picks): **bricks, glass, quartz pillar, end stone / nether / red nether /
+mud / resin bricks and the 16 glazed terracottas** (Materials), **TNT** (Combat), **rail, lever, piston, sticky piston,
+slime block and honey block** (Tools), and **one red bed, one white banner, one plain shulker box, lantern, barrel,
+iron chain, iron bars, one oak shelf, armour stand and end crystal** (Home). Three hand-picked sets:
+
+- **Materials**: mineral storage blocks (coal, iron/raw iron, copper/raw copper, gold/raw gold, redstone, lapis,
+  emerald, diamond, netherite, amethyst and quartz), redstone dust, end stone, every plain plank type, full
+  sandstone/red-sandstone variants, prismarine, dark prismarine and prismarine bricks, bricks, glass, quartz
+  pillar, end stone / nether / red nether / mud / resin bricks and the 16 glazed terracottas.
+- **Treasures**: mob skulls and heads (Lightborn's boss heads stay in Lightborn), Mutant Monsters' non-wearable drops,
+  dedicated enemy loot (bone, rotten flesh, spider eye, string, gunpowder, arrow, ender pearl, blaze rod, breeze
+  rod, magma cream, slime ball, ghast tear, prismarine shard and crystals, sponge, wet sponge, shulker shell, phantom
+  membrane, nautilus shell, nether star, totem of undying, dragon's breath), and rare finds: echo shard, heart of the
+  sea, trial key, ominous trial key, ominous bottle, heavy core, disc fragment, goat horn, dragon egg, rabbit's foot,
+  armadillo and turtle scutes, ink sac and glow ink sac.
+- **Home**: every candle and torch; crafting table, stonecutter, furnace, blast furnace, smoker,
+  smithing/cartography/fletching tables, loom, grindstone, enchanting table, brewing stand and crafter; redstone lamp,
+  bell, bear plush, eye of ender, ender chest, chest, red bed, white banner, shulker box, lantern, barrel, iron chain,
+  iron bars, oak shelf, armour stand, end crystal, lectern, bookshelf,
+  painting, item/glow item frame, flower/decorated pot, beehive, scaffolding, ladder, beacon, cauldron, jukebox, note
+  block, composter, the healthy anvil (one collectible), campfire and soul campfire.
+
+Ordinary food and equipment keep their useful subject groups.
+
+**Gifts.** A new gift's tooltip says "New for the Light" in gold, in inventories and other item views. Give all new
+deposits one of each new carried item that fits, through the same rules as single gifts, then opens an **Unlocked**
+window over the book listing everything just given (scrolling when long) until it is closed. Donation feedback shows the
+affected subgroup's x/x rather than the global total; bulk gifts report each group they changed. Every first gift pays one Spark. Repeated deposits and withdrawals never pay again.
+
+**Set bonuses.** Stat-bearing sets pay at each 25%. Bonuses are whole numbers, except life regeneration at 0.2/s per
+quarter, shown with one decimal.
+
+| Set | Each 25% | Full-set reward |
+|---|---|---|
+| Materials | Collection progress only | No stat bonus |
+| Treasures | +5% Cooldown Speed | +20% Cooldown Speed |
+| Home | Collection progress only | No stat bonus |
+| Earth | +1 Max Health | +4 Max Health |
+| Plants | +5% Item Rarity | +20% Item Rarity |
+| Tools | +10% Mining Speed | +40% Mining Speed |
+| Combat | +10% Attack Damage | +40% Attack Damage |
+| Food | +0.2/s Life Regeneration | +0.8/s Life Regeneration |
+| Ingredients | +20% Spell Damage | +80% Spell Damage |
+| Lightborn | +20 Max Mana | +80 Max Mana |
+
+The reward panel shows the next unearned quarter, its actual added bonus and the cumulative total after it, rather
+than merely the full-set prize. There is no generic footer help text.
+
+### The Light
+
+Completing all ten sets makes the player the Light, with no extra stat prize. A level-15 vanilla Light block
+follows their head, with the chest's motes around them. It preserves the original air or water, shares a source when
+completed players overlap, and removes the source when the player dies, logs out or changes dimension. Cleanup data
+save in the same chunk as the temporary block, and stale sources clear when their chunk loads. Other blocks the player
+places over a source are preserved.
+
+The completion grants the Dragon's closing words, The Light, with wording for the world's ending, and a title once.
+The earned light remains yours when later catalogue changes add more items. There is no Bestiary: no Lightborn
+advancement tab, family entries or automatic kill unlocks.
+
+### Sparks
+
+**Sparks** (`lightborn:spark`, a four-rayed gold glint) are the Light's own currency, the small change of his light.
+The shop takes nothing else. **Villagers and wandering traders deal in Sparks too** (owner, 2026-11-17): every
+emerald a trade asks or pays is the same number of Sparks, so selling to a villager earns Sparks and buying from one
+spends them (`VillagerSparksMixin`, rewriting offers as they are read, so old villagers change over as well). A Spark is itself a collectible Lightborn item. Sources (amounts in `Balance.java`):
+
+| Source | Sparks |
+|---|---|
+| The Dragon's Big Quest, once | 8 (Neutral and Guarded quests add 12 more) |
+| A nightly errand | 3 |
+| A gift's return gift (sometimes) | 2 |
+| First gift of each kind to the collection | 1 |
+| Any boss / a named boss | 3 / 8 |
+| Clearing a Cleanse | 2 per cache item (8 to 26) |
+| Surviving a Cleanse to dawn | 3 |
+| A dawn refugee with no place left to show | 8 |
+| Breaking a Dark Fountain | 7 to 25, rising with its stage |
+| Catching a Light Butterfly | 1; 2 one time in four; 3 one time in eight |
+| Monster kills not from a spawner | By the monster's tier: 1; 2-3; 5; 10; 25 (owner, 2026-11-20) |
+
+Sparks kept in the Chest of Light's storage count everywhere the chest spends them, and are spent before the
+carried ones. Sparks buy the daily shop's wares, spell upgrade tiers (10 / 25 / 50), spirit ranks (10 / 20 / 40 /
+80), the book's third to fifth slots (20 / 40 / 100), the ward's five steps (20 / 40 / 80 / 150 / 250) and moving
+home (25).
+
+### Light Butterflies
+
+**Light Butterflies** (owner, 2026-11-23: "add light butterflies; hitting them gives 1 (always at least) to 3 (rare)
+sparks"; day and night; `LightButterfly`). Small butterflies of living light: two gold-and-white wings with teal rims
+and eyespots, hinged on a dark body and beating fast, drawn full-bright so they glow by day and night, trailing tiny
+motes (`tools/make_butterfly.py`, `LightButterflyRenderer`). Each minute one appears 12 to 28 blocks off over open
+ground near each player in the Overworld, while none is within 48 (owner, 2026-11-23: "make it 1 each minute").
+It drifts 1 to 4 blocks over the ground and darts away from anyone within 5. **One blow from a player catches it**: it
+bursts into light with a chime and leaves 1 Spark, 2 one time in four, 3 one time in eight, and nothing else. It
+fades on its own after 3 minutes.
+
+### Light's daily shop
+
+The blue Shop tab sells six offers for Sparks in three rows, read left to right: **one tome, one rolled staff, one
+drop (amethyst shards or Dark Shards), one exotic item, a map to a notable structure, then one exotic food** (owner,
+2026-11-16: the armour piece and the second exotic item are gone). The fourth row is the **ward card**: the ward's
+size, the next size and price, a pip per size bought, and the Upgrade ward button. The
+food is always raw, never cooked, unless it only exists cooked (golden foods). Each Buy button spans its card and carries the price ("Buy · 12 Sparks", "Take · Free"); the ward card's
+button reads "Upgrade ward · 40 Sparks", and its line reads "Next: 18 blocks" (owner, 2026-11-17: no step count). The Buy
+text is blue. The world seed and Minecraft day determine the roster. It refreshes at dawn; the tab's one line of text says
+"New wares every dawn" (owner, 2026-11-16: no title, week, countdown or Spark count). Every card prefixes its name with the bundle quantity. The price pays for
+that entire bundle, not one item from it. There are no stock limits or sold-out states; repeat purchases need payment
+and inventory room each time. **Nothing is level-gated** (owner, 2026-11-16): every ware sells to anyone with the
+Sparks. The server validates the chest, distance, day, offer, price and capacity before
+transferring anything.
+
+Shop wares grow with world age every seven Minecraft days (the world's age, not the player's: anyone can buy them).
+The staff's material is capped by the ore the buyer has mined, the same rule as dropped gear ([Loot](#7-loot);
+owner, 2026-11-17): before the first diamond ore a week-3 staff comes in iron, before the first ancient debris a
+week-4 staff in diamond. Iron is the floor, since week 1 sells an iron staff to everyone. The rarity and the price
+stay the week's, and the capped staff rolls from its own seed, so the other wares never shift:
+
+| Week | Staff | Tome tiers (band, `Spell.shopTier`) | Drop slot |
+|---|---|---|---|
+| 1 | Unrolled Apprentice, +15% Spell Power, no affixes/specialist | tier 1 (1) | 8 amethyst shards |
+| 2 | Uncommon Iron | tier 2 (5) | Dark Shard |
+| 3 | Uncommon Diamond | tier 3 (10) | Dark Shard |
+| 4 | Rare Netherite | tiers 4 and 5 (15, 20) | Larger Dark Shard bundles |
+| 5 | Legendary Netherite | tiers 3 to 5 (10 to 20) | Larger Dark Shard bundles |
+| 6 onward | Legendary Netherite | tiers 3 to 5 (10 to 20) | Up to 4 Dark Shards |
+
+Netherite is the top tier (owner, 2026-11-16), so from week 5 the staff stops climbing in material and is Legendary
+instead; its price stays at week 5's.
+
+The map leads to the nearest such place nobody has mapped yet: a Woodland Mansion, Ocean Monument, Trial Chambers,
+Ancient City, Jungle Temple, Witch Hut, Desert Pyramid or Buried Treasure. The exotic item slot rotates daily through
+vanilla curios (Nature's Compass is removed, owner, 2026-11-16). Free in that slot: a lost Light Key while a chosen fight with the Dragon is still unwon (it is the way back into his prison), and a lost Light gift once he has fallen (the Dragon is gone and cannot replace it).
+
+### Move Your Home
+
+The Travel tab's first section (owner, 2026-11-15). For a flat **25 Sparks** (owner, 2026-11-16) the Light lifts everything inside the
+ward (house, farm, animals, and the people standing in it) and sets it down at **completely random coordinates** in
+the Overworld: at least 2,000 blocks away and at most 1,000,000 out (beyond that the game's own rendering starts to
+shake), inside the world border, **on any land at all** (owner, 2026-11-17: really lax): mountain, swamp, river bank
+or odd biome, any height and slope; only a spot whose middle or most of whose footprint lies under water, or an ocean,
+is refused. The plug brings its own ground, so where the land falls away it hangs over it, and **anything in the way is
+erased**: everything over the plug's top inside the ward's circle goes. **The old home's Dark Fountains end** (each core
+crumbles and its land heals once its chunk loads, `nest_ceased`) and **ten new ones rise round the new place** as for
+a new home. The Travel tab says so. The site search samples terrain heights from the generator without building chunks; the
+chunks at the far end are force-loaded and the move waits for them, so a far, ungenerated site never freezes the
+server. Paying is instant and loud (owner, 2026-11-16: the purchase must obviously go through): the book closes, a
+chime and an amethyst ring play, a chat line says "-25 Sparks. The Light is lifting your home…", motes burst and a
+lifting overlay with a low beacon hum repeats while the site search runs (a few candidates a tick); if no site turns
+up the Sparks come back. The landing is a double **dadoom**: a mace thud, then a heavy mace slam with an explosion
+and an anvil's clang, under a burst of cloud. No title card.
+
+The move is a plug: every block in a cylinder of the ward's radius, from 4 blocks below the chest up to the dome's top,
+block entities and contents included, nothing dropped. The old site is closed with dirt and a grass top where the
+ground was. Ward ownership, its glow and dragons follow; creatures and players inside arrive in
+the same places with Slow Falling. The world spawn moves when the home is the spawn hut, and online players' respawn
+points inside move with it (an offline player's bed inside a moved home keeps its old respawn point). Only the
+chest's owner may move it, only in the Overworld, never during a Cleanse or a Dragon flight. The button needs two
+clicks.
+
+### Travel: Fly by Dragon
+
+The world reaches 6,000 blocks and no 26.3 travel mod fits, so the Travel tab calls the Light Dragon to fly the player
+**from the chest to a notable structure** (owner, 2026-11-16). Ten sites, two columns of buttons, each
+priced per trip and paid at boarding (when he picks the player up), with a chat line. **Each Cleanse won opens one
+more destination**, easiest to find first (owner, 2026-11-17; `ChestTravel.cleansesFor`, counted from
+`HUNTS_CLEARED`): a locked button is greyed with a padlock drawn on its right, reads the Cleanses it needs, and its
+tooltip says how many the player has won; the server refuses a locked flight. Every label fits its button: the price
+shortens to "30✦", then the name stands alone.
+
+| Site | Sparks | Opens after |
+|---|---|---|
+| Village | 8 | 1 Cleanse |
+| Witch Hut, Igloo | 10 | 2, 3 |
+| Desert Pyramid, Jungle Temple, Pillager Outpost | 12 | 4, 5, 6 |
+| Trial Chambers | 20 | 7 |
+| Woodland Mansion, Ancient City | 30 | 8, 9 |
+| Scale's Fortress (from chapter 6) | 40 | 10 |
+
+**From chapter 8 the Ancient City button flies to the prison city** the Dragon's Scale points at (its gate, else the
+city), not the nearest unexplored one. **Scale's Fortress** flies into the Nether, to the fortress the Scale points
+at (`DragonStory.scaleFortress`; refused before chapter 6): the flight climbs into the cloud veil as a long trip does,
+and deep in the veil the Dragon dives through and sets the rider down on the fortress's nether-brick bridges or halls
+(the nearest within 32 blocks, else any safe pocket there; the Nether's roof makes the surface search useless).
+
+He takes the player to **the nearest one not yet explored** (`findNearestMapStructure`, the same search explorer
+maps use), and lands on safe standing ground beside it (a spiral search within 24 blocks; underground sites such as
+Trial Chambers and the Ancient City land on the surface above, which their buttons' tooltips say). A button is
+active only with the price in hand. Flights start from the Overworld only. Each site is a structure tag,
+`data/lightborn/tags/worldgen/structure/travel/<id>.json`.
+
+Choosing a site calls him: he swoops down to the chest (about 3 seconds, cancelled if the player takes damage),
+picks the player up in his claws and **flies them there over the real terrain**, then sets them down beside the
+site and leaves. For a flight he appears by day too. He flies at about 30 blocks a second
+(elytra-with-rockets speed, which the game and Sodium already handle) about 40 blocks above the ground; the camera
+follows from behind; the rider cannot take damage, use or drop items, or dismount. A trip longer than about 20
+seconds climbs above the clouds after take-off, crosses the middle under a bright cloud veil and descends for the
+final stretch, so no flight lasts more than about 30 seconds and the server never generates a 6,000-block corridor of
+new chunks.
+
+A flight costs its Sparks and nothing else, never mana. It is refused during the player's
+Cleanse and within 10 seconds of taking damage. An obstructed landing is searched again for safe ground on arrival;
+disconnects restore a safe landing, and a saved recovery position covers an interrupted process. Co-op players are
+each carried by their own echo. After the endings: freed and befriended, he keeps carrying; if the player took his
+power, they fly the same route themselves in Dragon Form, without spending its cooldown. Travel adds 0 items.
+
+## 4. Sparks and gear: no levels
 
 There are no levels and no experience (owner, 2026-11-16). A character grows only through **gear** and what
 **Sparks** buy; Sparks are the one economy.
 
-- **Power has two sources.** Gear: rolled staffs, weapons and armour, their rarity and affixes ([Loot](#13-loot)).
-  Sparks: [spell upgrades](#4-spell-upgrades), Book of Souls ranks and slots, ward steps and the Chest of Light's
+- **Power has two sources.** Gear: rolled staffs, weapons and armour, their rarity and affixes ([Loot](#7-loot)).
+  Sparks: [spell upgrades](#6-spell-upgrades), Book of Souls ranks and slots, ward steps and the Chest of Light's
   [shop](#lights-daily-shop). Nothing waits on progress: every shop ware sells from day one to anyone with the Sparks.
 - **No experience exists.** No kill, ore, smelt, trade, breeding, fishing, bottle, spell or dragon gives points;
   experience orbs never spawn. Vanilla's green bar and number are hidden and `/xp` does nothing. There is no peaceful
@@ -129,7 +541,7 @@ There are no levels and no experience (owner, 2026-11-16). A character grows onl
   many burned and how many lie there. Sparks stored in the Chest of Light are safe. This holds with or without
   keep-inventory; without it vanilla drops the rest of the inventory as usual.
 
-## 3. Spells and tomes
+## 5. Spells and tomes
 
 A burst mage, plus defence, farming and mining. Every spell keeps its own fun, varied identity, and the per-spell
 numbers in the tables below are the owner's retunes.
@@ -220,12 +632,12 @@ Two rules (owner, 2026-11-18), held by the self-test (`tome_recipes_fill_nine_by
 charges, Ice Nova blue ice and 2 snowballs, Homeward a compass, an ender pearl and any bed, the Book of Souls 2 soul
 sand and a bone, Comet 2 magma blocks, a blaze rod and a fire charge, and so on).
 
-Mana 100, plus the staff's own Max Mana and its rarity line ([Loot](#13-loot)), regen 5.6 per second (owner, 2026-11-18: doubled; a full starting bar takes about 18 s). In creative mode the bar is always full (owner, 2026-11-18). The bar sits above the hearts.
+Mana 100, plus the staff's own Max Mana and its rarity line ([Loot](#7-loot)), regen 5.6 per second (owner, 2026-11-18: doubled; a full starting bar takes about 18 s). In creative mode the bar is always full (owner, 2026-11-18). The bar sits above the hearts.
 Natural recharge reaches exactly the maximum, never a near-full float, and full and empty endpoints save exactly, so
 Homeward can spend its full 100 after ordinary regeneration. Dying and respawning restore mana to the current
 maximum. The Simple Staff adds no mana, so a new character starts at exactly 100. Damage = base x 0.5
 (`Balance.SPELL_DAMAGE`) x Spell Power, can crit (5% base, x3; owner, 2026-11-17: weapons crit the same way,
-see [Crits](#crits)). Spell damage is
+see the weapon crits in [Light gear](#light-gear-the-dragons-gifts)). Spell damage is
 magic: it ignores armour. Every spell, area ones included, hits any creature (monsters and animals alike) except
 players, villagers, armour stands, tamed pets and your own thralls. Spell hits ignore the hurt cooldown, so
 two spells landing together both count in full (26.3 keeps it in `LivingEntity.damageCooldownTime`; `Spells.hit`
@@ -648,25 +1060,6 @@ keyed to vanilla's synced frozen ticks, so powder snow frosts a mob the same way
 
 Doom's Frostbite curse frostbites for the whole doom.
 
-### Spells to add: Path of Exile 2 parity (to-do)
-
-The owner's list (2026-11-23), after comparing Lightborn with Path of Exile 2's classic spells. Not built yet; each
-needs a design pass (school, tier, numbers, three upgrade tiers) before it is added. Lightborn already covers Fireball,
-Ice Nova, Arc, Ball Lightning, Comet, Essence Drain, Contagion, Bone Cage (Cage), Enfeeble (Weaken), minions (Book of
-Souls) and the wolf and bear shapeshifts.
-
-| Spell | In Path of Exile 2 | Likely school |
-|---|---|---|
-| Incinerate | a held cone of fire that grows hotter the longer it is channelled | Fire |
-| Frost Bomb | a slow orb that pulses cold and bursts | Frost |
-| Flame Wall | a wall of fire; shots passing through it burn | Fire |
-| Spark | a spray of erratic sparks that bounce along the ground | Storm |
-| Eye of Winter | a seeking eye that sprays frost shards as it flies | Frost |
-| Ember Fusillade | a volley of embers held over you, then fired together | Fire |
-| Bonestorm | bone spikes gathered while held, then flung | Hex |
-| Orb of Storms | a lingering orb that strikes monsters near it with lightning | Storm |
-| Frostbolt | a slow piercing bolt of ice that chills | Frost |
-
 ### Deleted spells: never bring back
 
 The owner deleted these; **never re-add them, under their name or another, and never reuse their names** (owner,
@@ -773,7 +1166,7 @@ Looking
 at a monster shows no extra panel (no level, name or health readout under the crosshair). Damage numbers float up from
 every hit you land (gold and bigger on a crit).
 
-## 4. Spell upgrades
+## 6. Spell upgrades
 
 The passive skill tree is gone (owner, 2026-11-15): upgrades belong to spells, never to the character. There are no
 stat nodes and no keystones; Command capacity comes from the Book of Souls
@@ -870,937 +1263,7 @@ Upgrades are written on the tome (`lightborn_upgrades` in use, `lightborn_upgrad
 it: a dropped or traded tome keeps them, and a lost tome loses the Sparks spent on it. A tome's tooltip shows the
 upgraded mana, cooldown and power and lists the branches in use, without tier or price.
 
-## 5. Monsters
-
-- **Monsters have no levels** (owner, 2026-11-16): each kind keeps its own natural health and damage, so a zombie is
-  always a weak zombie and a mutant always a mutant, wherever and whenever it appears. A boss is the one exception: x14 health
-  and x1.8 damage on its body's own stats ([Bosses](#6-bosses)).
-- **No champions and no name banners.** Several kinds of zombie roam instead, each with its trait built in (below).
-  No monster wears a name banner, bosses included: a boss's name is on its boss bar.
-- **More monsters at night.** The Overworld's normal hostile spawning budget rises from **70 to 105** at night, with
-  matching global and local caps, through the existing natural spawn system (no second spawn loop). Mutants and other
-  heavy types get **eight times their normal spawn weight** within that budget (owner, 2026-11-15: four times the
-  earlier double), and every other companion-mod creature four times, so nights show mutants and exotics, not mostly
-  zombies, skeletons and spiders. Day spawning keeps its original budget, and
-  the ward stays safe.
-- **Zombies pound on doors but never break them.** A zombie that knows the player is behind a closed door pounds on
-  it, with sound and arm movement, at one-third of vanilla's knocking volume, on Normal too.
-- **Your own minions look like yours** (owner, 2026-11-16: no names over heads, and Light, not violet). Every thrall,
-  soul and summon is drawn lit from within (full light, day or night) with a warm light tint, and golden motes of
-  light drift around it. A player's attacks, projectiles and other minions never hurt their own minions.
-- **Glowing eyes at night.** Every zombie and skeleton kind, companion-mod variants and babies included, gets
-  full-bright eyes, and only the eyes (owner, 2026-11-16: no lit box or halo around them), through one shared eyes
-  layer (`UndeadEyes`): at night in the
-  Overworld, and always in the Dark and the Hollow; never by Overworld day. Each variant keeps its own eye colour: a
-  skin's own `_eyes` texture when it ships one, otherwise its pupils or dark sockets found in the face, otherwise the
-  vanilla eye spots. Bodies keep normal lighting; eyes light no blocks and draw no outline. They shine the same
-  inside and outside a ward, so a zombie at the dome's wall in black night shows only its eyes.
-- **Sparks**: **every player kill of a monster pays Sparks by its tier** (owner, 2026-11-20;
-  [the five tiers](#the-five-tiers)): tier 1 one, tier 2 two or three, tier 3 five, tier 4 ten, tier 5 twenty-five; a
-  kind the Book of Souls does not list counts as tier 1, an unlisted giant as tier 3 (`Lightborn.killSparks`,
-  `Balance.KILL_SPARKS_MIN/MAX`). Bosses pay their boss Sparks on top. A tier 3 kind and up also drops at least one
-  rolled item every time (owner, 2026-11-17); before any ore is mined that item is the first tier. Spawner monsters
-  still pay nothing.
-- **Heavy** monsters (base health 80+: the mutants, the Wildfire, vanilla bosses) never get a Lightborn
-  boss promotion. Companion monsters get loot like any monster, and their natural spawns respect the
-  [Chest of Light ward](#the-ward).
-- **More zombies, in four kinds** (`ModEntities.java`): every biome that already spawns zombies gets, on
-  top of vanilla's zombie (weight 95): another plain zombie entry 95 (packs of 4), darkness zombies 95 (2 to 4),
-  vampire zombies 60 (1 to 3) and giant zombies 35 (alone). About 40% of monster spawns there are zombies instead of
-  about 18%: half plain, a quarter darkness, a sixth vampire, a tenth giant. Each kind is a zombie in everything
-  else (burns by day, drops, turns villagers, calls its own kind for help on Hard).
-
-  | Kind | Look | Trait |
-  |---|---|---|
-  | Darkness (`lightborn:darkness_zombie`) | ash-black to dusk violet, glowing violet eyes, thin smoke | each hit it lands slows you (Slowness II, 3 s) |
-  | Vampire (`lightborn:vampire_zombie`) | grave-pale skin, blood-red shirt, black trousers, glowing red eyes | each hit heals it by 40% of the damage (dark-red hearts show it feed) |
-  | Giant (`lightborn:giant_zombie`) | 2x size (about 4 blocks: cannot pass a door), moss-grey skin, leather-brown rags, amber eyes | 60 HP (3x), hits 4.5 (1.5x), slower (0.19 vs 0.23), 60% knockback resistance, steps up whole blocks; never a baby, never calls giants, never becomes a drowned. Pays like the old champions: always 1 item (+25% x Item Find a second) and 25% a tome |
-
-  Melee hits only carry the traits. Each kind sounds its own: giants a deep slow groan and an iron golem's heavy
-  tread, vampires higher with a hiss in their idle sounds and a bite on every hit, darkness zombies low and muffled.
-- **A giant of every vanilla night monster** (owner, 2026-11-17; `Giants.java`): skeleton, stray, bogged, parched,
-  husk, drowned, spider, cave spider, creeper, enderman and witch, beside the Giant Zombie. Each is its vanilla kind
-  with vanilla's skin, twice its size (the cave spider three times; owner, 2026-11-17), the size being the entity's
-  real hitbox; 3x its kind's health and 1.5x its hit, slower, 60% knockback resistance, steps up whole blocks, a low
-  loud voice. Skeleton giants' arrows hit 50% harder; the giant creeper's blast is radius 6, twice vanilla's 3. The
-  husk and drowned giants are never babies and never call help. They spawn alone wherever their kind does, at about a
-  tenth of its weight (skeleton, stray, husk, spider 8; creeper 6; bogged, parched, drowned 4; enderman, Overworld only,
-  and witch 2); the giant cave spider spawns anywhere in the Overworld below y 40 (6). They pay, count for Command and
-  roll ore tiers as giants, each has a Book of Souls page (tier 3; the Giant Enderman tier 4) and a spawn egg in its
-  vanilla kind's colours.
-- **The Dark Phantom** (owner, 2026-11-17; `DarkPhantom.java`): a phantom of the dark, black with a violet sheen and
-  dim milky eyes (`tools/make_dark_phantom.py`), with a voice of its own: clicks and a low cry, a deep wingbeat, a
-  heavier swoop, and an angry listening call when it finds you (vanilla recordings pitched, `NightSounds`). At night a
-  few circle every ward that has a player within 160 blocks, 14 blocks past its edge and 22 over the ground (two in the
-  first week, one more a week, up to six), and now and then one drifts over the wilds 40 blocks from a player far from
-  any ward. **It is blind and hunts by ear**: it never targets by sight. Every game event a player causes adds noise
-  (a step 0.4, sprinting 1.2, breaking a block or shooting 3, placing, splashing or landing hard 1.5, a blow 2, other
-  sounds 0.5, an explosion within 32 blocks 20), crouching quiets everything to a quarter, and the noise fades with a
-  half-life of about two seconds. A phantom within 48 blocks (owner, 2026-11-23: a quarter less) that hears more than 6 (scaled up with distance) clicks
-  and dives at that player, and keeps on while the noise goes on; **five quiet seconds** (owner, 2026-11-18), or the
-  player inside a ward, and it loses them. A Dark Phantom raised as a spirit serves its master and neither listens nor
-  circles. Hitting one always gives you away. **At dawn it vanishes in smoke**, a night slept through included (owner, 2026-11-20: they lingered over the ward
-after a night in bed; `dark_phantoms_vanish_by_day`); a Book of Souls spirit phantom stays. Its bite deals a quarter less than a vanilla phantom's (owner, 2026-11-23). Vanilla phantom drops.
-- **Skeleton and spider kinds**: wherever a biome spawns skeletons or spiders, each entry splits 55% plain, 25% and
-  20% the two kinds (`ModEntities.splitWeight`), same total and pack sizes, so there are no more of them than before,
-  only variety.
-
-  | Kind | Look | Trait |
-  |---|---|---|
-  | Ember skeleton (`lightborn:ember_skeleton`) | charred bone with glowing cracks, orange eyes, flame flecks and smoke | its arrows burn (5 s alight) |
-  | Deadeye skeleton (`lightborn:deadeye_skeleton`) | ash-blue bone, cyan eyes | aims true (spread 1 against vanilla's 6 to 10), arrows half as hard again, spots you from 24 blocks (16) |
-  | Weaver spider (`lightborn:weaver_spider`) | pale silk, violet eyes | its bite spins a cobweb at your feet (into air only), gone after 3 s |
-  | Hunter spider (`lightborn:hunter_spider`) | ochre and brown bands, amber eyes | quicker (0.36 vs 0.3) and pounces: prey 4 to 10 blocks off and in sight, it leaps the gap, every 3 s at most |
-
-- **Merged kinds** (owner, 2026-11-15): two monsters grown from two others.
-
-  | Kind | Where | Look and trait |
-  |---|---|---|
-  | Bat zombie (`lightborn:bat_zombie`) | caves only: below Y 40, never under open sky (weight 30, 1 to 3) | bigger than a bat, fur gone rotting green-grey, wings torn, eyes burning red. Flutters like a bat until it hears you, then dives in jerky swoops, bites and wheels away to come again. 12 health, hits 3, burns by day |
-
-### Regional monster kinds
-
-Six kinds tied to their biomes. They use the vanilla bodies and natural style of the original kinds, with their own
-skins, pitched voices, traits and spawn eggs. They replace 20% of the relevant remaining plain-species spawn weight
-rather than inflating every pool, preserving total weight and pack size. Dune Skeletons use the Parched share when a
-terrain pack's desert pool has no ordinary skeletons. Common desert/swamp tags include Terralith variants. Deep
-stalkers alter the native pool only below Y 0; above-ground spawning is unchanged. Every Lightborn variant keeps its
-vanilla body's ingredient drops.
-
-| Kind | Region | Trait |
-|---|---|---|
-| Frostbitten Zombie | Snowy biomes | Freezing touch and five seconds of Slowness II |
-| Mire Zombie | Swamps and mangrove swamps | Five seconds of Poison |
-| Dune Skeleton | Deserts and badlands | Arrows blind for two seconds |
-| Canopy Spider | Jungles | Leaps up, then dives onto its prey |
-| Deep Stalker Spider | Overworld caves below Y 0 | Invisible, including its eyes, until a player comes within six blocks |
-| Drowned Captain | Oceans | Always carries a trident; a successful hit pulls its victim toward it |
-
-## 6. Bosses
-
-Six named bosses, Risen by the Dark, use enlarged bodies of Lightborn monster kinds, the boss health multiplier, and
-individual moves. Their health bars carry their names. At half health they enrage, move faster, and shorten the
-interval between abilities. A seventh, Orvane the Last Scribe, belongs to the story and never comes with a
-Cleanse ([The Dragon's Tale](#orvane-the-last-scribe)).
-
-| Boss | Body | Moves | Trophy |
-|---|---|---|---|
-| Gorath the Unbroken | giant zombie | Ground Slam, Boulder Toss with a 3-block impact, one giant and 15% less damage taken after enrage. Nerfed (owner, 2026-11-15: far too tanky): his health counts 28 base (his giant body has 50) | Unbroken Plate stops knockback and gives Stoneskin on a hit once every 20 seconds |
-| Vexmora, Bonecaller | deadeye skeleton | Five-arrow Volley, Raise Dead with three skeleton kinds, three-second Bone Cage of damaging spikes | Bonecaller's Staff raises a skeleton thrall for 30 seconds on 15% of credited kills |
-| Maelis the Weaver | weaver spider | Four-block Web Burst with webs that last four seconds, Pounce, Brood of four cave spiders | No trophy of its own (owner, 2026-11-17): a legendary piece of gear drops in its place; walking through webs is the boots' Web Walker node now |
-| Syrith the Undying | vampire zombie | A visible Drain tether, Mist Step behind the target, one revival at 40% health | No trophy of its own (owner, 2026-11-17): a legendary piece of gear drops in its place |
-| Ozrik Ashbringer | ember skeleton | Fire Nova, Meteor with the player's ground warning and falling rock, Burning Trail that leaves dangerous ground behind him | Ashbringer gives +60% Spell Power and 25% more Fireball and Comet damage |
-| Nyx, Herald of the Dark Moon | darkness zombie | Six seconds of Darkness, three one-hit shadow copies, Gravity Well | No trophy of its own (owner, 2026-11-22: Eclipse became an ordinary Legendary tome): a legendary piece of gear drops in its place |
-
-- **Who comes.** A Cleanse fed 6 or more shards ends with one boss after its wave: the caller's grudge if one is
-  owed, else a random named boss. Boss Sigils are gone (owner, 2026-11-16): a boss is called with shards, or met in
-  the wild. The 0.2% wild boss roll uses a named body where it
-  fits.
-- **Strength.** Every boss, named or wild, has x14 its body's health and x1.8 its damage, fixed by kind, never by
-  where or when it appears (owner, 2026-11-16).
-- **Grudge.** A boss that kills you comes back as the boss of your next boss Cleanse, as strong as before, with
-  "remembers you" on its bar. Its trophy is guaranteed. When several players share a Cleanse, the caller's grudge
-  comes and the others wait for their own.
-- **Rewards.** Every boss kill pays three rolled items, a Dark Shard and a tome, plus 3 Sparks; a named
-  boss adds 5 more. Your first credited kill of each named boss grants its trophy (25% after that) and its
-  **mounted head**: the boss's face, cut from its own skin and glowing eyes by `tools/make_heads.py`, on an oak and
-  ivory plaque (legendary beam; inventory fallback). Trophies and heads join the Chest of Light's Lightborn set, and a
-  head can be hung anywhere as decoration.
-- **Trophy details.** Bonecaller's
-  skeletons use the shared Command budget and are raised only when capacity is available.
-
-## 7. Moon nights and the Cleanse
-
-The Overworld sky phase drives an eight-night
-cycle of scouts. There are no scheduled Hunts, no Hunt Brazier and no Dark Moon countdown (owner, 2026-11-15): the
-night's big fight is the Cleanse, and the player calls it. The chest's Cleanse tab explains it (the guide is story
-only).
-
-| Phase | Night in a new world | Name | What comes |
-|---|---|---|---|
-| 5, 6, 7, 0 | 1, then 6 to 9 | Quiet | Ambient spawns |
-| 1, 2 | 2, 3 | Stirring | One scout pack per night |
-| 3 | 4 | The Eve | Three scout packs |
-| 4 | 5, 13, 21 ... | The Dark Moon | Ambient spawns; Dark Fountains grow a stage |
-
-- Scout packs have 2 to 3 zombies or 4 to 5 on the Eve. They arrive at staggered, randomized times, with a groan.
-  They spawn on dark surface ground 24 to 48 blocks away and chase from 64 blocks. Scouts skip players inside a ward
-  and players in a Cleanse. Player kills of scouts drop a Dark Shard 15% of the time.
-
-### The Cleanse
-
-The plot: dark shards are pieces of the dark, found in the world. Dissolving them in the Chest of Light burns them
-away, and the dark attacks whoever did it. The chest's violet **Cleanse** tab takes **1 to 10 shards** from the
-inventory and starts it: after dusk only, in the Overworld, at a chest that holds a ward, one Cleanse at a time.
-
-- **One continuous wave**, with no numbered waves or lulls: monsters keep coming from beyond the ward from two or
-  three directions until the whole wave has arrived. **Nine in ten of it down beats it** (owner, 2026-11-18;
-  `Balance.CLEANSE_BEATEN_SHARE`, rounded up): the boss comes, or the Cleanse ends and pays, and the last tenth stays
-  behind as ordinary monsters. Its size is `2 + 0.5 x (shards - 1)` Hunt waves of 8
-  monsters (16 at 1 shard, 52 at 10, solo); more shards bring more and tougher kinds, never stronger copies. The tab
-  and the boss bar show how many are left to fell.
-- **One boss at most.** From **6 shards**, a boss follows once the wave is beaten ([Bosses](#6-bosses)).
-- **The ward stops shielding.** While it runs, that chest's ward still shines and lights the ground, but monsters walk
-  in and the players inside may fight back. Players within 32 blocks of the ward's edge are in the fight; each extra
-  player adds half a wave.
-- Beds refuse during a Cleanse. A death pauses spawning for 15 seconds; the second death ends it for that player.
-  Moving the home is refused while it runs.
-- **Pay.** Clearing it drops a cache at the chest: `3 + shards` rolled items (an Uncommon first roll becomes Rare; from
-  8 shards the first is always Legendary; rarity +8% per extra shard), a tome and 2 Sparks per item. Dawn ends an unfinished Cleanse with 3 Sparks for surviving; fed
-  shards are never returned. A restart during the same night resumes it.
-- **Dark Shards** (`lightborn:dark_shard`): a quarter of structure chests hold 1 to 2, scouts drop them (15%), every
-  Lightborn boss drops one, Dark Fountains pay them, and the shop sells them from week 2.
-- **Shards are pieces of the Dark's soul** (owner, 2026-11-16: "like horcruxes"). The first time a player carries
-  one, a violet line says it is listening and to ask the Dragon; his menu then offers "I found a shard of something
-  dark.", and he explains: the Dark tore itself apart long ago and hid the pieces in its creatures so it could never
-  wholly die; each shard is a little of it still alive, it talks the more you carry, and the Cleanse burns it out
-  (`DarkShards`). Carrying **3 or more**, they whisper: an italic violet line over the hotbar ("Keep us. Keep us
-  close.", "Why burn what makes you strong?") with a soul's sigh only that player hears, about once a minute at 3
-  and every ten seconds at 10, but never while a Cleanse holds them (owner, 2026-11-17: they drowned the fight's own
-  lines); and the screen's edges darken in a slow, breathing violet-black that creeps in as
-  they are picked up and deepens with the count (`ShardWhisperView`).
-- **The dome scars.** As a Cleanse wears on, cracks run open across its ward's dome: two at the start, then more as
-  the wave falls, up to twelve. Each is a black rift in a soft black bruise (owner, 2026-11-17: black, not violet),
-  branching over the upper dome, with a glass crack sound. From dawn, with no Cleanse running, one crack closes every ten seconds in a flush of gold with a
-  chime (`LightWards.scar`, `WardAuraRenderer`; cosmetic, so a restart clears them).
-- **The Dragon is gone while it burns** (owner, 2026-11-17). While a Cleanse is fought at a ward, that ward's Dragon
-  fades away as he does at dawn, and returns when the Cleanse ends (`Cleanse.at`, `LightDragons.reconcile`).
-
-### Dark Fountains
-
-Places to farm for loot (Blight Nests, then Dark Nests, then **Dark Fountains**: owner, 2026-11-18, for the player only;
-the code still says nest and the block ids stay `lightborn:dark_nest`, `dark_growth` and `dark_goo`, so old worlds keep
-theirs). Owner, 2026-11-17: fountains have **no hold on the Cleanse**, and nothing is said in chat when one
-roots; the smoke is how a player finds them. **A home gets all its fountains from the first day** (owner,
-2026-11-17), planted one every five seconds so the far chunks they load never stall the server (`nest_seeded`).
-After that, **at the end of every night each owned home has
-a 1 in 2 chance to grow a new fountain**, up to **three per home** at once (owner, 2026-11-23: was eight; the
-Dark's roaming fountains already stop at three within 300 blocks of a player). A fountain roots on dry
-ground between **100 blocks past the ward's edge and 300 blocks from the chest** (owner, 2026-11-18), at least
-**150 blocks** from any other fountain (owner, 2026-11-18: was 100)
-(loaded ground first, then a few far chunks are loaded). It grows one stage per Dark Moon (to four), spreading
-creeping growth over open ground, 4.5 blocks a stage. **The land round it turns dark**, thickest near the core, in
-rings: soil turns to sculk at the heart, then mud, then mycelium, patchy coarse dirt at the edge; sand and gravel to
-soul sand and soul soil; bare stone (stone, granite, diorite, andesite, calcite, tuff) to blackstone at the heart
-and deepslate round it; **still water's surface to Dark Goo** (owner, 2026-11-18: "it turns to goo"), thick black-violet
-ooze that slows like honey, with the water beneath left as water; **grass withers**, dry and brown toward the edge,
-dead bushes toward the heart; a few flowers turn to wither roses and the rest die; snow melts away. **The trees die
-back** (owner, 2026-11-17: they stood untouched): near the heart most leaves fall, the rest turn ashen (pale oak
-leaves) and the trunks char to dark oak; further out the crowns go ashen in patches, and sculk veins creep over leaves
-and trunks. The creeping growth is a flat black ooze. The dark reaches **24, 34, 44 and 54 blocks** by stage (owner,
-2026-11-18: half again as wide). The land code is `DarkLand`; `DarkNests` decides when. **It is laid again whenever a player comes within 64 blocks** of a fountain whose dark
-is missing or smaller than its stage's reach (`nest_darkened`), so a fountain planted where the land did not take
-always catches up. Never inside a ward. **A dark fog covers the area**: inside it the fog closes to about 22
-blocks and turns near black, thickest at the core and thinning out six blocks past the dark's edge, easing in over a
-couple of seconds (`NestFogMixin`); dark motes drift low over the whole dark land (`NestSmokeView`), never light
-smoke, which reads as white cotton inside the fog.
-
-**The core is a huge dark shard, as tall as a person** (owner, 2026-11-17; 2026-11-18: wider and taller): the Dark
-Shard item's crystal grown huge, about 1.9 blocks tall at stage 1 and 2.8 at stage 4, its girth growing with it, tilted, with smaller shards breaking out round it as it grows (none, one, three,
-five) and a round pool of black ooze at its foot. Its faces are animated, a violet pulse climbing through near-black
-crystal, and it gives off a little light (`tools/make_dark_nest.py`). A block model stops at two blocks, so the crystal is an
-item display (`dark_crystal_N`, tags `lightborn_nest_crystal` and `_N`) scaled up over the core, kept one per loaded
-fountain by the fountain tick; the core block draws only the pool and stands a block and a half tall to hit. Darkness overflows it: black spills off its whole
-height and slides down and out, ink wells over the pool, and violet motes rise off the crystal. **It cannot be broken
-while its guards stand**: by day a player who reaches it first wakes them, any still alive glow so they can be found,
-and the message says how many are left; at night it has none. **A pickaxe cuts it** in one to five seconds by
-material; anything else takes half a minute, obsidian slow (strength 6, pickaxe-only tool; owner, 2026-11-17). **Breaking it heals the land** in a wave rolling out
-from the core over 15 seconds, out to 56 blocks: growth, sculk veins and dead bushes go, sculk, mycelium and coarse
-dirt turn back to grass (mud too, soul sand and soil back to sand), blackstone and deepslate to stone, goo to water,
-wither roses to poppies and withered grass to green, and a little grass and a few poppies spring up; the ashen trees
-stay, a scar; nothing is said in chat. **It is guarded by day,
-never at night**: once a day, when any player comes within 16 blocks of the core, its guards wake round it and go for
-that player: **4 to 6 in the first week, two more each week after, up to 14**, and **exactly one of them is a
-mutant**, never more (a giant when no mutant mod is installed; owner, 2026-11-17), and a real one: tier 3 or more,
-the Spitter and up (owner, 2026-11-18). The rest come from the fountain's own pools (below), never a mutant:
-tier 3 comes at half weight on a stage-1 fountain and tier 4 at a third, both at full weight from stage 3. **Tier 4 kinds
-guard fountains only from the second week and tier 5 from the third** (owner, 2026-11-18), the mutant included. **Guards stay until slain** (owner, 2026-11-23: at one fountain none appeared): they never despawn for distance or idleness, carry Spawn Animations' `ts.sa.exclude` tag so they stand up at once instead of digging up, and when all of a fountain's guards are gone though not all were slain, the next approach wakes a fresh set (`DarkNests.vanished`; how many woke and how many were slain is saved with the world, `nest_guards`, owner 2026-11-23). **Dying near a fountain resets its fight** (owner, 2026-11-17): within 64 blocks of a player's
-death the fountain's guards crumble and its day turn is given back, so the full guard wakes again on the next approach. Guards carry the `lightborn_nest_guard` tag, so the sun
-never burns them (`NestGuardSunMixin`), and at nightfall any still standing crumble to spores. Breaking the core clears the fountain and its growth and pays
-**7 to 25 Sparks, rising with its stage** (owner, 2026-11-23: 7 to 11 at stage 1, 12 to 16, 17 to 21, 21 to 25;
-`DarkNests.nestSparks`), `2 x stage` Dark Shards, `stage` rolled items (one Legendary from stage 3).
-
-**Each fountain fits its place** (owner, 2026-11-20). Where a kind may guard is its `guards` list in
-`lightborn/monsters.json`. An Overworld fountain draws on the 48 night kinds and the Overworld's own (Zombie Villager,
-Forgotten, Undead Warrior, Armored Spider, Executioner), and **about half its guards are its biome's own**, by the
-biome's conventional tags: **snowy** (and icy) the Stray, Nemo's and Mob Variants' snowy and frozen kinds, the Gelid
-and the Iceologer; **desert** (and badlands) the Husk, the Parched, the Explorer, the Sand Spider and the Scorched
-Creeper; **jungle** the Tropical Spider, the Verdant, the Thicket and the venomous kinds; **swamp** the Bogged, the
-slimes, the Murk, the Bloated Corpse and the venomous kinds; **coast** (beach, ocean, river) the Drowned and the
-Corsair; **forest and plains** (and taiga, savanna) the raiders: Pillager, Vindicator, Evoker, Illusioner. A biome in no
-group has night kinds only. **Never a guard:** a Nether or End kind in the Overworld, a world boss (Wither, Ender
-Dragon, Warden, Elder Guardian, Orvane, the Last Scribe), a mount, a water-only kind, vanilla's mindless Giant, or a
-summon or trick (Vex, Endersoul Clone, Creaking). The champion is a mutant from the pool when one is in season, else a
-tier 3 or stronger kind, else the strongest in season. The tier-by-week gate holds everywhere.
-
-**The Dark (the old Nether) has Dark Fountains too** (owner, 2026-11-20: "with their own respective enemies"; they
-are stronger, see [The Dark](#17-the-dark)); the Hollow (the old End) has none (owner, 2026-11-21, see
-[The Hollow](#18-the-hollow)). They are guarded by the Dark's own kinds only: the Nether's Piglins and Brutes, Hoglins and Zoglins, Wither Skeletons,
-Blazes, Ghasts, Magma Cubes, the Crimson and Warped Skeletons, Lava Slime, Soul Stealer, the infected and zombified
-Piglin kinds and the Wildfire (its champion a Brute, or the Wildfire from the second week), and the Dark's own
-kinds. With no home there, **they root round a roaming player**: while a player has fewer than **three within 300
-blocks**, one roots 100 to 300 blocks from them and 150 from any other, at most one a minute (`DarkNests.roam`). A
-fountain there stands on a cavern floor within 24 blocks of the player's height, never on the roof. With no night there, **their guards wake once a day at
-any hour** and never crumble; a new day's guard sends any of yesterday's still standing away first. They grow by the
-Overworld's Dark Moons like the rest. Their dark is **sculk at the heart and deepslate round it** over the dimension's
-own floor (netherrack, nylium, soul sand and soil, basalt, blackstone), the plants on it withering; neither
-block grows there on its own, so **the healing wave gives back the biome's own floor** (crimson or warped nylium, soul
-soil, basalt, netherrack) and never touches the dimension's own soul sand or blackstone. Each dimension keeps
-its own fountains (`dark_nests` on each level); the smoke shows in each.
-
-**Smoke over the fountain** (owner, 2026-11-17: like the home's light beam, so it can be found). A pillar of black smoke
-rises from every fountain core, day and night: about 150 blocks tall, a block and a half wide at the root and widening as
-it climbs, leaning with the wind, its billows rolling upward, fading out at the top; up close real campfire smoke
-boils off the core. The server tells each player the nearest ten fountains of their dimension within 768 blocks
-(`DarkNests.SMOKE`, synced per player); a fountain beyond the render distance stands on its true bearing at seven tenths
-of it, at the same apparent size (`NestSmokeView`, texture `tools/make_nest_smoke.py`).
-
-## 8. The Chest of Light
-
-The hub of the game: collection, storage, spell upgrades, the Cleanse, shop and travel. **A chest made of flowing
-light** (owner, 2026-11-16; motes of light; its own block light is 10, so it dies at the smallest ward's wall and the client glow lights the inside): every face is an animated, interpolated strip from
-`tools/make_textures.py` (`light_chest()`, which also writes the block model). Currents of white light stream up an
-amber body, two bright pulses run round the gilt rim and along the lid seam, the small suns on the sides and the lid's sun breathe,
-and the lid washes rings of light outward. Over the body sits a translucent shell: wisps of light rising up the sides
-and three spiral arms turning on the lid (26.x puts a sprite with translucent pixels in the translucent layer by
-itself, so no render-layer code exists). A broad outer light ring is supplemented with high room fill and symmetrical doorway
-fill. Only chest-owned sources are removed when it moves; temporary spell lights and player-placed blocks are
-preserved. Fixed source positions are reconciled with the ward, without scanning the world.
-
-**It is unique for now.** One chest stands at the back centre of the spawn hut. It has no crafting recipe and no
-shop, quest or loot source. **It cannot be broken, pushed or blown up** (owner, 2026-11-15; strength -1 like
-bedrock, immovable): a home moves whole, from the Travel tab ([Move Your Home](#move-your-home)). It cannot be donated to itself, so
-completion never asks the player to give away the only hub.
-
-**Opening and giving.** A plain right-click opens its book. **Ctrl + right-click** with an item gives one of it (the
-client reads Ctrl and asks the server); an ordinary click never donates by accident. Both live in the Collection
-tab's footer (owner, 2026-11-17: moved out of the tab column, smaller): a small Give all new button at its right and,
-beside it, one dim line scaled to fit: Ctrl + right-click the chest: give the held item.
-
-**One Sparks count** (owner, 2026-11-16): the chest's title bar shows the player's Sparks (carried plus stored) once,
-beside "Chest of Light", for every tab. No tab shows its own count.
-
-**Tabs.** Up to seven tabs in a column 90 px wide (owner, 2026-11-17: 40% slimmer), in this order: **Upgrade Spells (red), Upgrade Gear (pale gold, [Upgrade Gear](#upgrade-gear)),
-Cleanse (violet), Shop (blue), Travel (green), Spirits (purple), Collection (gold)**. **Four appear only as the game
-reaches them** (owner, 2026-11-18; `ChestTabs`, counts saved on the player and synced to them): the **Shop** after
-surviving one night (in the Overworld at nightfall and alive at dawn; joining mid-night or dying starts the watch
-over), the **Cleanse** after beating one Dark Fountain, **Travel** after beating eight, **Spirits** once the Book of
-Souls has been carried (loose or in a Spellstone). The server refuses a hidden tab's actions too. Creative players see
-all seven. A chest opens on the Shop once it is there, else on the Collection. Each tab is its own class
-(`CollectionScreen` keeps the frame, column and scrollbar; `UpgradeTab`, `CleanseTab`, `ShopTab`, `TravelTab`,
-`SpiritsTab`, `CollectionTab`, `UnlockedWindow`).
-**Upgrade Spells sees the tomes inside a carried Spellstone** (owner, 2026-11-18), each in its stone's place in the
-strip on a violet rim, and upgrades them where they sit (`Spellstone.tomeAt`). **Upgrade Gear groups its strip by
-kind** (owner, 2026-11-18: the staffs lay scattered): helms, chests, leggings, boots and so on together, each kind in
-carried order. **Double-clicking an item in the Collection takes what the chest keeps of it** into the bag (owner,
-2026-11-18). **An item no hand can make says where it is found** in the recipe's place (owner, 2026-11-18): a Lightborn
-item where the mod hands it out (dropped by monsters, by a named boss, a gift from the Dragon), anything else read from
-the loot tables, the mods' included: which monsters drop it, which blocks it is mined from, which chests hold it,
-fishing, bartering, brushing (`Sources`). **A button's label always fits it**: buttons widen to their text (owner,
-2026-11-18: "Upgrade ward · 20 Sparks" was cut), and the visual test fails on any cut label. **Collection is a mega tab**
-(owner, 2026-11-17): the ten sets are chips along the top of its page (icon, name, count or ✔; the open one lit
-gold), drawn at 92% size (owner, 2026-11-17: 40% bigger, then 10% more) and wrapping onto a second row when narrow, with the set's item grid below; it opens on the
-set seen last and shows the given-of-all count in the tab list. The grid's rows take all the height down to the
-panel under it: that panel sits on the footer, half height for a set's milestones (the next milestone with the four
-quarter marks on its line, then what it gives) and the same height for an opened item (owner, 2026-11-17: they must
-match): its icon, name, given or not with the count kept, the Take 1 / Take all / Put in buttons under them, and the
-recipe in small 13 px slots at the right with its kind and pager beside it. The grid's scrollbar can be dragged with
-the mouse as well as wheeled, and so can the Spirits list's, which scrolls when its kinds do not fit above the picked
-spirit's lines and buttons (owner, 2026-11-17: the Claim button hung over the frame). The visual test opens every tab
-at 1920 x 1080, GUI scale 4, and fails if any button crosses the chest's frame or any label runs past its button. The Dragon Quest tab is gone (owner, 2026-11-15): the Dragon
-tells his story in his talks. There is no Overview. Selected and hovered tab backgrounds use their
-tab's colour. The seven tabs fit in one column at any window size (16 px, down to 12 on a short window). Spirits shows how many earned spirits wait to be claimed. Its page lists the book's slots (a placed spirit's chip
-spans the slots it takes; slots filled out of slots owned), every kind in two columns (placed ◆, rank, or "claim"),
-and the picked kind's rank, slots taken, bonus and buttons: Claim, Rank up (with its price), Place in book / Take out,
-and Buy a slot. **A kind not yet slain shows as "???"** (owner, 2026-11-16: no spoilers) until the first kill.
-
-### The ward
-
-Each Chest of Light wards **9 blocks** in its dimension (owner, 2026-11-16: half the old 18). It grows only when its
-owner pays: the Shop tab's ward card's **Upgrade ward** button buys the next of five sizes, 9 → 13 → 18 → 26 → 36 → 48, for 20, 40,
-80, 150 and 250 Sparks. Gifts no longer grow it. The step bought is the player's and survives death. Overlapping wards cooperate, so the largest covering a position
-protects it. Owner and radius save with the world, including when the owner is offline. The spawn hut's chest counts.
-Moving a home carries its ward and owner with it.
-
-**No night drag** (owner, 2026-11-23): the old deep-water night (slower walking, lower jumps, slow falls, and the
-camera zoom the slowdown caused) is gone for good; never bring it back. The Ward spell's dome counts as a ward for
-the threshold's dark rain: inside it at night no drops run down the screen (`WardThreshold`).
-
-**The monsters hear you at night** (owner, 2026-11-19: dramatically, even inside the ward). Every two seconds, from
-dusk to dawn in the Overworld, each monster within 48 blocks of a survival player with nothing to chase turns on that
-player through walls, and its follow range grows by 48 so it keeps coming; a player inside a ward is heard too, so the
-dark gathers at its edge. Neutral kinds (endermen, piglins), frozen monsters and creative or spectator players are left
-out (`NightHearing`).
-
-**The Dragon-friend ending lifts the night's weight** (owner, 2026-11-19): the moon's chains break with his, nights are
-lit as in an ordinary game (no darker skylight), and the monsters' far hearing ends. Night monsters,
-hordes and the Cleanse go on. The world's ending is synced to clients (`DragonStory.ENDING`, `nightLifted`).
-
-**The lighthouse** (owner, 2026-11-16; 2026-11-23: day and night). At any hour, more than 128 blocks (horizontally) from home, a faint gold pillar
-stands on the horizon where the player's nearest own ward is: a slim beam over the chest's column, brightest at its
-foot and gone 320 blocks up, with light drifting slowly up it, fading in over the first 64 blocks past the threshold.
-Home is usually beyond the render distance, so the pillar stands on the true bearing at seven tenths of it, the same
-apparent width at any range, and by day it burns 1.6 times brighter so it reads against the sky. Only its owner sees it (`Lighthouse`, synced per player; `LighthouseView`).
-
-- **A wall.** A self-lit golden dome of light marks the exact ward radius (owner, 2026-11-15: tight enough to feel
-  safe inside, and alive). A dense criss-cross lattice, gaps under a block wide at any radius, of fine deep-gold core
-  lines (alpha cutout, writing depth, so a cloud behind the ward cannot wash out its colour; terrain and genuinely
-  nearer clouds still occlude it) inside a soft glowing halo that brightens where the eye grazes the wall. Comets of
-  light stream up both line families toward the crown, two slow veils of warm shimmer drift against each other between
-  the lines, every crossing twinkles on its own rhythm, and every eight seconds a heartbeat ring of light rises from
-  the sphere's lowest point to the crown, lifting every layer it passes; the whole dome breathes gently. Light flows
-  through the lower half below ground as well as the upper (owner, 2026-11-16). **Drawn on the GPU, with no flicker**
-  (owner, 2026-11-18: it still flickered and cost frames): one fixed 48 x 24 sphere mesh and two passes of
-  `shaders/core/ward.vsh/.fsh`, the core lines (opaque, writing depth) and the soft light (premultiplied, no depth
-  write), every effect worked out per pixel from the game clock. Every line, comet and star is filtered to the pixel it
-  lands in: widened by the pixel's footprint and dimmed to match, never thinner than a pixel, settling into its even
-  glow far off. The flicker was the old lattice textures, which had no smaller copies for distance, crawling as the
-  camera moved. Both passes land on identical depth (an invariant position), so their tie resolves the same way
-  every frame. The CPU only copies the mesh (no per-point maths, no sorting). No cross, plus-sign or rune ornaments.
-  Only the veil is still a texture (`tools/make_ward_texture.py`); the previous, sparser lattice is kept in
-  `design-references/ward-classic/`. Hostile mobs cannot walk, fly, leap or
-  teleport across it, bosses included, except during that chest's [Cleanse](#the-cleanse). **They slide along it,
-  never stick to it** (owner, 2026-11-23: monsters froze where they touched it and hung on its upper half): only the
-  part of a move that pushes in is taken away, so they walk round it and fall down it. **A monster that has pressed
-  at the wall for 3 s after someone inside gives them up and prowls** a quarter turn or so round it, 3 to 7 blocks
-  out, for 8 to 12 s, unable to take anyone inside as a target; then the night's hearing turns it back and it comes
-  again (`LightWards.prowl`). Animals that are angry, aggressive or pursuing a target
-  (Naturalist bears included) are blocked the same way; calm animals can enter again. Hostile natural spawns are
-  prevented inside; a hostile creature already inside when a chest is placed is moved to clear ground outside.
-  Players, friendly tamed pets, calm farm animals, friendly Dragon echoes, summons and thralls pass
-  freely. One cached mesh/render anchor per loaded chest avoids particle swarms.
-- **Torchlit inside, black outside** (owner, 2026-11-16: "bright inside, glow by shader"). Every block and creature
-  inside the dome's sphere reads as light 14 on each client (`WardGlow`), with an exact edge at the wall, so the night
-  beyond stays black and a small ward is as bright as a big one. A mixin on the client world's block `LightEngine`
-  answers both read paths: `getLightValue` (vanilla terrain and every entity) and `getDataLayerData` (Sodium copies
-  whole section layers). The sections around a ward rebuild when it appears, moves or grows. The server still keeps
-  its dim fill lights (level = blocks left to the wall), which also stop natural spawns; only their look is replaced.
-- **The threshold** (owner, 2026-11-15; 2026-11-16: five times longer, both ways, day and night): crossing the dome
-  is never seamless. Walking out, its light holds you like warm syrup for **5 seconds** (sprinting tears it twice as
-  fast, owner 2026-11-16) (you barely advance while gold
-  creeps in from the screen's edges), then it tears and you break free. Walking in meets the same membrane for the
-  same time. **Walking in, the ward pulls you in** (owner, 2026-11-23: from a mine shaft below, its wall held you
-  off the stairs): touching the membrane from outside flashes gold and draws you toward its centre. At night,
-  outside, a slow heartbeat sounds (no darkened screen and no red pulse: owner, 2026-11-23), and
-  dark rain runs down the screen (owner, 2026-11-17: dark raindrops, not small dots): near-black beads that streak
-  downward, a new one about every two thirds of a second, at most seven (owner, 2026-11-23: half). Coming home at
-  night plays a
-  soft chime. Client-side (`WardThreshold`); other dimensions, spectators, creative flight and riding are left alone.
-- **A sanctuary, not a firing position** (outside a Cleanse). Players inside cannot harm hostile creatures with melee, arrows, spells,
-  reflected hits or attacks by their pets and summons. Projectiles keep their inside-ward launch origin, so stepping
-  out after firing does not bypass it. Damaging spells refuse without spending mana. Step outside to
-  fight. Damage prevention is server-authoritative.
-- **Protection.** Hostile damage to creatures inside is rejected (the same hostility rule as the wall), and hostile
-  projectiles are intercepted at the boundary. Monster explosions skip protected positions when destroying blocks or
-  starting fires, including blasts from outside. Player-placed TNT keeps its ordinary block interaction.
-
-### Collection
-
-"Collect them all", for the Light. The chest is also storage: it keeps up to one stack of every catalogue item (a
-later copy only adds to that stack, same variant only), per player like an ender chest. The book has a tab per set
-with its reward, given items lit and the rest dimmed, the count kept shown on each, in a scrolling grid. Clicking an
-item opens it below the grid: Take 1, Take all (back into the inventory, dropped at your feet when full), Put in
-(every carried copy up to the stack), and how it is made, sent by the server from the recipe manager: crafting
-(shaped or any order), furnace / smoker / blast furnace / campfire, stonecutter, smithing, up to 8 ways with page
-arrows, tag ingredients cycling each second. Taking an item out, or breaking the chest, never un-gives it.
-
-**The catalogue must feel like collecting Minecraft, not collecting other mods.** It is curated from the original
-creative-tab ownership, so rejected block variants cannot slip back in through a second tab. **Never more than 999
-collectible items and exactly 10 collection sets, each named in one word**: check every addition, and get a new
-owner decision before exceeding either. Operator/technical items, spawn eggs and the Chest of Light itself are
-excluded. It has **937 items in ten sets** (measured by the self-test after the restore): Materials 43, Treasures 54, Home 61, Earth 99, Plants 142, Tools 166, Combat 73, Food 69, Ingredients 131 and Lightborn 99. Counts
-vary with the installed pack.
-
-**The ten sets**, in tab order: **Materials, Treasures, Home, Earth, Plants, Tools, Combat, Food, Ingredients,
-Lightborn.** Earth and Plants split the Natural Blocks creative tab: logs, leaves, saplings, flowers, crops, seeds,
-mushrooms, vines, coral, moss, cacti, bamboo, pumpkins, melons and other growing things are Plants; stone, ores,
-dirt, sand, gravel, ice, terrain and the rest are Earth (grass block and nylium count as Earth).
-
-**Retired groups.** Building Blocks, Colored Blocks, Redstone Blocks and Functional Blocks are not collection
-sets: their items are boring to collect, too niche, or merely variants of one item. Do not refill the catalogue with
-those decorative or technical families. Stairs, slabs, walls, waxed/oxidized copper variants, colour variants and
-damaged/chipped anvils stay out. The excluded items still exist in Minecraft; they are only not collectible. A few
-named survivors come back from them (owner's picks): **bricks, glass, quartz pillar, end stone / nether / red nether /
-mud / resin bricks and the 16 glazed terracottas** (Materials), **TNT** (Combat), **rail, lever, piston, sticky piston,
-slime block and honey block** (Tools), and **one red bed, one white banner, one plain shulker box, lantern, barrel,
-iron chain, iron bars, one oak shelf, armour stand and end crystal** (Home). Three hand-picked sets:
-
-- **Materials**: mineral storage blocks (coal, iron/raw iron, copper/raw copper, gold/raw gold, redstone, lapis,
-  emerald, diamond, netherite, amethyst and quartz), redstone dust, end stone, every plain plank type, full
-  sandstone/red-sandstone variants, prismarine, dark prismarine and prismarine bricks, bricks, glass, quartz
-  pillar, end stone / nether / red nether / mud / resin bricks and the 16 glazed terracottas.
-- **Treasures**: mob skulls and heads (Lightborn's boss heads stay in Lightborn), Mutant Monsters' non-wearable drops,
-  dedicated enemy loot (bone, rotten flesh, spider eye, string, gunpowder, arrow, ender pearl, blaze rod, breeze
-  rod, magma cream, slime ball, ghast tear, prismarine shard and crystals, sponge, wet sponge, shulker shell, phantom
-  membrane, nautilus shell, nether star, totem of undying, dragon's breath), and rare finds: echo shard, heart of the
-  sea, trial key, ominous trial key, ominous bottle, heavy core, disc fragment, goat horn, dragon egg, rabbit's foot,
-  armadillo and turtle scutes, ink sac and glow ink sac.
-- **Home**: every candle and torch; crafting table, stonecutter, furnace, blast furnace, smoker,
-  smithing/cartography/fletching tables, loom, grindstone, enchanting table, brewing stand and crafter; redstone lamp,
-  bell, bear plush, eye of ender, ender chest, chest, red bed, white banner, shulker box, lantern, barrel, iron chain,
-  iron bars, oak shelf, armour stand, end crystal, lectern, bookshelf,
-  painting, item/glow item frame, flower/decorated pot, beehive, scaffolding, ladder, beacon, cauldron, jukebox, note
-  block, composter, the healthy anvil (one collectible), campfire and soul campfire.
-
-Ordinary food and equipment keep their useful subject groups.
-
-**Gifts.** A new gift's tooltip says "New for the Light" in gold, in inventories and other item views. Give all new
-deposits one of each new carried item that fits, through the same rules as single gifts, then opens an **Unlocked**
-window over the book listing everything just given (scrolling when long) until it is closed. Donation feedback shows the
-affected subgroup's x/x rather than the global total; bulk gifts report each group they changed. Every first gift pays one Spark. Repeated deposits and withdrawals never pay again.
-
-**Set bonuses.** Stat-bearing sets pay at each 25%. Bonuses are whole numbers, except life regeneration at 0.2/s per
-quarter, shown with one decimal.
-
-| Set | Each 25% | Full-set reward |
-|---|---|---|
-| Materials | Collection progress only | No stat bonus |
-| Treasures | +5% Cooldown Speed | +20% Cooldown Speed |
-| Home | Collection progress only | No stat bonus |
-| Earth | +1 Max Health | +4 Max Health |
-| Plants | +5% Item Rarity | +20% Item Rarity |
-| Tools | +10% Mining Speed | +40% Mining Speed |
-| Combat | +10% Attack Damage | +40% Attack Damage |
-| Food | +0.2/s Life Regeneration | +0.8/s Life Regeneration |
-| Ingredients | +20% Spell Damage | +80% Spell Damage |
-| Lightborn | +20 Max Mana | +80 Max Mana |
-
-The reward panel shows the next unearned quarter, its actual added bonus and the cumulative total after it, rather
-than merely the full-set prize. There is no generic footer help text.
-
-### The Light
-
-Completing all ten sets makes the player the Light, with no extra stat prize. A level-15 vanilla Light block
-follows their head, with the chest's motes around them. It preserves the original air or water, shares a source when
-completed players overlap, and removes the source when the player dies, logs out or changes dimension. Cleanup data
-save in the same chunk as the temporary block, and stale sources clear when their chunk loads. Other blocks the player
-places over a source are preserved.
-
-The completion grants the Dragon's closing words, The Light, with wording for the world's ending, and a title once.
-The earned light remains yours when later catalogue changes add more items. There is no Bestiary: no Lightborn
-advancement tab, family entries or automatic kill unlocks.
-
-### Sparks
-
-**Sparks** (`lightborn:spark`, a four-rayed gold glint) are the Light's own currency, the small change of his light.
-The shop takes nothing else. **Villagers and wandering traders deal in Sparks too** (owner, 2026-11-17): every
-emerald a trade asks or pays is the same number of Sparks, so selling to a villager earns Sparks and buying from one
-spends them (`VillagerSparksMixin`, rewriting offers as they are read, so old villagers change over as well). A Spark is itself a collectible Lightborn item. Sources (amounts in `Balance.java`):
-
-| Source | Sparks |
-|---|---|
-| The Dragon's Big Quest, once | 8 (Neutral and Guarded quests add 12 more) |
-| A nightly errand | 3 |
-| A gift's return gift (sometimes) | 2 |
-| First gift of each kind to the collection | 1 |
-| Any boss / a named boss | 3 / 8 |
-| Clearing a Cleanse | 2 per cache item (8 to 26) |
-| Surviving a Cleanse to dawn | 3 |
-| A dawn refugee with no place left to show | 8 |
-| Breaking a Dark Fountain | 7 to 25, rising with its stage |
-| Catching a Light Butterfly | 1; 2 one time in four; 3 one time in eight |
-| Monster kills not from a spawner | By the monster's tier: 1; 2-3; 5; 10; 25 (owner, 2026-11-20) |
-
-Sparks kept in the Chest of Light's storage count everywhere the chest spends them, and are spent before the
-carried ones. Sparks buy the daily shop's wares, spell upgrade tiers (10 / 25 / 50), spirit ranks (10 / 20 / 40 /
-80), the book's third to fifth slots (20 / 40 / 100), the ward's five steps (20 / 40 / 80 / 150 / 250) and moving
-home (25).
-
-### Light Butterflies
-
-**Light Butterflies** (owner, 2026-11-23: "add light butterflies; hitting them gives 1 (always at least) to 3 (rare)
-sparks"; day and night; `LightButterfly`). Small butterflies of living light: two gold-and-white wings with teal rims
-and eyespots, hinged on a dark body and beating fast, drawn full-bright so they glow by day and night, trailing tiny
-motes (`tools/make_butterfly.py`, `LightButterflyRenderer`). Each minute one appears 12 to 28 blocks off over open
-ground near each player in the Overworld, while none is within 48 (owner, 2026-11-23: "make it 1 each minute").
-It drifts 1 to 4 blocks over the ground and darts away from anyone within 5. **One blow from a player catches it**: it
-bursts into light with a chime and leaves 1 Spark, 2 one time in four, 3 one time in eight, and nothing else. It
-fades on its own after 3 minutes.
-
-### Light's daily shop
-
-The blue Shop tab sells six offers for Sparks in three rows, read left to right: **one tome, one rolled staff, one
-drop (amethyst shards or Dark Shards), one exotic item, a map to a notable structure, then one exotic food** (owner,
-2026-11-16: the armour piece and the second exotic item are gone). The fourth row is the **ward card**: the ward's
-size, the next size and price, a pip per size bought, and the Upgrade ward button. The
-food is always raw, never cooked, unless it only exists cooked (golden foods). Each Buy button spans its card and carries the price ("Buy · 12 Sparks", "Take · Free"); the ward card's
-button reads "Upgrade ward · 40 Sparks", and its line reads "Next: 18 blocks" (owner, 2026-11-17: no step count). The Buy
-text is blue. The world seed and Minecraft day determine the roster. It refreshes at dawn; the tab's one line of text says
-"New wares every dawn" (owner, 2026-11-16: no title, week, countdown or Spark count). Every card prefixes its name with the bundle quantity. The price pays for
-that entire bundle, not one item from it. There are no stock limits or sold-out states; repeat purchases need payment
-and inventory room each time. **Nothing is level-gated** (owner, 2026-11-16): every ware sells to anyone with the
-Sparks. The server validates the chest, distance, day, offer, price and capacity before
-transferring anything.
-
-Shop wares grow with world age every seven Minecraft days (the world's age, not the player's: anyone can buy them).
-The staff's material is capped by the ore the buyer has mined, the same rule as dropped gear ([Loot](#13-loot);
-owner, 2026-11-17): before the first diamond ore a week-3 staff comes in iron, before the first ancient debris a
-week-4 staff in diamond. Iron is the floor, since week 1 sells an iron staff to everyone. The rarity and the price
-stay the week's, and the capped staff rolls from its own seed, so the other wares never shift:
-
-| Week | Staff | Tome tiers (band, `Spell.shopTier`) | Drop slot |
-|---|---|---|---|
-| 1 | Unrolled Apprentice, +15% Spell Power, no affixes/specialist | tier 1 (1) | 8 amethyst shards |
-| 2 | Uncommon Iron | tier 2 (5) | Dark Shard |
-| 3 | Uncommon Diamond | tier 3 (10) | Dark Shard |
-| 4 | Rare Netherite | tiers 4 and 5 (15, 20) | Larger Dark Shard bundles |
-| 5 | Legendary Netherite | tiers 3 to 5 (10 to 20) | Larger Dark Shard bundles |
-| 6 onward | Legendary Netherite | tiers 3 to 5 (10 to 20) | Up to 4 Dark Shards |
-
-Netherite is the top tier (owner, 2026-11-16), so from week 5 the staff stops climbing in material and is Legendary
-instead; its price stays at week 5's.
-
-The map leads to the nearest such place nobody has mapped yet: a Woodland Mansion, Ocean Monument, Trial Chambers,
-Ancient City, Jungle Temple, Witch Hut, Desert Pyramid or Buried Treasure. The exotic item slot rotates daily through
-vanilla curios (Nature's Compass is removed, owner, 2026-11-16). Free in that slot: a lost Light Key while a chosen fight with the Dragon is still unwon (it is the way back into his prison), and a lost Light gift once he has fallen (the Dragon is gone and cannot replace it).
-
-### Move Your Home
-
-The Travel tab's first section (owner, 2026-11-15). For a flat **25 Sparks** (owner, 2026-11-16) the Light lifts everything inside the
-ward (house, farm, animals, and the people standing in it) and sets it down at **completely random coordinates** in
-the Overworld: at least 2,000 blocks away and at most 1,000,000 out (beyond that the game's own rendering starts to
-shake), inside the world border, **on any land at all** (owner, 2026-11-17: really lax): mountain, swamp, river bank
-or odd biome, any height and slope; only a spot whose middle or most of whose footprint lies under water, or an ocean,
-is refused. The plug brings its own ground, so where the land falls away it hangs over it, and **anything in the way is
-erased**: everything over the plug's top inside the ward's circle goes. **The old home's Dark Fountains end** (each core
-crumbles and its land heals once its chunk loads, `nest_ceased`) and **ten new ones rise round the new place** as for
-a new home. The Travel tab says so. The site search samples terrain heights from the generator without building chunks; the
-chunks at the far end are force-loaded and the move waits for them, so a far, ungenerated site never freezes the
-server. Paying is instant and loud (owner, 2026-11-16: the purchase must obviously go through): the book closes, a
-chime and an amethyst ring play, a chat line says "-25 Sparks. The Light is lifting your home…", motes burst and a
-lifting overlay with a low beacon hum repeats while the site search runs (a few candidates a tick); if no site turns
-up the Sparks come back. The landing is a double **dadoom**: a mace thud, then a heavy mace slam with an explosion
-and an anvil's clang, under a burst of cloud. No title card.
-
-The move is a plug: every block in a cylinder of the ward's radius, from 4 blocks below the chest up to the dome's top,
-block entities and contents included, nothing dropped. The old site is closed with dirt and a grass top where the
-ground was. Ward ownership, its glow and dragons follow; creatures and players inside arrive in
-the same places with Slow Falling. The world spawn moves when the home is the spawn hut, and online players' respawn
-points inside move with it (an offline player's bed inside a moved home keeps its old respawn point). Only the
-chest's owner may move it, only in the Overworld, never during a Cleanse or a Dragon flight. The button needs two
-clicks.
-
-### Travel: Fly by Dragon
-
-The world reaches 6,000 blocks and no 26.3 travel mod fits, so the Travel tab calls the Light Dragon to fly the player
-**from the chest to a notable structure** (owner, 2026-11-16). Ten sites, two columns of buttons, each
-priced per trip and paid at boarding (when he picks the player up), with a chat line. **Each Cleanse won opens one
-more destination**, easiest to find first (owner, 2026-11-17; `ChestTravel.cleansesFor`, counted from
-`HUNTS_CLEARED`): a locked button is greyed with a padlock drawn on its right, reads the Cleanses it needs, and its
-tooltip says how many the player has won; the server refuses a locked flight. Every label fits its button: the price
-shortens to "30✦", then the name stands alone.
-
-| Site | Sparks | Opens after |
-|---|---|---|
-| Village | 8 | 1 Cleanse |
-| Witch Hut, Igloo | 10 | 2, 3 |
-| Desert Pyramid, Jungle Temple, Pillager Outpost | 12 | 4, 5, 6 |
-| Trial Chambers | 20 | 7 |
-| Woodland Mansion, Ancient City | 30 | 8, 9 |
-| Scale's Fortress (from chapter 6) | 40 | 10 |
-
-**From chapter 8 the Ancient City button flies to the prison city** the Dragon's Scale points at (its gate, else the
-city), not the nearest unexplored one. **Scale's Fortress** flies into the Nether, to the fortress the Scale points
-at (`DragonStory.scaleFortress`; refused before chapter 6): the flight climbs into the cloud veil as a long trip does,
-and deep in the veil the Dragon dives through and sets the rider down on the fortress's nether-brick bridges or halls
-(the nearest within 32 blocks, else any safe pocket there; the Nether's roof makes the surface search useless).
-
-He takes the player to **the nearest one not yet explored** (`findNearestMapStructure`, the same search explorer
-maps use), and lands on safe standing ground beside it (a spiral search within 24 blocks; underground sites such as
-Trial Chambers and the Ancient City land on the surface above, which their buttons' tooltips say). A button is
-active only with the price in hand. Flights start from the Overworld only. Each site is a structure tag,
-`data/lightborn/tags/worldgen/structure/travel/<id>.json`.
-
-Choosing a site calls him: he swoops down to the chest (about 3 seconds, cancelled if the player takes damage),
-picks the player up in his claws and **flies them there over the real terrain**, then sets them down beside the
-site and leaves. For a flight he appears by day too. He flies at about 30 blocks a second
-(elytra-with-rockets speed, which the game and Sodium already handle) about 40 blocks above the ground; the camera
-follows from behind; the rider cannot take damage, use or drop items, or dismount. A trip longer than about 20
-seconds climbs above the clouds after take-off, crosses the middle under a bright cloud veil and descends for the
-final stretch, so no flight lasts more than about 30 seconds and the server never generates a 6,000-block corridor of
-new chunks.
-
-A flight costs its Sparks and nothing else, never mana. It is refused during the player's
-Cleanse and within 10 seconds of taking damage. An obstructed landing is searched again for safe ground on arrival;
-disconnects restore a safe landing, and a saved recovery position covers an interrupted process. Co-op players are
-each carried by their own echo. After the endings: freed and befriended, he keeps carrying; if the player took his
-power, they fly the same route themselves in Dragon Form, without spending its cooldown. Travel adds 0 items.
-
-## 9. Food, sleep and home
-
-There are no Rested or Well Fed bonuses (owner, 2026-11-15).
-
-**Sleep.** Nearby monsters never prevent sleeping; only an active Cleanse does. Beds pass the night but never set
-a spawn point: death and Homeward return the player safely beside the placed Light chest, including from another
-dimension, or to the world's original starting point when no chest is placed. Unsafe, obstructed landing positions
-fall back safely. Waking from a bed, the player is told in chat that their spawn is always tied to the Light chest
-and a bed never changes it (owner, 2026-11-17).
-
-### Dawn refugees
-
-On one night in five (owner, 2026-11-15; rolled per home and night), a minute before dawn, a frightened stranger comes
-running out of the dark from 14 blocks outside the ward toward the chest, crying out ("Please! Let me in! I don't want
-to die out here tonight!"). It happens only at a home whose owner is within 64 blocks, never during a Cleanse.
-Refugees are ordinary people: the player model in one of the game's nine default skins, a first name shown when
-looked at, 20 health. They talk in the Dragon's dialogue box under their own name (no hearts).
-
-- **At night** they beg to stay: let them, or throw them out (they leave, and vanish once nobody watches). Hitting
-  one makes them fight back (3 damage) and then leave.
-- **At sunrise** one who stayed asks to repay the night and offers **up to three places nobody has found yet** within
-  40 chunks: a village, pillager outpost, ruined portal, desert pyramid, jungle temple, witch hut, igloo, abandoned
-  camp, trail ruins, beached shipwreck or buried treasure. "Not found yet" means well clear of the home, never shown
-  by another refugee, and no player has spent a minute near it (the chunk's inhabited time). With none left, they pay
-  8 Sparks instead.
-- **Leading the way.** Choose one and they walk there ahead of you. When you fall more than 24 blocks behind they stop,
-  turn and call ("This way! Keep up!") and go on once you are within 10. Blocked, they step around; still stuck and
-  unwatched, they slip a few blocks ahead. They **swim** across water along their path, lying flat like a swimming
-  player (owner, 2026-11-16).
-- **Calling when lost** (owner, 2026-11-16). While leading, or waiting at a sheltered home after dawn, a refugee out of
-  the player's sight for 4 seconds calls out where they are ("Over here, to your left! About 20 blocks. Follow my
-  voice!"), plays two loud flute notes, glows through walls for 3 seconds and sends up a column of light; again every
-  6 seconds until seen.
-- **After showing it** they stay at the place, never coming back with you, and leave the moment no player has looked
-  at them for three seconds (and nobody stands within 8 blocks). One never claimed by the next dusk leaves too.
-
-### Steady hunger and healing
-
-In survival and adventure, food decreases by one point (half a drumstick) every five minutes of active play.
-Movement, jumping, fighting, mining, healing, status effects and other actions add no exhaustion cost. Saturation
-and food values still apply to eating and natural healing. Creative and spectator players do not drain food. The
-timer saves with the player; a death starts a fresh body's timer.
-
-Natural health recovery from food is half of vanilla's, for both fast saturated healing and slower hunger-based
-healing. Healing spells, potion healing and earned Life Regeneration bonuses keep their own values.
-
-### Rain grows crops
-
-While it rains (`RainGrowth.java`), every crop the rain falls on (wheat, carrots, potatoes, beetroot, melon and
-pumpkin stems, torchflower, pitcher, sweet berries, cocoa) gets four extra random ticks for each one vanilla gives it,
-so it grows 5 times as fast. Any rain counts, natural or called by Skies; a roofed or snowy field does not. Chunks
-within 8 of a player. There are no seasonal crop restrictions.
-
-### Furniture
-
-No 26.3 furniture mod fits (Handcrafted, Another Furniture, Supplementaries and Comforts have no 26.3 build; Macaw's
-Furniture is 778 items), so Lightborn adds eight pieces of its own: **chair, table, couch, fridge, wardrobe, lamp, rug
-and shelf**. One design per piece, never one per wood type, so the Light chest gains about 8 items, not 80. Crafted
-from vanilla materials (planks of any wood, wool, iron, glass, ice for the fridge). Hand-drawn models in the ivory,
-oak and teal home style. The table is three planks over four stick legs (`PPP`/`S S`/`S S`): its first grid was the
-wooden pickaxe's (owner, 2026-11-20). **No Lightborn recipe may share a grid with any other loaded recipe**, vanilla's
-or a companion mod's; `lightborn_recipes_clash_with_none` lays out each one with its ingredients' first and last
-accepted items and offers it to every crafting recipe.
-
-Chairs and the couch seat the player with a right-click. The two-block wardrobe has one 27-slot inventory that stores
-anything; the fridge's 27 slots accept food only. The lamp emits light 14. The shelf stores and displays up to three
-real items, keeping them through reloads and dropping them when broken.
-
-## 10. Atmosphere and music
-
-**Nights are 100% dark**: zero night sky and ambient fill, with eased dusk and dawn. Ordinary surface light sources
-(torches, lamps, lanterns, campfires, fire and other light-emitting blocks) give no light at night and recover at
-dawn, including lights under a house roof or tree canopy. A natural earth/stone ceiling identifies caves and
-underground, whose sources keep working. Player-built stone or earth roofs are recorded with the chunk and synced on
-load, so building a stone house does not turn its lights into cave lights. Dusk and dawn relight only cached sources
-in bounded batches, and roof edits invalidate only their source column. The rule covers the Overworld only. The Chest
-of Light, its golden ward and magical Light gear and spell radiance keep shining.
-
-**Nights last twice as long** (owner, 2026-11-16): from dusk to dawn the Overworld clock runs at half speed, through
-the clock's own rate, which the game syncs to every client so the sky moves smoothly (`LongNights`). Days keep their
-length; a bed still skips the night.
-
-- **The chained moon** (owner, 2026-11-15). Every moon phase is redrawn with iron chains across its face
-  (`tools/make_chained_moon.py`, at 128 px). The chains stay on the moon's face with a short overhang, about four links
-  across it (owner, 2026-11-16: the first ones spanned three times the moon): its light was chained, which is why the nights are so dark, and the darker
-  it is the stronger the monsters. The sky draws the moon additively, so the chain is a black cut-out with faint cold
-  highlights where moonlight catches the links. The chained phases are the mod's own sprites (`lightborn:moon/<phase>`)
-  beside vanilla's in the celestial atlas; the sky draws them until the Dragon is freed as a friend, then vanilla's
-  plain moon (`ChainedMoonMixin`).
-- **The sun is vanilla's** (owner, 2026-11-18, second batch: the drawn sun with its crown of rings and glints was
-  returned to normal). Only the moon is the mod's own; its light is chained, the sun's is not.
-- **Far sounds in the dark** (owner, 2026-11-17; many more and rarer 2026-11-18; `NightSounds`). Outside a ward at
-  night in the Overworld, every **30 to 180 seconds** one of eleven kinds of far sound, each as likely: a roar
-  (ravager, dragon, warden, bear, deep), a wail (ghast, hoglin, zombie), a stir (creaking, warden agitation, a
-  heartbeat), a scream (enderman, ghast, fox), a howl (a big wolf's growl and whine, howling wind), a knock (something
-  battering a door, wood splintering, chains), a shriek (sculk shrieker, the elder guardian's curse), a toll (a bell, a
-  war horn), the wither's breath or a summoner's chant, the deep (cave sounds, something digging up), or a cry
-  (zoglin, a stunned ravager, an illusioner, a horse's death cry). All vanilla recordings slowed and deepened, 50 to 90
-  blocks away in a real direction, heard by that player alone and spread to 128 blocks so it reads as huge and far.
-  Inside a ward the night is quiet.
-- **No named regions** (owner, 2026-11-15): the world has no distance rings or region titles.
-- **First sight**: heavy monsters and bosses sound a raid horn the first time a player sees them, once per monster.
-  No title card or epithet (owner, 2026-11-16: the popups are gone).
-
-### Music
-
-Vanilla music is too pacifying and too rare, so Lightborn replaces vanilla's background music with its own
-situational soundtrack, **including in quiet moments**: never sleepy, always some movement. **The owner downloads
-the tracks himself.** The project's Music folder holds eleven numbered situation folders and Lightborn plays whatever
-is in each: Hearth (inside a ward, by day), Wilds by day, Night (quiet nights), Stirring (scout nights and the Eve),
-Hunt (the Cleanse's wave), Boss (named bosses and Orvane), Nether, End, Underground (below Y 0), the Dragon (dialogue,
-story chapters and travel) and the Finale (the prison and the choice). Tracks ship whole, never trimmed; launch
-preparation converts supported audio to stereo Ogg Vorbis when needed, enables the generated soundtrack pack and
-Fresh Animations, and keeps the source files. Empty situations fall back to vanilla background music. Music discs stay
-vanilla. A track used here is never reused in another project.
-
-## 11. The Light Dragon
-
-### His echo at night
-
-At night, each placed Chest of Light has the bound Dragon's echo, the backbone of the mod and built to awe (owner,
-2026-11-15: epic, never a lost child, still Light-aligned): a tall pearl-white and gold Dragon in the **Seraph** form
-(owner, 2026-11-17: majestic yet fitting in a house; the upright Guardian looked dorky with its big head and huge
-eyes). He hovers in a swan's S: the tail hangs beneath him in a crosier's curl, a broad gold-plated chest pushes
-forward, and an arched neck carries a **small, long head bowed toward the room, with narrow eyes** set outside the
-muzzle so **the nose never hides them**. Two great wings rise behind him to the height of his crown and drape down
-both sides like a mantle, in **Dawn** colours (owner, 2026-11-17: more than white and gold): twilight blue at the
-wrist, through violet and rose, to a glowing gold edge, with a few stars. A thin ring of light turns behind his
-head; a rose mane, cheek fins, long gold whiskers and a beard drift; swept-back horns, dorsal fins, four legs with
-three talons each and a three-strand spade at the tail's tip. His front claws hold a **pearl of light** before his
-chest. Eyes and head follow the nearest player. Shape, motion and the 4x-detail texture all come from
-`tools/generate_dragon.py`.
-
-- **Size: fixed, at most 3 blocks wide and 4 tall** (owner, 2026-11-16). He is 2.64 blocks across, 1.50 deep and
-  3.45 high, always that size: no shrunken fallbacks.
-- **Placement: above the chest only**, never beside it or out in the yard. **MUST: his lowest point is at least half
-  a block above the top of the chest** (owner, 2026-11-16); he floats 1.5 blocks over the chest's base, so 0.5 over a
-  chest's top. His back is flush with the chest's back (a chest against a wall keeps him out of it), and he reaches
-  4.95 over the chest's base, which the starter hut's five-high room fits. A chest without that room has no echo until
-  there is space. He appears only at night, except for travel flights.
-- **Arrival and departure.** Arrival gathers spiralling light and layers Dragon, beacon and chime sounds over a
-  two-second reveal, never a pop. Dawn uses a calmer but visible and audible two-second dissolve. Breaking the chest
-  removes him immediately; replacing it at night brings him back. Chunk reloads recreate him without saving
-  duplicate creatures.
-- **Struck.** He stays peaceful and takes no damage: a hit gives a brief translucent refraction with chime and
-  motes, then normal opacity returns.
-
-### Dialogue
-
-Right-click opens a server-validated, choice-based dialogue. Every page is the Dragon's own first-person speech, with
-no third-person narration or stage directions, in a plain, warm voice (owner, 2026-11-16: the old lines read
-awkwardly and were rewritten). The introduction is one exchange with a friendly, neutral or antagonistic answer, and
-the remembered disposition changes his responses and quest offer. He introduces himself before offering anything;
-no quest is ever assigned instantly. **Every page offers at most three choices and none of them ends the talk**
-(owner, 2026-11-16: no Farewell, Leave or Not now; Escape closes the window). The choices come in priority order: a
-chapter that is ready ("Tell me more about yourself."), the Big Quest step, tonight's errand, then one lore question
-not yet asked. His greeting rotates by night. The dialogue window shows his disposition and
-his warmth as hearts (below).
-
-### The Big Quest
-
-One voluntary quest, chosen by disposition, starts only when explicitly accepted, and pays once:
-
-| Disposition | Quest | Task | Reward |
-|---|---|---|---|
-| Friendly | **The Fallen Star** | A star of his old light has fallen beyond the ward; recover it against three foes | Blink tome + 8 Sparks |
-| Neutral | **The Quiet Boundary** | Survey three distinct safe boundary marks at night, with no scripted ambush | 12 Sparks + 8 Sparks |
-| Guarded | **Your Own Light** | Defeat three foes at the mark on your own terms | 12 Sparks + 8 Sparks |
-
-Accepting gives a **Light Map** with terrain, player tracking and a target marker; survey progress updates its
-destination. The held map is self-lit in darkness without placing light or lighting the world. There are no repeated
-distance or direction HUD messages. Quest, disposition and survey state survive death and reloads. Missing encounter
-creatures are restored after chunks finish loading, and stale duplicates are removed.
-
-### Gifts and warmth
-
-Sneak + use on his echo (the owner's sneak key is Ctrl) with an item in hand offers one of it, once a night.
-Unstackable items (gear, tomes, staffs) are politely refused and never taken. He loves diamonds, echo shards, golden
-apples and nether stars; likes gold, glowstone, amethyst, glow berries, glow ink, honeycomb, lanterns, quartz,
-prismarine crystals, sunflowers and torchflowers; dislikes rotten flesh, spider eyes, poisonous potatoes, ink, coal,
-bones, gunpowder and wither roses. A gift sometimes earns a small return gift (loved 60%, liked 30%, plain 10%):
-a golden apple, 2 Sparks, glowstone dust, amethyst shards or bottles o' enchanting.
-
-**Warmth, shown as hearts.** Gifts (loved +3, liked +2, plain +1, disliked -2) and errands (+2) move a warmth score in
-half-hearts, from -6 to +10. The dialogue window shows five hearts, withered when negative, with a tooltip. Five full
-hearts warm his disposition one step (guarded → neutral → friendly); three withered hearts cool it one step.
-Disposition never shifts this way while the Big Quest's task is underway (stages 4 to 6). Chapter answers still set
-disposition directly.
-
-### Nightly errands
-
-Alongside the Big Quest, once the player is acquainted (stage 2+), he offers one small errand a night, rolled from
-the night and the player so re-asking never rerolls: bring 3 to 12 of a light-themed material (owner, 2026-11-23: no
-"slay so many" errands). It expires at dawn. Reporting it pays 3 Sparks and +2 warmth.
-
-## 12. The Dragon's Tale
-
-The Dragon tells the story; there are no random journal pages in chest loot, monsters or bosses, because
-out-of-order, duplicate pages are not a story.
-
-### Chapters
-
-Nine chapters, each unlocked by ordinary progress that must stay easy to reach in normal play. He tells a chapter
-when the player right-clicks him at night, and a chapter that is ready makes him open with it. **His dialogue is only
-his own words** (owner, 2026-11-17): no chapter number, title or other heading is ever shown in it, since a heading
-breaks the spell; the chapter titles live only in this spec and the code. At most one chapter
-per night, so the story arrives in order and at a readable pace. The journal texts in `Lore.java` are the raw
-material, rewritten as spoken dialogue with the usual friendly / neutral / guarded choices. His remembered
-disposition colours how he tells each chapter but never locks one.
-
-| # | Chapter | Unlocks when the player… | He tells |
-|---|---|---|---|
-| 1 | Whoever You Are | meets him (first night) | who he is, what Lightborn means, why the staff (old I to III) |
-| 2 | The Wards | has finished a Cleanse | the wards shelter your home *and* are links of his chain (IV) |
-| 3 | The Dark | kills a giant zombie (owner, 2026-11-16: no longer on seeing a mutant) | his blood swells monsters; the Keepers' dead still walk (V, VI) |
-| 4 | The Ash Lantern | has won three Cleanses | the fallen order that tended the wards (VII) |
-| 5 | Orvane | kills any named boss | the first Keeper, who wrote the first oath of the chain and wanted the Dragon's power (VIII, rewritten) |
-| 6 | The Dark Below | enters the Dark (owner, 2026-11-20: rewritten for the Dark) | the Dark is where the blood leaking through his chain pools and turns, every fountain is a root of it, and only a wall gets you out of the goo; Orvane wrote himself into the chain and became the Last Scribe; quest: find him (X, IX rewritten) |
-| 7 | The Hollow | finds a stronghold (eyes of ender lead there) (owner, 2026-11-21: rewritten for the Hollow) | the Hollow is where the Keepers bled the light out of the land to forge his chain; its edges pull toward the void (crouch); its Darkmen and Dark Dragon were emptied too, the dragon only the Keepers' seal in his shape, slaying it optional; its stone hides Sparks (XI) |
-| 8 | Come Down | has slain Orvane and heard chapter 7 | the Last Page: where he lies, and the request to come (XII) |
-| 9 | The Choice | stands at his prison gate | the ending |
-
-The Chest of Light book has no Dragon
-Quest tab (owner, 2026-11-15: keep the story, drop the tab). The lectern guide, The Dragon's Notes, is his short opening letter ([Spawn hut](#14-spawn-hut-and-first-night)).
-
-**The Dragon's Scale** (given with chapter 6): points to the current story target, first the nearest Nether
-fortress, then (after chapter 8) the nearest ancient city. Finding places must never be the hard part.
-
-### Orvane, the Last Scribe
-
-Orvane, the first Keeper, did not become a Lich: he became the **Last Scribe**, the "something" in the Nether
-fortresses that still copies the Dragon's chain. He is the seventh named boss, fought as part of the story.
-
-- Appears with a boss bar and the raid horn (no title card, owner 2026-11-16) the first time the player enters a vanilla Nether fortress after chapter 6
-  (only a vanilla fortress can host him). Leaving resets the fight to full health; dying lets the player try again
-  at the next fortress visit.
-- A robed, ink-black figure trailing drops of ink, with the same fixed boss strength as the named bosses.
-- Abilities, distinct from the six named bosses: **Ink Script** (rings of ink on the ground that burn
-  after a visible 1.5-second delay), **Copy** (casts back the last spell the player hit him with),
-  **Ink Chains** (a two-second rooting tether that Blink breaks).
-- Drops **The Light Key** (the key to the ending), a first-kill trophy and **Orvane's diary** (below). The key is
-  ivory and gold with a teal gem in its bow. The Keepers' chain is made of written oaths, never runes (owner,
-  2026-11-18). A lost key comes back free from the shop while a chosen fight with the Dragon is unwon.
-
-### The other side: two fixed notes
-
-Two notes exist, each in one fixed place on the main path, written by the Keepers rather than the Dragon, so the
-player hears why he was chained before choosing:
-
-1. **Orvane's diary** (drops from Orvane): the Keepers chained the Dragon because his light never stopped.
-   Before the chain there was no night, no sleep, no seasons. The chain gave the world its dark.
-2. **The Keepers' tablet** (on a lectern at the prison gate): the last Keepers' plea not to free him, and their
-   admission that they were afraid of him more than certain he was cruel.
-
-The twist stays honest: neither side is simply lying, and the player decides.
-
-### The prison and the choice
-
-The Dragon lies beneath the reinforced-deepslate gate at the heart of a vanilla ancient city ("under the
-deepslate"); only a vanilla ancient city can hold the prison. The Scale leads there after chapter 8. The Keepers'
-tablet waits at the gate. **The Dragon keeps the Warden asleep**: in the ancient city that holds his prison, from
-chapter 8 until the choice is made, sculk shriekers summon no Warden and none emerges. Other ancient cities keep
-vanilla danger. Using The Light Key on the gate opens the final dialogue. The ending is a choice, made once per
-world; both endings are complete and rewarded, and the world keeps playing afterwards.
-
-| | **Free and befriend him** | **Fight him and take his power** |
-|---|---|---|
-| What happens | The chains shatter and he rises through the world | He takes his true size and the gate becomes the arena |
-| Afterwards | He stays at your Chest of Light day and night, not only as a night echo. Once per night he answers a call and breathes light over an area, fighting beside you (Cleanses included). The moon's chains break with his: nights are lit again and lose their drag and far hearing, while night monsters still come (owner, 2026-11-19) | He is gone: no more night visits or Dragon quests. You gain **Dragon Form**, a power that turns you into the ivory dragon (flight and a light-breath attack) for about 30 seconds on a long cooldown |
-| Title | Dragon-friend | Dragon-heart |
-| Unchanged | The Light shop stays in the chest book in both endings. Cleanses and collection continue |
-
-The collection finale (The Light) gets one text per ending.
-
-## 13. Loot
+## 7. Loot
 
 - Drop chance 14% x Item Find. **There is no item level on items** (owner, 2026-11-16).
 - Base tiers: **Iron, Diamond, Netherite**, all vanilla materials. Lightborn's own Voidsteel, Sunforged and Starmetal
@@ -1900,7 +1363,7 @@ hooked). The vanilla catch is untouched; the extras fly to the angler with it, e
 |---|---|---|
 | Sparks | 20% | 1 to 3 Sparks |
 | Treasure | 5% | two stacks from a shipwreck's or a buried chest's treasure table |
-| Gear | 3% | a piece rolled as a tier-2 monster's drop ([which tier](#13-loot)), with its loot beam |
+| Gear | 3% | a piece rolled as a tier-2 monster's drop ([which tier](#7-loot)), with its loot beam |
 | A tome | 2% | a random tome up to tier 3 |
 | A secret | 1% | a map to an unfound place from the shop's map list, searched within 40 chunks (the shop's 100 would stall the game) |
 
@@ -2036,37 +1499,657 @@ strength and the collection hint (owner, 2026-11-20; `LightGear.hideStatsWhileBr
 `light_gear_breaks_never_vanishes`). If a piece is destroyed (lava, void), the Dragon replaces it the next night he visits; after the fight ending, the Chest of Light's
 shop offers the replacement instead, free. Light gear belongs to the Lightborn collection set.
 
-## 14. Spawn hut and first night
+## 8. Monsters
 
-Every fresh world gets a plain spruce room at spawn: 7 by 7 outside, 5 by 5 inside and five blocks high, so the
-full-size Dragon fits over his chest, with solid walls and log corners, a dark-oak gable roof overhanging the front
-and back by a block (its gable ends stop flush with the side walls, so it stays inside the starting ward; owner,
-2026-11-17) and a south door. It contains the bed, the lectern with the Dragon's guide, and the Chest of Light against
-the back wall at its centre, with the bed to its left and lectern to its right, facing into the room. New players
-arrive in the middle of the room, facing the chest. There is no wooden chest, crafting table, furnace or bookshelf.
-The coarse-dirt front path stays; there is no campfire or log seats.
+- **Monsters have no levels** (owner, 2026-11-16): each kind keeps its own natural health and damage, so a zombie is
+  always a weak zombie and a mutant always a mutant, wherever and whenever it appears. A boss is the one exception: x14 health
+  and x1.8 damage on its body's own stats ([Bosses](#10-bosses)).
+- **No champions and no name banners.** Several kinds of zombie roam instead, each with its trait built in (below).
+  No monster wears a name banner, bosses included: a boss's name is on its boss bar.
+- **More monsters at night.** The Overworld's normal hostile spawning budget rises from **70 to 105** at night, with
+  matching global and local caps, through the existing natural spawn system (no second spawn loop). Mutants and other
+  heavy types get **eight times their normal spawn weight** within that budget (owner, 2026-11-15: four times the
+  earlier double), and every other companion-mod creature four times, so nights show mutants and exotics, not mostly
+  zombies, skeletons and spiders. Day spawning keeps its original budget, and
+  the ward stays safe.
+- **Zombies pound on doors but never break them.** A zombie that knows the player is behind a closed door pounds on
+  it, with sound and arm movement, at one-third of vanilla's knocking volume, on Normal too.
+- **Your own minions look like yours** (owner, 2026-11-16: no names over heads, and Light, not violet). Every thrall,
+  soul and summon is drawn lit from within (full light, day or night) with a warm light tint, and golden motes of
+  light drift around it. A player's attacks, projectiles and other minions never hurt their own minions.
+- **Glowing eyes at night.** Every zombie and skeleton kind, companion-mod variants and babies included, gets
+  full-bright eyes, and only the eyes (owner, 2026-11-16: no lit box or halo around them), through one shared eyes
+  layer (`UndeadEyes`): at night in the
+  Overworld, and always in the Dark and the Hollow; never by Overworld day. Each variant keeps its own eye colour: a
+  skin's own `_eyes` texture when it ships one, otherwise its pupils or dark sockets found in the face, otherwise the
+  vanilla eye spots. Bodies keep normal lighting; eyes light no blocks and draw no outline. They shine the same
+  inside and outside a ward, so a zombie at the dome's wall in black night shows only its eyes.
+- **Sparks**: **every player kill of a monster pays Sparks by its tier** (owner, 2026-11-20;
+  [the five tiers](#the-five-tiers)): tier 1 one, tier 2 two or three, tier 3 five, tier 4 ten, tier 5 twenty-five; a
+  kind the Book of Souls does not list counts as tier 1, an unlisted giant as tier 3 (`Lightborn.killSparks`,
+  `Balance.KILL_SPARKS_MIN/MAX`). Bosses pay their boss Sparks on top. A tier 3 kind and up also drops at least one
+  rolled item every time (owner, 2026-11-17); before any ore is mined that item is the first tier. Spawner monsters
+  still pay nothing.
+- **Heavy** monsters (base health 80+: the mutants, the Wildfire, vanilla bosses) never get a Lightborn
+  boss promotion. Companion monsters get loot like any monster, and their natural spawns respect the
+  [Chest of Light ward](#the-ward).
+- **More zombies, in four kinds** (`ModEntities.java`): every biome that already spawns zombies gets, on
+  top of vanilla's zombie (weight 95): another plain zombie entry 95 (packs of 4), darkness zombies 95 (2 to 4),
+  vampire zombies 60 (1 to 3) and giant zombies 35 (alone). About 40% of monster spawns there are zombies instead of
+  about 18%: half plain, a quarter darkness, a sixth vampire, a tenth giant. Each kind is a zombie in everything
+  else (burns by day, drops, turns villagers, calls its own kind for help on Hard).
 
-First-time players receive, once, an unrolled, attribute-free **Simple Staff** equipped in the main hand (no
-spell-power implicit, affixes or leech: it only enables casting; drawn as a real wooden walking staff with a crook head
-and a wrapped grip, owner 2026-11-15), a **Spellstone** in the off hand holding the **Bolt tome** (right-click) and
-**one random Basic tome** beside it (owner, 2026-11-23; never one only given), then **Homeward** and **Ender
-Pocket** (owner, 2026-11-23); the Book of Souls is found, and **5 apples**, no torches (owner, 2026-11-23). No wooden tools, loose guide book or pumpkins.
+  | Kind | Look | Trait |
+  |---|---|---|
+  | Darkness (`lightborn:darkness_zombie`) | ash-black to dusk violet, glowing violet eyes, thin smoke | each hit it lands slows you (Slowness II, 3 s) |
+  | Vampire (`lightborn:vampire_zombie`) | grave-pale skin, blood-red shirt, black trousers, glowing red eyes | each hit heals it by 40% of the damage (dark-red hearts show it feed) |
+  | Giant (`lightborn:giant_zombie`) | 2x size (about 4 blocks: cannot pass a door), moss-grey skin, leather-brown rags, amber eyes | 60 HP (3x), hits 4.5 (1.5x), slower (0.19 vs 0.23), 60% knockback resistance, steps up whole blocks; never a baby, never calls giants, never becomes a drowned. Pays like the old champions: always 1 item (+25% x Item Find a second) and 25% a tome |
 
-**The Dragon's guide** (the lectern book, The Dragon's Notes) is **never longer than 3 pages and holds only the
-story** (owner, 2026-11-18: no page of hints; `SelfTestWorld` and the `guide` visual scene check the length). It is a
-letter in the Dragon's own voice (owner, 2026-11-18: rewritten from scratch):
+  Melee hits only carry the traits. Each kind sounds its own: giants a deep slow groan and an iron golem's heavy
+  tread, vampires higher with a hiss in their idle sounds and a bite on every hit, darkness zombies low and muffled.
+- **A giant of every vanilla night monster** (owner, 2026-11-17; `Giants.java`): skeleton, stray, bogged, parched,
+  husk, drowned, spider, cave spider, creeper, enderman and witch, beside the Giant Zombie. Each is its vanilla kind
+  with vanilla's skin, twice its size (the cave spider three times; owner, 2026-11-17), the size being the entity's
+  real hitbox; 3x its kind's health and 1.5x its hit, slower, 60% knockback resistance, steps up whole blocks, a low
+  loud voice. Skeleton giants' arrows hit 50% harder; the giant creeper's blast is radius 6, twice vanilla's 3. The
+  husk and drowned giants are never babies and never call help. They spawn alone wherever their kind does, at about a
+  tenth of its weight (skeleton, stray, husk, spider 8; creeper 6; bogged, parched, drowned 4; enderman, Overworld only,
+  and witch 2); the giant cave spider spawns anywhere in the Overworld below y 40 (6). They pay, count for Command and
+  roll ore tiers as giants, each has a Book of Souls page (tier 3; the Giant Enderman tier 4) and a spawn egg in its
+  vanilla kind's colours.
+- **The Dark Phantom** (owner, 2026-11-17; `DarkPhantom.java`): a phantom of the dark, black with a violet sheen and
+  dim milky eyes (`tools/make_dark_phantom.py`), with a voice of its own: clicks and a low cry, a deep wingbeat, a
+  heavier swoop, and an angry listening call when it finds you (vanilla recordings pitched, `NightSounds`). At night a
+  few circle every ward that has a player within 160 blocks, 14 blocks past its edge and 22 over the ground (two in the
+  first week, one more a week, up to six), and now and then one drifts over the wilds 40 blocks from a player far from
+  any ward. **It is blind and hunts by ear**: it never targets by sight. Every game event a player causes adds noise
+  (a step 0.4, sprinting 1.2, breaking a block or shooting 3, placing, splashing or landing hard 1.5, a blow 2, other
+  sounds 0.5, an explosion within 32 blocks 20), crouching quiets everything to a quarter, and the noise fades with a
+  half-life of about two seconds. A phantom within 48 blocks (owner, 2026-11-23: a quarter less) that hears more than 6 (scaled up with distance) clicks
+  and dives at that player, and keeps on while the noise goes on; **five quiet seconds** (owner, 2026-11-18), or the
+  player inside a ward, and it loses them. A Dark Phantom raised as a spirit serves its master and neither listens nor
+  circles. Hitting one always gives you away. **At dawn it vanishes in smoke**, a night slept through included (owner, 2026-11-20: they lingered over the ward
+after a night in bed; `dark_phantoms_vanish_by_day`); a Book of Souls spirit phantom stays. Its bite deals a quarter less than a vanilla phantom's (owner, 2026-11-23). Vanilla phantom drops.
+- **Skeleton and spider kinds**: wherever a biome spawns skeletons or spiders, each entry splits 55% plain, 25% and
+  20% the two kinds (`ModEntities.splitWeight`), same total and pack sizes, so there are no more of them than before,
+  only variety.
 
-1. Who he is: the Dragon under this world, chained long ago beneath the stone; where his light can't reach, the dark
-   gathers, a little more every night.
-2. What the dark does: it stirs the dead and swells some of them, and they hunt whatever carries light. A little of
-   his light runs in the player.
-3. The chest is his hearth and its ward keeps the night off the home, so build inside it. He can't leave the stone;
-   the player can. Stay near the chest tonight and he will visit. Signed by the Dragon.
+  | Kind | Look | Trait |
+  |---|---|---|
+  | Ember skeleton (`lightborn:ember_skeleton`) | charred bone with glowing cracks, orange eyes, flame flecks and smoke | its arrows burn (5 s alight) |
+  | Deadeye skeleton (`lightborn:deadeye_skeleton`) | ash-blue bone, cyan eyes | aims true (spread 1 against vanilla's 6 to 10), arrows half as hard again, spots you from 24 blocks (16) |
+  | Weaver spider (`lightborn:weaver_spider`) | pale silk, violet eyes | its bite spins a cobweb at your feet (into air only), gone after 3 s |
+  | Hunter spider (`lightborn:hunter_spider`) | ochre and brown bands, amber eyes | quicker (0.36 vs 0.3) and pounces: prey 4 to 10 blocks off and in sight, it leaps the gap, every 3 s at most |
 
-The letter never tells what his chapters reveal later (why he was chained, his blood, the Keepers, Orvane). Every page
-fits the book's 14 lines at GUI width.
+- **Merged kinds** (owner, 2026-11-15): two monsters grown from two others.
 
-## 15. Companion mods
+  | Kind | Where | Look and trait |
+  |---|---|---|
+  | Bat zombie (`lightborn:bat_zombie`) | caves only: below Y 40, never under open sky (weight 30, 1 to 3) | bigger than a bat, fur gone rotting green-grey, wings torn, eyes burning red. Flutters like a bat until it hears you, then dives in jerky swoops, bites and wheels away to come again. 12 health, hits 3, burns by day |
+
+### Regional monster kinds
+
+Six kinds tied to their biomes. They use the vanilla bodies and natural style of the original kinds, with their own
+skins, pitched voices, traits and spawn eggs. They replace 20% of the relevant remaining plain-species spawn weight
+rather than inflating every pool, preserving total weight and pack size. Dune Skeletons use the Parched share when a
+terrain pack's desert pool has no ordinary skeletons. Common desert/swamp tags include Terralith variants. Deep
+stalkers alter the native pool only below Y 0; above-ground spawning is unchanged. Every Lightborn variant keeps its
+vanilla body's ingredient drops.
+
+| Kind | Region | Trait |
+|---|---|---|
+| Frostbitten Zombie | Snowy biomes | Freezing touch and five seconds of Slowness II |
+| Mire Zombie | Swamps and mangrove swamps | Five seconds of Poison |
+| Dune Skeleton | Deserts and badlands | Arrows blind for two seconds |
+| Canopy Spider | Jungles | Leaps up, then dives onto its prey |
+| Deep Stalker Spider | Overworld caves below Y 0 | Invisible, including its eyes, until a player comes within six blocks |
+| Drowned Captain | Oceans | Always carries a trident; a successful hit pulls its victim toward it |
+
+## 9. Moon nights and the Cleanse
+
+The Overworld sky phase drives an eight-night
+cycle of scouts. There are no scheduled Hunts, no Hunt Brazier and no Dark Moon countdown (owner, 2026-11-15): the
+night's big fight is the Cleanse, and the player calls it. The chest's Cleanse tab explains it (the guide is story
+only).
+
+| Phase | Night in a new world | Name | What comes |
+|---|---|---|---|
+| 5, 6, 7, 0 | 1, then 6 to 9 | Quiet | Ambient spawns |
+| 1, 2 | 2, 3 | Stirring | One scout pack per night |
+| 3 | 4 | The Eve | Three scout packs |
+| 4 | 5, 13, 21 ... | The Dark Moon | Ambient spawns; Dark Fountains grow a stage |
+
+- Scout packs have 2 to 3 zombies or 4 to 5 on the Eve. They arrive at staggered, randomized times, with a groan.
+  They spawn on dark surface ground 24 to 48 blocks away and chase from 64 blocks. Scouts skip players inside a ward
+  and players in a Cleanse. Player kills of scouts drop a Dark Shard 15% of the time.
+
+### The Cleanse
+
+The plot: dark shards are pieces of the dark, found in the world. Dissolving them in the Chest of Light burns them
+away, and the dark attacks whoever did it. The chest's violet **Cleanse** tab takes **1 to 10 shards** from the
+inventory and starts it: after dusk only, in the Overworld, at a chest that holds a ward, one Cleanse at a time.
+
+- **One continuous wave**, with no numbered waves or lulls: monsters keep coming from beyond the ward from two or
+  three directions until the whole wave has arrived. **Nine in ten of it down beats it** (owner, 2026-11-18;
+  `Balance.CLEANSE_BEATEN_SHARE`, rounded up): the boss comes, or the Cleanse ends and pays, and the last tenth stays
+  behind as ordinary monsters. Its size is `2 + 0.5 x (shards - 1)` Hunt waves of 8
+  monsters (16 at 1 shard, 52 at 10, solo); more shards bring more and tougher kinds, never stronger copies. The tab
+  and the boss bar show how many are left to fell.
+- **One boss at most.** From **6 shards**, a boss follows once the wave is beaten ([Bosses](#10-bosses)).
+- **The ward stops shielding.** While it runs, that chest's ward still shines and lights the ground, but monsters walk
+  in and the players inside may fight back. Players within 32 blocks of the ward's edge are in the fight; each extra
+  player adds half a wave.
+- Beds refuse during a Cleanse. A death pauses spawning for 15 seconds; the second death ends it for that player.
+  Moving the home is refused while it runs.
+- **Pay.** Clearing it drops a cache at the chest: `3 + shards` rolled items (an Uncommon first roll becomes Rare; from
+  8 shards the first is always Legendary; rarity +8% per extra shard), a tome and 2 Sparks per item. Dawn ends an unfinished Cleanse with 3 Sparks for surviving; fed
+  shards are never returned. A restart during the same night resumes it.
+- **Dark Shards** (`lightborn:dark_shard`): a quarter of structure chests hold 1 to 2, scouts drop them (15%), every
+  Lightborn boss drops one, Dark Fountains pay them, and the shop sells them from week 2.
+- **Shards are pieces of the Dark's soul** (owner, 2026-11-16: "like horcruxes"). The first time a player carries
+  one, a violet line says it is listening and to ask the Dragon; his menu then offers "I found a shard of something
+  dark.", and he explains: the Dark tore itself apart long ago and hid the pieces in its creatures so it could never
+  wholly die; each shard is a little of it still alive, it talks the more you carry, and the Cleanse burns it out
+  (`DarkShards`). Carrying **3 or more**, they whisper: an italic violet line over the hotbar ("Keep us. Keep us
+  close.", "Why burn what makes you strong?") with a soul's sigh only that player hears, about once a minute at 3
+  and every ten seconds at 10, but never while a Cleanse holds them (owner, 2026-11-17: they drowned the fight's own
+  lines); and the screen's edges darken in a slow, breathing violet-black that creeps in as
+  they are picked up and deepens with the count (`ShardWhisperView`).
+- **The dome scars.** As a Cleanse wears on, cracks run open across its ward's dome: two at the start, then more as
+  the wave falls, up to twelve. Each is a black rift in a soft black bruise (owner, 2026-11-17: black, not violet),
+  branching over the upper dome, with a glass crack sound. From dawn, with no Cleanse running, one crack closes every ten seconds in a flush of gold with a
+  chime (`LightWards.scar`, `WardAuraRenderer`; cosmetic, so a restart clears them).
+- **The Dragon is gone while it burns** (owner, 2026-11-17). While a Cleanse is fought at a ward, that ward's Dragon
+  fades away as he does at dawn, and returns when the Cleanse ends (`Cleanse.at`, `LightDragons.reconcile`).
+
+### Dark Fountains
+
+Places to farm for loot (Blight Nests, then Dark Nests, then **Dark Fountains**: owner, 2026-11-18, for the player only;
+the code still says nest and the block ids stay `lightborn:dark_nest`, `dark_growth` and `dark_goo`, so old worlds keep
+theirs). Owner, 2026-11-17: fountains have **no hold on the Cleanse**, and nothing is said in chat when one
+roots; the smoke is how a player finds them. **A home gets all its fountains from the first day** (owner,
+2026-11-17), planted one every five seconds so the far chunks they load never stall the server (`nest_seeded`).
+After that, **at the end of every night each owned home has
+a 1 in 2 chance to grow a new fountain**, up to **three per home** at once (owner, 2026-11-23: was eight; the
+Dark's roaming fountains already stop at three within 300 blocks of a player). A fountain roots on dry
+ground between **100 blocks past the ward's edge and 300 blocks from the chest** (owner, 2026-11-18), at least
+**150 blocks** from any other fountain (owner, 2026-11-18: was 100)
+(loaded ground first, then a few far chunks are loaded). It grows one stage per Dark Moon (to four), spreading
+creeping growth over open ground, 4.5 blocks a stage. **The land round it turns dark**, thickest near the core, in
+rings: soil turns to sculk at the heart, then mud, then mycelium, patchy coarse dirt at the edge; sand and gravel to
+soul sand and soul soil; bare stone (stone, granite, diorite, andesite, calcite, tuff) to blackstone at the heart
+and deepslate round it; **still water's surface to Dark Goo** (owner, 2026-11-18: "it turns to goo"), thick black-violet
+ooze that slows like honey, with the water beneath left as water; **grass withers**, dry and brown toward the edge,
+dead bushes toward the heart; a few flowers turn to wither roses and the rest die; snow melts away. **The trees die
+back** (owner, 2026-11-17: they stood untouched): near the heart most leaves fall, the rest turn ashen (pale oak
+leaves) and the trunks char to dark oak; further out the crowns go ashen in patches, and sculk veins creep over leaves
+and trunks. The creeping growth is a flat black ooze. The dark reaches **24, 34, 44 and 54 blocks** by stage (owner,
+2026-11-18: half again as wide). The land code is `DarkLand`; `DarkNests` decides when. **It is laid again whenever a player comes within 64 blocks** of a fountain whose dark
+is missing or smaller than its stage's reach (`nest_darkened`), so a fountain planted where the land did not take
+always catches up. Never inside a ward. **A dark fog covers the area**: inside it the fog closes to about 22
+blocks and turns near black, thickest at the core and thinning out six blocks past the dark's edge, easing in over a
+couple of seconds (`NestFogMixin`); dark motes drift low over the whole dark land (`NestSmokeView`), never light
+smoke, which reads as white cotton inside the fog.
+
+**The core is a huge dark shard, as tall as a person** (owner, 2026-11-17; 2026-11-18: wider and taller): the Dark
+Shard item's crystal grown huge, about 1.9 blocks tall at stage 1 and 2.8 at stage 4, its girth growing with it, tilted, with smaller shards breaking out round it as it grows (none, one, three,
+five) and a round pool of black ooze at its foot. Its faces are animated, a violet pulse climbing through near-black
+crystal, and it gives off a little light (`tools/make_dark_nest.py`). A block model stops at two blocks, so the crystal is an
+item display (`dark_crystal_N`, tags `lightborn_nest_crystal` and `_N`) scaled up over the core, kept one per loaded
+fountain by the fountain tick; the core block draws only the pool and stands a block and a half tall to hit. Darkness overflows it: black spills off its whole
+height and slides down and out, ink wells over the pool, and violet motes rise off the crystal. **It cannot be broken
+while its guards stand**: by day a player who reaches it first wakes them, any still alive glow so they can be found,
+and the message says how many are left; at night it has none. **A pickaxe cuts it** in one to five seconds by
+material; anything else takes half a minute, obsidian slow (strength 6, pickaxe-only tool; owner, 2026-11-17). **Breaking it heals the land** in a wave rolling out
+from the core over 15 seconds, out to 56 blocks: growth, sculk veins and dead bushes go, sculk, mycelium and coarse
+dirt turn back to grass (mud too, soul sand and soil back to sand), blackstone and deepslate to stone, goo to water,
+wither roses to poppies and withered grass to green, and a little grass and a few poppies spring up; the ashen trees
+stay, a scar; nothing is said in chat. **It is guarded by day,
+never at night**: once a day, when any player comes within 16 blocks of the core, its guards wake round it and go for
+that player: **4 to 6 in the first week, two more each week after, up to 14**, and **exactly one of them is a
+mutant**, never more (a giant when no mutant mod is installed; owner, 2026-11-17), and a real one: tier 3 or more,
+the Spitter and up (owner, 2026-11-18). The rest come from the fountain's own pools (below), never a mutant:
+tier 3 comes at half weight on a stage-1 fountain and tier 4 at a third, both at full weight from stage 3. **Tier 4 kinds
+guard fountains only from the second week and tier 5 from the third** (owner, 2026-11-18), the mutant included. **Guards stay until slain** (owner, 2026-11-23: at one fountain none appeared): they never despawn for distance or idleness, carry Spawn Animations' `ts.sa.exclude` tag so they stand up at once instead of digging up, and when all of a fountain's guards are gone though not all were slain, the next approach wakes a fresh set (`DarkNests.vanished`; how many woke and how many were slain is saved with the world, `nest_guards`, owner 2026-11-23). **Dying near a fountain resets its fight** (owner, 2026-11-17): within 64 blocks of a player's
+death the fountain's guards crumble and its day turn is given back, so the full guard wakes again on the next approach. Guards carry the `lightborn_nest_guard` tag, so the sun
+never burns them (`NestGuardSunMixin`), and at nightfall any still standing crumble to spores. Breaking the core clears the fountain and its growth and pays
+**7 to 25 Sparks, rising with its stage** (owner, 2026-11-23: 7 to 11 at stage 1, 12 to 16, 17 to 21, 21 to 25;
+`DarkNests.nestSparks`), `2 x stage` Dark Shards, `stage` rolled items (one Legendary from stage 3).
+
+**Each fountain fits its place** (owner, 2026-11-20). Where a kind may guard is its `guards` list in
+`lightborn/monsters.json`. An Overworld fountain draws on the 48 night kinds and the Overworld's own (Zombie Villager,
+Forgotten, Undead Warrior, Armored Spider, Executioner), and **about half its guards are its biome's own**, by the
+biome's conventional tags: **snowy** (and icy) the Stray, Nemo's and Mob Variants' snowy and frozen kinds, the Gelid
+and the Iceologer; **desert** (and badlands) the Husk, the Parched, the Explorer, the Sand Spider and the Scorched
+Creeper; **jungle** the Tropical Spider, the Verdant, the Thicket and the venomous kinds; **swamp** the Bogged, the
+slimes, the Murk, the Bloated Corpse and the venomous kinds; **coast** (beach, ocean, river) the Drowned and the
+Corsair; **forest and plains** (and taiga, savanna) the raiders: Pillager, Vindicator, Evoker, Illusioner. A biome in no
+group has night kinds only. **Never a guard:** a Nether or End kind in the Overworld, a world boss (Wither, Ender
+Dragon, Warden, Elder Guardian, Orvane, the Last Scribe), a mount, a water-only kind, vanilla's mindless Giant, or a
+summon or trick (Vex, Endersoul Clone, Creaking). The champion is a mutant from the pool when one is in season, else a
+tier 3 or stronger kind, else the strongest in season. The tier-by-week gate holds everywhere.
+
+**The Dark (the old Nether) has Dark Fountains too** (owner, 2026-11-20: "with their own respective enemies"; they
+are stronger, see [The Dark](#15-the-dark)); the Hollow (the old End) has none (owner, 2026-11-21, see
+[The Hollow](#16-the-hollow)). They are guarded by the Dark's own kinds only: the Nether's Piglins and Brutes, Hoglins and Zoglins, Wither Skeletons,
+Blazes, Ghasts, Magma Cubes, the Crimson and Warped Skeletons, Lava Slime, Soul Stealer, the infected and zombified
+Piglin kinds and the Wildfire (its champion a Brute, or the Wildfire from the second week), and the Dark's own
+kinds. With no home there, **they root round a roaming player**: while a player has fewer than **three within 300
+blocks**, one roots 100 to 300 blocks from them and 150 from any other, at most one a minute (`DarkNests.roam`). A
+fountain there stands on a cavern floor within 24 blocks of the player's height, never on the roof. With no night there, **their guards wake once a day at
+any hour** and never crumble; a new day's guard sends any of yesterday's still standing away first. They grow by the
+Overworld's Dark Moons like the rest. Their dark is **sculk at the heart and deepslate round it** over the dimension's
+own floor (netherrack, nylium, soul sand and soil, basalt, blackstone), the plants on it withering; neither
+block grows there on its own, so **the healing wave gives back the biome's own floor** (crimson or warped nylium, soul
+soil, basalt, netherrack) and never touches the dimension's own soul sand or blackstone. Each dimension keeps
+its own fountains (`dark_nests` on each level); the smoke shows in each.
+
+**Smoke over the fountain** (owner, 2026-11-17: like the home's light beam, so it can be found). A pillar of black smoke
+rises from every fountain core, day and night: about 150 blocks tall, a block and a half wide at the root and widening as
+it climbs, leaning with the wind, its billows rolling upward, fading out at the top; up close real campfire smoke
+boils off the core. The server tells each player the nearest ten fountains of their dimension within 768 blocks
+(`DarkNests.SMOKE`, synced per player); a fountain beyond the render distance stands on its true bearing at seven tenths
+of it, at the same apparent size (`NestSmokeView`, texture `tools/make_nest_smoke.py`).
+
+## 10. Bosses
+
+Six named bosses, Risen by the Dark, use enlarged bodies of Lightborn monster kinds, the boss health multiplier, and
+individual moves. Their health bars carry their names. At half health they enrage, move faster, and shorten the
+interval between abilities. A seventh, Orvane the Last Scribe, belongs to the story and never comes with a
+Cleanse ([The Dragon's Tale](#orvane-the-last-scribe)).
+
+| Boss | Body | Moves | Trophy |
+|---|---|---|---|
+| Gorath the Unbroken | giant zombie | Ground Slam, Boulder Toss with a 3-block impact, one giant and 15% less damage taken after enrage. Nerfed (owner, 2026-11-15: far too tanky): his health counts 28 base (his giant body has 50) | Unbroken Plate stops knockback and gives Stoneskin on a hit once every 20 seconds |
+| Vexmora, Bonecaller | deadeye skeleton | Five-arrow Volley, Raise Dead with three skeleton kinds, three-second Bone Cage of damaging spikes | Bonecaller's Staff raises a skeleton thrall for 30 seconds on 15% of credited kills |
+| Maelis the Weaver | weaver spider | Four-block Web Burst with webs that last four seconds, Pounce, Brood of four cave spiders | No trophy of its own (owner, 2026-11-17): a legendary piece of gear drops in its place; walking through webs is the boots' Web Walker node now |
+| Syrith the Undying | vampire zombie | A visible Drain tether, Mist Step behind the target, one revival at 40% health | No trophy of its own (owner, 2026-11-17): a legendary piece of gear drops in its place |
+| Ozrik Ashbringer | ember skeleton | Fire Nova, Meteor with the player's ground warning and falling rock, Burning Trail that leaves dangerous ground behind him | Ashbringer gives +60% Spell Power and 25% more Fireball and Comet damage |
+| Nyx, Herald of the Dark Moon | darkness zombie | Six seconds of Darkness, three one-hit shadow copies, Gravity Well | No trophy of its own (owner, 2026-11-22: Eclipse became an ordinary Legendary tome): a legendary piece of gear drops in its place |
+
+- **Who comes.** A Cleanse fed 6 or more shards ends with one boss after its wave: the caller's grudge if one is
+  owed, else a random named boss. Boss Sigils are gone (owner, 2026-11-16): a boss is called with shards, or met in
+  the wild. The 0.2% wild boss roll uses a named body where it
+  fits.
+- **Strength.** Every boss, named or wild, has x14 its body's health and x1.8 its damage, fixed by kind, never by
+  where or when it appears (owner, 2026-11-16).
+- **Grudge.** A boss that kills you comes back as the boss of your next boss Cleanse, as strong as before, with
+  "remembers you" on its bar. Its trophy is guaranteed. When several players share a Cleanse, the caller's grudge
+  comes and the others wait for their own.
+- **Rewards.** Every boss kill pays three rolled items, a Dark Shard and a tome, plus 3 Sparks; a named
+  boss adds 5 more. Your first credited kill of each named boss grants its trophy (25% after that) and its
+  **mounted head**: the boss's face, cut from its own skin and glowing eyes by `tools/make_heads.py`, on an oak and
+  ivory plaque (legendary beam; inventory fallback). Trophies and heads join the Chest of Light's Lightborn set, and a
+  head can be hung anywhere as decoration.
+- **Trophy details.** Bonecaller's
+  skeletons use the shared Command budget and are raised only when capacity is available.
+
+## 11. The Light Dragon
+
+### His echo at night
+
+At night, each placed Chest of Light has the bound Dragon's echo, the backbone of the mod and built to awe (owner,
+2026-11-15: epic, never a lost child, still Light-aligned): a tall pearl-white and gold Dragon in the **Seraph** form
+(owner, 2026-11-17: majestic yet fitting in a house; the upright Guardian looked dorky with its big head and huge
+eyes). He hovers in a swan's S: the tail hangs beneath him in a crosier's curl, a broad gold-plated chest pushes
+forward, and an arched neck carries a **small, long head bowed toward the room, with narrow eyes** set outside the
+muzzle so **the nose never hides them**. Two great wings rise behind him to the height of his crown and drape down
+both sides like a mantle, in **Dawn** colours (owner, 2026-11-17: more than white and gold): twilight blue at the
+wrist, through violet and rose, to a glowing gold edge, with a few stars. A thin ring of light turns behind his
+head; a rose mane, cheek fins, long gold whiskers and a beard drift; swept-back horns, dorsal fins, four legs with
+three talons each and a three-strand spade at the tail's tip. His front claws hold a **pearl of light** before his
+chest. Eyes and head follow the nearest player. Shape, motion and the 4x-detail texture all come from
+`tools/generate_dragon.py`.
+
+- **Size: fixed, at most 3 blocks wide and 4 tall** (owner, 2026-11-16). He is 2.64 blocks across, 1.50 deep and
+  3.45 high, always that size: no shrunken fallbacks.
+- **Placement: above the chest only**, never beside it or out in the yard. **MUST: his lowest point is at least half
+  a block above the top of the chest** (owner, 2026-11-16); he floats 1.5 blocks over the chest's base, so 0.5 over a
+  chest's top. His back is flush with the chest's back (a chest against a wall keeps him out of it), and he reaches
+  4.95 over the chest's base, which the starter hut's five-high room fits. A chest without that room has no echo until
+  there is space. He appears only at night, except for travel flights.
+- **Arrival and departure.** Arrival gathers spiralling light and layers Dragon, beacon and chime sounds over a
+  two-second reveal, never a pop. Dawn uses a calmer but visible and audible two-second dissolve. Breaking the chest
+  removes him immediately; replacing it at night brings him back. Chunk reloads recreate him without saving
+  duplicate creatures.
+- **Struck.** He stays peaceful and takes no damage: a hit gives a brief translucent refraction with chime and
+  motes, then normal opacity returns.
+
+### Dialogue
+
+Right-click opens a server-validated, choice-based dialogue. Every page is the Dragon's own first-person speech, with
+no third-person narration or stage directions, in a plain, warm voice (owner, 2026-11-16: the old lines read
+awkwardly and were rewritten). The introduction is one exchange with a friendly, neutral or antagonistic answer, and
+the remembered disposition changes his responses and quest offer. He introduces himself before offering anything;
+no quest is ever assigned instantly. **Every page offers at most three choices and none of them ends the talk**
+(owner, 2026-11-16: no Farewell, Leave or Not now; Escape closes the window). The choices come in priority order: a
+chapter that is ready ("Tell me more about yourself."), the Big Quest step, tonight's errand, then one lore question
+not yet asked. His greeting rotates by night. The dialogue window shows his disposition and
+his warmth as hearts (below).
+
+### The Big Quest
+
+One voluntary quest, chosen by disposition, starts only when explicitly accepted, and pays once:
+
+| Disposition | Quest | Task | Reward |
+|---|---|---|---|
+| Friendly | **The Fallen Star** | A star of his old light has fallen beyond the ward; recover it against three foes | Blink tome + 8 Sparks |
+| Neutral | **The Quiet Boundary** | Survey three distinct safe boundary marks at night, with no scripted ambush | 12 Sparks + 8 Sparks |
+| Guarded | **Your Own Light** | Defeat three foes at the mark on your own terms | 12 Sparks + 8 Sparks |
+
+Accepting gives a **Light Map** with terrain, player tracking and a target marker; survey progress updates its
+destination. The held map is self-lit in darkness without placing light or lighting the world. There are no repeated
+distance or direction HUD messages. Quest, disposition and survey state survive death and reloads. Missing encounter
+creatures are restored after chunks finish loading, and stale duplicates are removed.
+
+### Gifts and warmth
+
+Sneak + use on his echo (the owner's sneak key is Ctrl) with an item in hand offers one of it, once a night.
+Unstackable items (gear, tomes, staffs) are politely refused and never taken. He loves diamonds, echo shards, golden
+apples and nether stars; likes gold, glowstone, amethyst, glow berries, glow ink, honeycomb, lanterns, quartz,
+prismarine crystals, sunflowers and torchflowers; dislikes rotten flesh, spider eyes, poisonous potatoes, ink, coal,
+bones, gunpowder and wither roses. A gift sometimes earns a small return gift (loved 60%, liked 30%, plain 10%):
+a golden apple, 2 Sparks, glowstone dust, amethyst shards or bottles o' enchanting.
+
+**Warmth, shown as hearts.** Gifts (loved +3, liked +2, plain +1, disliked -2) and errands (+2) move a warmth score in
+half-hearts, from -6 to +10. The dialogue window shows five hearts, withered when negative, with a tooltip. Five full
+hearts warm his disposition one step (guarded → neutral → friendly); three withered hearts cool it one step.
+Disposition never shifts this way while the Big Quest's task is underway (stages 4 to 6). Chapter answers still set
+disposition directly.
+
+### Nightly errands
+
+Alongside the Big Quest, once the player is acquainted (stage 2+), he offers one small errand a night, rolled from
+the night and the player so re-asking never rerolls: bring 3 to 12 of a light-themed material (owner, 2026-11-23: no
+"slay so many" errands). It expires at dawn. Reporting it pays 3 Sparks and +2 warmth.
+
+## 12. The Dragon's Tale
+
+The Dragon tells the story; there are no random journal pages in chest loot, monsters or bosses, because
+out-of-order, duplicate pages are not a story.
+
+### Chapters
+
+Nine chapters, each unlocked by ordinary progress that must stay easy to reach in normal play. He tells a chapter
+when the player right-clicks him at night, and a chapter that is ready makes him open with it. **His dialogue is only
+his own words** (owner, 2026-11-17): no chapter number, title or other heading is ever shown in it, since a heading
+breaks the spell; the chapter titles live only in this spec and the code. At most one chapter
+per night, so the story arrives in order and at a readable pace. The journal texts in `Lore.java` are the raw
+material, rewritten as spoken dialogue with the usual friendly / neutral / guarded choices. His remembered
+disposition colours how he tells each chapter but never locks one.
+
+| # | Chapter | Unlocks when the player… | He tells |
+|---|---|---|---|
+| 1 | Whoever You Are | meets him (first night) | who he is, what Lightborn means, why the staff (old I to III) |
+| 2 | The Wards | has finished a Cleanse | the wards shelter your home *and* are links of his chain (IV) |
+| 3 | The Dark | kills a giant zombie (owner, 2026-11-16: no longer on seeing a mutant) | his blood swells monsters; the Keepers' dead still walk (V, VI) |
+| 4 | The Ash Lantern | has won three Cleanses | the fallen order that tended the wards (VII) |
+| 5 | Orvane | kills any named boss | the first Keeper, who wrote the first oath of the chain and wanted the Dragon's power (VIII, rewritten) |
+| 6 | The Dark Below | enters the Dark (owner, 2026-11-20: rewritten for the Dark) | the Dark is where the blood leaking through his chain pools and turns, every fountain is a root of it, and only a wall gets you out of the goo; Orvane wrote himself into the chain and became the Last Scribe; quest: find him (X, IX rewritten) |
+| 7 | The Hollow | finds a stronghold (eyes of ender lead there) (owner, 2026-11-21: rewritten for the Hollow) | the Hollow is where the Keepers bled the light out of the land to forge his chain; its edges pull toward the void (crouch); its Darkmen and Dark Dragon were emptied too, the dragon only the Keepers' seal in his shape, slaying it optional; its stone hides Sparks (XI) |
+| 8 | Come Down | has slain Orvane and heard chapter 7 | the Last Page: where he lies, and the request to come (XII) |
+| 9 | The Choice | stands at his prison gate | the ending |
+
+The Chest of Light book has no Dragon
+Quest tab (owner, 2026-11-15: keep the story, drop the tab). The lectern guide, The Dragon's Notes, is his short opening letter ([Spawn hut](#2-spawn-hut-and-first-night)).
+
+**The Dragon's Scale** (given with chapter 6): points to the current story target, first the nearest Nether
+fortress, then (after chapter 8) the nearest ancient city. Finding places must never be the hard part.
+
+### Orvane, the Last Scribe
+
+Orvane, the first Keeper, did not become a Lich: he became the **Last Scribe**, the "something" in the Nether
+fortresses that still copies the Dragon's chain. He is the seventh named boss, fought as part of the story.
+
+- Appears with a boss bar and the raid horn (no title card, owner 2026-11-16) the first time the player enters a vanilla Nether fortress after chapter 6
+  (only a vanilla fortress can host him). Leaving resets the fight to full health; dying lets the player try again
+  at the next fortress visit.
+- A robed, ink-black figure trailing drops of ink, with the same fixed boss strength as the named bosses.
+- Abilities, distinct from the six named bosses: **Ink Script** (rings of ink on the ground that burn
+  after a visible 1.5-second delay), **Copy** (casts back the last spell the player hit him with),
+  **Ink Chains** (a two-second rooting tether that Blink breaks).
+- Drops **The Light Key** (the key to the ending), a first-kill trophy and **Orvane's diary** (below). The key is
+  ivory and gold with a teal gem in its bow. The Keepers' chain is made of written oaths, never runes (owner,
+  2026-11-18). A lost key comes back free from the shop while a chosen fight with the Dragon is unwon.
+
+### The other side: two fixed notes
+
+Two notes exist, each in one fixed place on the main path, written by the Keepers rather than the Dragon, so the
+player hears why he was chained before choosing:
+
+1. **Orvane's diary** (drops from Orvane): the Keepers chained the Dragon because his light never stopped.
+   Before the chain there was no night, no sleep, no seasons. The chain gave the world its dark.
+2. **The Keepers' tablet** (on a lectern at the prison gate): the last Keepers' plea not to free him, and their
+   admission that they were afraid of him more than certain he was cruel.
+
+The twist stays honest: neither side is simply lying, and the player decides.
+
+### The prison and the choice
+
+The Dragon lies beneath the reinforced-deepslate gate at the heart of a vanilla ancient city ("under the
+deepslate"); only a vanilla ancient city can hold the prison. The Scale leads there after chapter 8. The Keepers'
+tablet waits at the gate. **The Dragon keeps the Warden asleep**: in the ancient city that holds his prison, from
+chapter 8 until the choice is made, sculk shriekers summon no Warden and none emerges. Other ancient cities keep
+vanilla danger. Using The Light Key on the gate opens the final dialogue. The ending is a choice, made once per
+world; both endings are complete and rewarded, and the world keeps playing afterwards.
+
+| | **Free and befriend him** | **Fight him and take his power** |
+|---|---|---|
+| What happens | The chains shatter and he rises through the world | He takes his true size and the gate becomes the arena |
+| Afterwards | He stays at your Chest of Light day and night, not only as a night echo. Once per night he answers a call and breathes light over an area, fighting beside you (Cleanses included). The moon's chains break with his: nights are lit again and lose their drag and far hearing, while night monsters still come (owner, 2026-11-19) | He is gone: no more night visits or Dragon quests. You gain **Dragon Form**, a power that turns you into the ivory dragon (flight and a light-breath attack) for about 30 seconds on a long cooldown |
+| Title | Dragon-friend | Dragon-heart |
+| Unchanged | The Light shop stays in the chest book in both endings. Cleanses and collection continue |
+
+The collection finale (The Light) gets one text per ending.
+
+## 13. Food, sleep and home
+
+There are no Rested or Well Fed bonuses (owner, 2026-11-15).
+
+**Sleep.** Nearby monsters never prevent sleeping; only an active Cleanse does. Beds pass the night but never set
+a spawn point: death and Homeward return the player safely beside the placed Light chest, including from another
+dimension, or to the world's original starting point when no chest is placed. Unsafe, obstructed landing positions
+fall back safely. Waking from a bed, the player is told in chat that their spawn is always tied to the Light chest
+and a bed never changes it (owner, 2026-11-17).
+
+### Dawn refugees
+
+On one night in five (owner, 2026-11-15; rolled per home and night), a minute before dawn, a frightened stranger comes
+running out of the dark from 14 blocks outside the ward toward the chest, crying out ("Please! Let me in! I don't want
+to die out here tonight!"). It happens only at a home whose owner is within 64 blocks, never during a Cleanse.
+Refugees are ordinary people: the player model in one of the game's nine default skins, a first name shown when
+looked at, 20 health. They talk in the Dragon's dialogue box under their own name (no hearts).
+
+- **At night** they beg to stay: let them, or throw them out (they leave, and vanish once nobody watches). Hitting
+  one makes them fight back (3 damage) and then leave.
+- **At sunrise** one who stayed asks to repay the night and offers **up to three places nobody has found yet** within
+  40 chunks: a village, pillager outpost, ruined portal, desert pyramid, jungle temple, witch hut, igloo, abandoned
+  camp, trail ruins, beached shipwreck or buried treasure. "Not found yet" means well clear of the home, never shown
+  by another refugee, and no player has spent a minute near it (the chunk's inhabited time). With none left, they pay
+  8 Sparks instead.
+- **Leading the way.** Choose one and they walk there ahead of you. When you fall more than 24 blocks behind they stop,
+  turn and call ("This way! Keep up!") and go on once you are within 10. Blocked, they step around; still stuck and
+  unwatched, they slip a few blocks ahead. They **swim** across water along their path, lying flat like a swimming
+  player (owner, 2026-11-16).
+- **Calling when lost** (owner, 2026-11-16). While leading, or waiting at a sheltered home after dawn, a refugee out of
+  the player's sight for 4 seconds calls out where they are ("Over here, to your left! About 20 blocks. Follow my
+  voice!"), plays two loud flute notes, glows through walls for 3 seconds and sends up a column of light; again every
+  6 seconds until seen.
+- **After showing it** they stay at the place, never coming back with you, and leave the moment no player has looked
+  at them for three seconds (and nobody stands within 8 blocks). One never claimed by the next dusk leaves too.
+
+### Steady hunger and healing
+
+In survival and adventure, food decreases by one point (half a drumstick) every five minutes of active play.
+Movement, jumping, fighting, mining, healing, status effects and other actions add no exhaustion cost. Saturation
+and food values still apply to eating and natural healing. Creative and spectator players do not drain food. The
+timer saves with the player; a death starts a fresh body's timer.
+
+Natural health recovery from food is half of vanilla's, for both fast saturated healing and slower hunger-based
+healing. Healing spells, potion healing and earned Life Regeneration bonuses keep their own values.
+
+### Rain grows crops
+
+While it rains (`RainGrowth.java`), every crop the rain falls on (wheat, carrots, potatoes, beetroot, melon and
+pumpkin stems, torchflower, pitcher, sweet berries, cocoa) gets four extra random ticks for each one vanilla gives it,
+so it grows 5 times as fast. Any rain counts, natural or called by Skies; a roofed or snowy field does not. Chunks
+within 8 of a player. There are no seasonal crop restrictions.
+
+### Furniture
+
+No 26.3 furniture mod fits (Handcrafted, Another Furniture, Supplementaries and Comforts have no 26.3 build; Macaw's
+Furniture is 778 items), so Lightborn adds eight pieces of its own: **chair, table, couch, fridge, wardrobe, lamp, rug
+and shelf**. One design per piece, never one per wood type, so the Light chest gains about 8 items, not 80. Crafted
+from vanilla materials (planks of any wood, wool, iron, glass, ice for the fridge). Hand-drawn models in the ivory,
+oak and teal home style. The table is three planks over four stick legs (`PPP`/`S S`/`S S`): its first grid was the
+wooden pickaxe's (owner, 2026-11-20). **No Lightborn recipe may share a grid with any other loaded recipe**, vanilla's
+or a companion mod's; `lightborn_recipes_clash_with_none` lays out each one with its ingredients' first and last
+accepted items and offers it to every crafting recipe.
+
+Chairs and the couch seat the player with a right-click. The two-block wardrobe has one 27-slot inventory that stores
+anything; the fridge's 27 slots accept food only. The lamp emits light 14. The shelf stores and displays up to three
+real items, keeping them through reloads and dropping them when broken.
+
+## 14. Atmosphere and music
+
+**Nights are 100% dark**: zero night sky and ambient fill, with eased dusk and dawn. Ordinary surface light sources
+(torches, lamps, lanterns, campfires, fire and other light-emitting blocks) give no light at night and recover at
+dawn, including lights under a house roof or tree canopy. A natural earth/stone ceiling identifies caves and
+underground, whose sources keep working. Player-built stone or earth roofs are recorded with the chunk and synced on
+load, so building a stone house does not turn its lights into cave lights. Dusk and dawn relight only cached sources
+in bounded batches, and roof edits invalidate only their source column. The rule covers the Overworld only. The Chest
+of Light, its golden ward and magical Light gear and spell radiance keep shining.
+
+**Nights last twice as long** (owner, 2026-11-16): from dusk to dawn the Overworld clock runs at half speed, through
+the clock's own rate, which the game syncs to every client so the sky moves smoothly (`LongNights`). Days keep their
+length; a bed still skips the night.
+
+- **The chained moon** (owner, 2026-11-15). Every moon phase is redrawn with iron chains across its face
+  (`tools/make_chained_moon.py`, at 128 px). The chains stay on the moon's face with a short overhang, about four links
+  across it (owner, 2026-11-16: the first ones spanned three times the moon): its light was chained, which is why the nights are so dark, and the darker
+  it is the stronger the monsters. The sky draws the moon additively, so the chain is a black cut-out with faint cold
+  highlights where moonlight catches the links. The chained phases are the mod's own sprites (`lightborn:moon/<phase>`)
+  beside vanilla's in the celestial atlas; the sky draws them until the Dragon is freed as a friend, then vanilla's
+  plain moon (`ChainedMoonMixin`).
+- **The sun is vanilla's** (owner, 2026-11-18, second batch: the drawn sun with its crown of rings and glints was
+  returned to normal). Only the moon is the mod's own; its light is chained, the sun's is not.
+- **Far sounds in the dark** (owner, 2026-11-17; many more and rarer 2026-11-18; `NightSounds`). Outside a ward at
+  night in the Overworld, every **30 to 180 seconds** one of eleven kinds of far sound, each as likely: a roar
+  (ravager, dragon, warden, bear, deep), a wail (ghast, hoglin, zombie), a stir (creaking, warden agitation, a
+  heartbeat), a scream (enderman, ghast, fox), a howl (a big wolf's growl and whine, howling wind), a knock (something
+  battering a door, wood splintering, chains), a shriek (sculk shrieker, the elder guardian's curse), a toll (a bell, a
+  war horn), the wither's breath or a summoner's chant, the deep (cave sounds, something digging up), or a cry
+  (zoglin, a stunned ravager, an illusioner, a horse's death cry). All vanilla recordings slowed and deepened, 50 to 90
+  blocks away in a real direction, heard by that player alone and spread to 128 blocks so it reads as huge and far.
+  Inside a ward the night is quiet.
+- **No named regions** (owner, 2026-11-15): the world has no distance rings or region titles.
+- **First sight**: heavy monsters and bosses sound a raid horn the first time a player sees them, once per monster.
+  No title card or epithet (owner, 2026-11-16: the popups are gone).
+
+### Music
+
+Vanilla music is too pacifying and too rare, so Lightborn replaces vanilla's background music with its own
+situational soundtrack, **including in quiet moments**: never sleepy, always some movement. **The owner downloads
+the tracks himself.** The project's Music folder holds eleven numbered situation folders and Lightborn plays whatever
+is in each: Hearth (inside a ward, by day), Wilds by day, Night (quiet nights), Stirring (scout nights and the Eve),
+Hunt (the Cleanse's wave), Boss (named bosses and Orvane), Nether, End, Underground (below Y 0), the Dragon (dialogue,
+story chapters and travel) and the Finale (the prison and the choice). Tracks ship whole, never trimmed; launch
+preparation converts supported audio to stereo Ogg Vorbis when needed, enables the generated soundtrack pack and
+Fresh Animations, and keeps the source files. Empty situations fall back to vanilla background music. Music discs stay
+vanilla. A track used here is never reused in another project.
+
+## 15. The Dark
+
+**The Nether is the Dark** (owner, 2026-11-20: "turn the nether dimension into dark dimension", for its look and mood,
+for the story, for new play, and because the Nether was dull). It is still the Nether underneath, so everything the
+game and the companions build there still works: **fortresses (blaze rods, so the road to the Hollow), bastions,
+netherite, quartz, nether wart and glowstone (which mends Light gear) all stay**, and so do the Nether's monsters.
+World generation changes reach only ground generated after the change; the owner's world had never generated a Nether
+chunk when it shipped. Code: `DarkRealm`, `DarkGoo`; files: `tools/make_dark_realm.py` writes every texture, world
+generation, biome and name file from the vanilla 26.3 ones (rerun it after a game update).
+
+**Dark Goo seas** (owner, 2026-11-20). Its seas, springs, falls and basalt-delta pools are Dark Goo, a real liquid
+(`lightborn:dark_goo`, block `liquid_dark_goo`) that flows like lava and gives a dim violet light (7, so a sea can be
+seen from the shore). Lava is left only where a structure places it (bastions). **A player who falls in sinks**
+(owner: "you sink, can't swim up, only sideways, then die from no oxygen"): sideways speed bleeds to under half, a jump
+does nothing, they sink slowly near the top and faster below it, and **they drown as under water** when their air
+runs out (Water Breathing, a turtle helmet and Respiration help as they do there). **Pressed against a wall or a shore
+they can slowly haul themselves up and out** (owner's pick), about 1.4 blocks a second. Landing in it never hurts.
+Inside it the fog closes to a block and a half of black. **Monsters are not troubled by it** (owner: "they treat it
+like water"): they move and float in it as in water and never drown. **Striders walk on it** (owner's pick): they
+stand on it, are warm on it, float up through it, seek it out and are born on it as on lava. It cannot be scooped
+into a bucket; water and lava stop at its edge. The fountains' solid goo (`dark_goo`) is another block.
+
+**The look.** Netherrack and the crimson growth (nylium, wart blocks, stems, roots, fungi, vines) are retextured in
+near-black violets and bruise purples; the gold and quartz ores keep their ore on the Dark's rock; the portal swirls
+black-violet. Each biome's fog is near black with its own tint, ash and slow violet motes drift in every biome (the
+warped spores and the deltas' white ash stay), the music is the Deep Dark's, the ambient light is violet, and the fog
+runs from 6 to 72 blocks. **Names:** "the Dark" wherever the game names the Nether: the advancements, the Portal to the
+Dark, the Dark Wastes and the game rule. Items keep their names (Netherrack, Netherite and the rest).
+
+**The Dark's own monsters** (owner, 2026-11-20: "keep, add dark ones") roam beside the Nether's: Lightborn's Darkness
+and Vampire Zombies, Ember and Deadeye Skeletons, Hunter and Weaver Spiders, the Giant Zombie and the Giant Skeleton,
+together about a third of each biome's monster spawns (shares taken of at least 60, as the forests' own lists are
+thin), and in the open biomes (wastes, deltas, soul sand valley) the Mutant Zombie, Skeleton and Creeper at weight 1.
+**Dark Phantoms** fly there at any hour, one coming near a player with none within 64 blocks, and no dawn ends them.
+All of these guard the Dark's fountains too (`guards` "nether" in `monsters.json`).
+
+**Dark Shard Ore** (owner's pick): Dark Shards in the Dark's rock, about four veins of up to four a chunk at any height.
+An iron pickaxe or better mines it for one Dark Shard (Fortune adds more, Silk Touch takes the ore); it glows
+faintly.
+
+**Stronger fountains** (owner's pick): the Dark's fountains root at stage 2, grow two stages a Dark Moon, and pay half
+again in Sparks and Dark Shards (rounded down) and one more rolled item.
+
+**The Dragon's Tale:** chapter 6, The Dark Below, tells where the Dark comes from ([Chapters](#chapters)).
+
+Lightborn's music mood for the Dark is still named `nether` in code, so its folder stays `07 Nether`.
+
+## 16. The Hollow
+
+**The End is the Hollow** (owner, 2026-11-21: "change the end dimension too", named the Hollow). The Keepers bled
+the light out of it to forge the Dragon's chain, and nothing grew back. It is still the End underneath: the stronghold
+portal, the dragon fight, the exit portal and gateways, end cities, shulker boxes, elytra and chorus all work as
+before. World generation changes reach only ground generated after the change. Code: `Hollow`, `HollowLookMixin`;
+files: `tools/make_hollow.py` writes every texture, biome, dimension, ore and name file from the vanilla 26.3 ones
+and Mutant Monsters' jar (rerun it after a game update).
+
+**Bleached and silent** (owner's pick). End stone and its bricks are ash-white bone, purpur is faded to ash, chorus is
+dead black. The sky is starless black with faint violet tears (the End's flashes paled), the light is cold and white
+enough that the land reads bleached, white ash drifts, and the End's music plays only once in 30 to 60 minutes.
+**Names:** "the Hollow" in the advancements, the biomes (the Hollow, Hollow Highlands, Hollow Midlands, Hollow
+Barrens, Small Hollow Islands), the Portal to the Hollow and the Hollow Gateway. Items keep their names (End Stone,
+Ender Pearl and the rest).
+
+**The void pulls** (owner's pick). Within three blocks of an island's edge (a column with nothing to stand on for 24
+blocks below the feet), a walking player is drawn toward the drop, harder the closer they stand: about 1.3 blocks a
+second at one block if they stand still, so walking away always works. A narrow ridge pulls both ways and cancels.
+**Crouching holds them**, since a crouching player never steps off an edge. White ash streams toward the edge and the
+wind sighs now and then. Flying, gliding, riding and spectating players are never pulled, nor are monsters.
+
+**Its kinds are the dark ones** (owner, 2026-11-21: "the ender dragon becomes dark dragon there, and the endermen
+become darkmen there, etc"). In the Hollow only, an Enderman is a **Darkman** (pitch black, cracked with ash, pale
+eyes, trailing black smoke instead of portal sparks), an Endermite a **Darkmite** (black, smoking), a Shulker a
+**Dark Shulker** (a dead-black shell over a bone-white head), the Giant Enderman a **Giant Darkman** and Mutant
+Monsters' Mutant Enderman a **Mutant Darkman**. Met anywhere else they keep their own names and looks; their numbers,
+tiers and Book of Souls pages are unchanged. The dragon lives only there, so it is the **Dark Dragon** everywhere:
+black with ash speckle and pale eyes, its boss bar bone-white. The client swaps a skin at the moment its texture is
+bound, so body, glowing eyes and death all change in one place; names change by kind (`Hollow.DARK_NAMES`).
+
+**No Dark Fountains** (owner, 2026-11-21: "remove fountains from the hollow"). None root there, and any that rooted
+before crumble with their guards and crystal, their land healing to end stone once its chunk and that chunk's
+entities are loaded (`DarkNests.unroot`). Its kinds guard nothing.
+
+**Spark Ore** (owner's pick: "Spark Ore, rare"). The Hollow's bone stone with gold glints, glowing faintly, about two
+to a chunk of island (54 in 25 main-island chunks when measured). An iron pickaxe or better mines it for one Spark
+(Fortune adds more, Silk Touch takes the ore). That is about a diamond's rarity and about one Darkman kill's pay, so the
+trip pays without outpaying fighting.
+
+**The Dragon's Tale:** chapter 7, The Hollow, tells what the End became ([Chapters](#chapters)).
+
+Lightborn's music mood for the Hollow is still named `end` in code, so its folder stays `08 End`.
+
+## 17. Companion mods
 
 Other authors' mods, pinned in `tools/companion-mods.lock.json` (exact files and hashes) and restored by
 `py -3.14 -I tools/companion_mods.py fetch`; `resolve --keep-pins` adds required dependencies while keeping existing
@@ -2199,7 +2282,7 @@ targeting.
 - No crash-recovery mod is installed (owner, 2026-11-16: Neruina removed): a failing tick crashes the game with its
   report, as vanilla does.
 
-## 16. Build and test
+## 18. Build and test
 
 `tools\build.ps1` (build + headless self-test, must print `LIGHTBORN SELFTEST PASS`; `-Visual` also runs the client
 window tests) then `tools\deploy.ps1`. When the companion lock changed, also run `py -3.14 -I tools\companion_mods.py
@@ -2247,100 +2330,13 @@ Written after a batch where client tests took two hours, failing one stale line 
 - **A new visual gets one screenshot** in an existing client test (a named scene in `VisualTest`, night and ward scenes in
   `WardDragonShowcaseClientTest`), not a new test file.
 
-## 17. The Dark
-
-**The Nether is the Dark** (owner, 2026-11-20: "turn the nether dimension into dark dimension", for its look and mood,
-for the story, for new play, and because the Nether was dull). It is still the Nether underneath, so everything the
-game and the companions build there still works: **fortresses (blaze rods, so the road to the Hollow), bastions,
-netherite, quartz, nether wart and glowstone (which mends Light gear) all stay**, and so do the Nether's monsters.
-World generation changes reach only ground generated after the change; the owner's world had never generated a Nether
-chunk when it shipped. Code: `DarkRealm`, `DarkGoo`; files: `tools/make_dark_realm.py` writes every texture, world
-generation, biome and name file from the vanilla 26.3 ones (rerun it after a game update).
-
-**Dark Goo seas** (owner, 2026-11-20). Its seas, springs, falls and basalt-delta pools are Dark Goo, a real liquid
-(`lightborn:dark_goo`, block `liquid_dark_goo`) that flows like lava and gives a dim violet light (7, so a sea can be
-seen from the shore). Lava is left only where a structure places it (bastions). **A player who falls in sinks**
-(owner: "you sink, can't swim up, only sideways, then die from no oxygen"): sideways speed bleeds to under half, a jump
-does nothing, they sink slowly near the top and faster below it, and **they drown as under water** when their air
-runs out (Water Breathing, a turtle helmet and Respiration help as they do there). **Pressed against a wall or a shore
-they can slowly haul themselves up and out** (owner's pick), about 1.4 blocks a second. Landing in it never hurts.
-Inside it the fog closes to a block and a half of black. **Monsters are not troubled by it** (owner: "they treat it
-like water"): they move and float in it as in water and never drown. **Striders walk on it** (owner's pick): they
-stand on it, are warm on it, float up through it, seek it out and are born on it as on lava. It cannot be scooped
-into a bucket; water and lava stop at its edge. The fountains' solid goo (`dark_goo`) is another block.
-
-**The look.** Netherrack and the crimson growth (nylium, wart blocks, stems, roots, fungi, vines) are retextured in
-near-black violets and bruise purples; the gold and quartz ores keep their ore on the Dark's rock; the portal swirls
-black-violet. Each biome's fog is near black with its own tint, ash and slow violet motes drift in every biome (the
-warped spores and the deltas' white ash stay), the music is the Deep Dark's, the ambient light is violet, and the fog
-runs from 6 to 72 blocks. **Names:** "the Dark" wherever the game names the Nether: the advancements, the Portal to the
-Dark, the Dark Wastes and the game rule. Items keep their names (Netherrack, Netherite and the rest).
-
-**The Dark's own monsters** (owner, 2026-11-20: "keep, add dark ones") roam beside the Nether's: Lightborn's Darkness
-and Vampire Zombies, Ember and Deadeye Skeletons, Hunter and Weaver Spiders, the Giant Zombie and the Giant Skeleton,
-together about a third of each biome's monster spawns (shares taken of at least 60, as the forests' own lists are
-thin), and in the open biomes (wastes, deltas, soul sand valley) the Mutant Zombie, Skeleton and Creeper at weight 1.
-**Dark Phantoms** fly there at any hour, one coming near a player with none within 64 blocks, and no dawn ends them.
-All of these guard the Dark's fountains too (`guards` "nether" in `monsters.json`).
-
-**Dark Shard Ore** (owner's pick): Dark Shards in the Dark's rock, about four veins of up to four a chunk at any height.
-An iron pickaxe or better mines it for one Dark Shard (Fortune adds more, Silk Touch takes the ore); it glows
-faintly.
-
-**Stronger fountains** (owner's pick): the Dark's fountains root at stage 2, grow two stages a Dark Moon, and pay half
-again in Sparks and Dark Shards (rounded down) and one more rolled item.
-
-**The Dragon's Tale:** chapter 6, The Dark Below, tells where the Dark comes from ([Chapters](#chapters)).
-
-Lightborn's music mood for the Dark is still named `nether` in code, so its folder stays `07 Nether`.
-
-## 18. The Hollow
-
-**The End is the Hollow** (owner, 2026-11-21: "change the end dimension too", named the Hollow). The Keepers bled
-the light out of it to forge the Dragon's chain, and nothing grew back. It is still the End underneath: the stronghold
-portal, the dragon fight, the exit portal and gateways, end cities, shulker boxes, elytra and chorus all work as
-before. World generation changes reach only ground generated after the change. Code: `Hollow`, `HollowLookMixin`;
-files: `tools/make_hollow.py` writes every texture, biome, dimension, ore and name file from the vanilla 26.3 ones
-and Mutant Monsters' jar (rerun it after a game update).
-
-**Bleached and silent** (owner's pick). End stone and its bricks are ash-white bone, purpur is faded to ash, chorus is
-dead black. The sky is starless black with faint violet tears (the End's flashes paled), the light is cold and white
-enough that the land reads bleached, white ash drifts, and the End's music plays only once in 30 to 60 minutes.
-**Names:** "the Hollow" in the advancements, the biomes (the Hollow, Hollow Highlands, Hollow Midlands, Hollow
-Barrens, Small Hollow Islands), the Portal to the Hollow and the Hollow Gateway. Items keep their names (End Stone,
-Ender Pearl and the rest).
-
-**The void pulls** (owner's pick). Within three blocks of an island's edge (a column with nothing to stand on for 24
-blocks below the feet), a walking player is drawn toward the drop, harder the closer they stand: about 1.3 blocks a
-second at one block if they stand still, so walking away always works. A narrow ridge pulls both ways and cancels.
-**Crouching holds them**, since a crouching player never steps off an edge. White ash streams toward the edge and the
-wind sighs now and then. Flying, gliding, riding and spectating players are never pulled, nor are monsters.
-
-**Its kinds are the dark ones** (owner, 2026-11-21: "the ender dragon becomes dark dragon there, and the endermen
-become darkmen there, etc"). In the Hollow only, an Enderman is a **Darkman** (pitch black, cracked with ash, pale
-eyes, trailing black smoke instead of portal sparks), an Endermite a **Darkmite** (black, smoking), a Shulker a
-**Dark Shulker** (a dead-black shell over a bone-white head), the Giant Enderman a **Giant Darkman** and Mutant
-Monsters' Mutant Enderman a **Mutant Darkman**. Met anywhere else they keep their own names and looks; their numbers,
-tiers and Book of Souls pages are unchanged. The dragon lives only there, so it is the **Dark Dragon** everywhere:
-black with ash speckle and pale eyes, its boss bar bone-white. The client swaps a skin at the moment its texture is
-bound, so body, glowing eyes and death all change in one place; names change by kind (`Hollow.DARK_NAMES`).
-
-**No Dark Fountains** (owner, 2026-11-21: "remove fountains from the hollow"). None root there, and any that rooted
-before crumble with their guards and crystal, their land healing to end stone once its chunk and that chunk's
-entities are loaded (`DarkNests.unroot`). Its kinds guard nothing.
-
-**Spark Ore** (owner's pick: "Spark Ore, rare"). The Hollow's bone stone with gold glints, glowing faintly, about two
-to a chunk of island (54 in 25 main-island chunks when measured). An iron pickaxe or better mines it for one Spark
-(Fortune adds more, Silk Touch takes the ore). That is about a diamond's rarity and about one Darkman kill's pay, so the
-trip pays without outpaying fighting.
-
-**The Dragon's Tale:** chapter 7, The Hollow, tells what the End became ([Chapters](#chapters)).
-
-Lightborn's music mood for the Hollow is still named `end` in code, so its folder stays `08 End`.
-
 ## 19. To do
 
-Known faults the owner has asked to have fixed, oldest first. Each is removed when fixed.
+What is still to build. Each item is removed when it is done.
+
+### Known faults
+
+Faults the owner has asked to have fixed, oldest first.
 
 - **Odd spirits** (owner, 2026-11-20). The Book of Souls can raise a spirit of every kind, but four do not work as
   a companion: the **Wither** breaks the blocks round it, the **Dark Dragon** flies off, and vanilla's **Giant** and
@@ -2350,3 +2346,22 @@ Known faults the owner has asked to have fixed, oldest first. Each is removed wh
 - **The Hollow's own danger** (owner, 2026-11-21: "we will think of new danger specifically for hollow later"). The
   Hollow lost its fountains; the owner will design a danger made for it. Fix: take the owner's idea, build it, and
   prove it in a self-test.
+
+### Spells to add: Path of Exile 2 parity
+
+The owner's list (2026-11-23), after comparing Lightborn with Path of Exile 2's classic spells. Not built yet; each
+needs a design pass (school, tier, numbers, three upgrade tiers) before it is added. Lightborn already covers Fireball,
+Ice Nova, Arc, Ball Lightning, Comet, Essence Drain, Contagion, Bone Cage (Cage), Enfeeble (Weaken), minions (Book of
+Souls) and the wolf and bear shapeshifts.
+
+| Spell | In Path of Exile 2 | Likely school |
+|---|---|---|
+| Incinerate | a held cone of fire that grows hotter the longer it is channelled | Fire |
+| Frost Bomb | a slow orb that pulses cold and bursts | Frost |
+| Flame Wall | a wall of fire; shots passing through it burn | Fire |
+| Spark | a spray of erratic sparks that bounce along the ground | Storm |
+| Eye of Winter | a seeking eye that sprays frost shards as it flies | Frost |
+| Ember Fusillade | a volley of embers held over you, then fired together | Fire |
+| Bonestorm | bone spikes gathered while held, then flung | Hex |
+| Orb of Storms | a lingering orb that strikes monsters near it with lightning | Storm |
+| Frostbolt | a slow piercing bolt of ice that chills | Frost |
