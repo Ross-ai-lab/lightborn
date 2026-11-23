@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:gold_ingot",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:fermented_spider_eye",
+    "minecraft:rotten_flesh",
+    "minecraft:slime_ball"
+  ],
+  "result": {
+    "id": "lightborn:tome_contagion",
+    "count": 1
+  }
+}

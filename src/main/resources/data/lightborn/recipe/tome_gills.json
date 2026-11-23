@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:tropical_fish",
+    "minecraft:pufferfish",
+    "minecraft:cod",
+    "minecraft:prismarine_shard",
+    "minecraft:kelp",
+    "minecraft:kelp"
+  ],
+  "result": {
+    "id": "lightborn:tome_gills",
+    "count": 1
+  }
+}

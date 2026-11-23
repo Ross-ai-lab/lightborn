@@ -1,0 +1,13 @@
+{
+	"schemaVersion": 1,
+	"id": "lightborn-test",
+	"version": "1.0.0",
+	"name": "Lightborn visual test",
+	"environment": "client",
+	"entrypoints": {
+		"fabric-client-gametest": ["lightborn.test.Suite"]
+	},
+	"depends": {
+		"lightborn": "*"
+	}
+}

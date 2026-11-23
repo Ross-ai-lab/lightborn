@@ -1,0 +1,36 @@
+{
+  "variants": {
+    "facing=north,half=lower": {
+      "model": "lightborn:block/wardrobe",
+      "y": 0
+    },
+    "facing=north,half=upper": {
+      "model": "lightborn:block/wardrobe_upper",
+      "y": 0
+    },
+    "facing=east,half=lower": {
+      "model": "lightborn:block/wardrobe",
+      "y": 90
+    },
+    "facing=east,half=upper": {
+      "model": "lightborn:block/wardrobe_upper",
+      "y": 90
+    },
+    "facing=south,half=lower": {
+      "model": "lightborn:block/wardrobe",
+      "y": 180
+    },
+    "facing=south,half=upper": {
+      "model": "lightborn:block/wardrobe_upper",
+      "y": 180
+    },
+    "facing=west,half=lower": {
+      "model": "lightborn:block/wardrobe",
+      "y": 270
+    },
+    "facing=west,half=upper": {
+      "model": "lightborn:block/wardrobe_upper",
+      "y": 270
+    }
+  }
+}

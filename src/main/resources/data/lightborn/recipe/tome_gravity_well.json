@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:crying_obsidian",
+    "minecraft:ender_pearl",
+    "minecraft:obsidian",
+    "minecraft:obsidian"
+  ],
+  "result": {
+    "id": "lightborn:tome_gravity_well",
+    "count": 1
+  }
+}

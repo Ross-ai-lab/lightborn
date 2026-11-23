@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:gold_ingot",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:wind_charge",
+    "minecraft:wind_charge",
+    "minecraft:feather"
+  ],
+  "result": {
+    "id": "lightborn:tome_cyclone",
+    "count": 1
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:glistering_melon_slice",
+    "minecraft:glistering_melon_slice",
+    "minecraft:golden_carrot"
+  ],
+  "result": {
+    "id": "lightborn:tome_mending_light",
+    "count": 1
+  }
+}

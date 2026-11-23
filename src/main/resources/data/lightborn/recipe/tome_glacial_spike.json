@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:packed_ice",
+    "minecraft:packed_ice",
+    "minecraft:arrow"
+  ],
+  "result": {
+    "id": "lightborn:tome_glacial_spike",
+    "count": 1
+  }
+}

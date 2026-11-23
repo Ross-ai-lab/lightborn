@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "large=false": {
+      "model": "lightborn:block/glow_mote"
+    },
+    "large=true": {
+      "model": "lightborn:block/glow_mote_large"
+    }
+  }
+}

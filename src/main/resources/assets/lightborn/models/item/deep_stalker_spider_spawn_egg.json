@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "lightborn:item/deep_stalker_spider_spawn_egg"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:netherite_scrap",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:iron_block",
+    "minecraft:iron_block",
+    "minecraft:carved_pumpkin",
+    "minecraft:glowstone"
+  ],
+  "result": {
+    "id": "lightborn:tome_colossus",
+    "count": 1
+  }
+}

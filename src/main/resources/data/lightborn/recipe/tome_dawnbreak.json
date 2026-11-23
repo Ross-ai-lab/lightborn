@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:netherite_scrap",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:glowstone",
+    "minecraft:glowstone",
+    "minecraft:sunflower",
+    "minecraft:gold_block"
+  ],
+  "result": {
+    "id": "lightborn:tome_dawnbreak",
+    "count": 1
+  }
+}

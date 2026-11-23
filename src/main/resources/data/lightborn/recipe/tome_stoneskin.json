@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:smooth_stone",
+    "minecraft:smooth_stone",
+    "minecraft:smooth_stone"
+  ],
+  "result": {
+    "id": "lightborn:tome_stoneskin",
+    "count": 1
+  }
+}

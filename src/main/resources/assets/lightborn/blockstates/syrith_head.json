@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lightborn:block/syrith_head",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "lightborn:block/syrith_head",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "lightborn:block/syrith_head",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightborn:block/syrith_head",
+      "y": 270
+    }
+  }
+}

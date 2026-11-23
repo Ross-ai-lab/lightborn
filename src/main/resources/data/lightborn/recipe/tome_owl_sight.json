@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:feather",
+    "minecraft:feather",
+    "minecraft:feather",
+    "minecraft:torch"
+  ],
+  "result": {
+    "id": "lightborn:tome_owl_sight",
+    "count": 1
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:gold_ingot",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:iron_pickaxe",
+    "minecraft:glowstone_dust",
+    "minecraft:redstone"
+  ],
+  "result": {
+    "id": "lightborn:tome_light_bore",
+    "count": 1
+  }
+}

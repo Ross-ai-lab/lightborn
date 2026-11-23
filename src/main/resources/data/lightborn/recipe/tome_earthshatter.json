@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:pointed_dripstone",
+    "minecraft:pointed_dripstone",
+    "minecraft:cobblestone",
+    "minecraft:cobblestone"
+  ],
+  "result": {
+    "id": "lightborn:tome_earthshatter",
+    "count": 1
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:prismarine_shard",
+    "minecraft:prismarine_shard",
+    "minecraft:flint",
+    "minecraft:flint",
+    "minecraft:stick",
+    "minecraft:stick"
+  ],
+  "result": {
+    "id": "lightborn:tome_splinter",
+    "count": 1
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:gold_ingot",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:blue_ice",
+    "minecraft:snowball",
+    "minecraft:snowball"
+  ],
+  "result": {
+    "id": "lightborn:tome_frost_nova",
+    "count": 1
+  }
+}

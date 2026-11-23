@@ -1,0 +1,13 @@
+{
+  "pack": {
+    "description": "Lightborn rules for From The Fog",
+    "min_format": [
+      97,
+      1
+    ],
+    "max_format": [
+      121,
+      0
+    ]
+  }
+}

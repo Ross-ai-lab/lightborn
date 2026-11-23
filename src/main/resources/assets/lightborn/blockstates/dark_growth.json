@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "lightborn:block/dark_growth",
+        "y": 0
+      },
+      {
+        "model": "lightborn:block/dark_growth",
+        "y": 90
+      },
+      {
+        "model": "lightborn:block/dark_growth",
+        "y": 180
+      },
+      {
+        "model": "lightborn:block/dark_growth",
+        "y": 270
+      }
+    ]
+  }
+}

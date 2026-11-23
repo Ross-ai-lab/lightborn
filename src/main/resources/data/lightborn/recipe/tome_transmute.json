@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:netherite_scrap",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:gold_block",
+    "minecraft:redstone_block",
+    "minecraft:emerald",
+    "minecraft:amethyst_shard"
+  ],
+  "result": {
+    "id": "lightborn:tome_transmute",
+    "count": 1
+  }
+}

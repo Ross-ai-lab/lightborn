@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:netherite_scrap",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:echo_shard",
+    "minecraft:echo_shard",
+    "minecraft:sculk_catalyst",
+    "minecraft:sculk"
+  ],
+  "result": {
+    "id": "lightborn:tome_warden_form",
+    "count": 1
+  }
+}

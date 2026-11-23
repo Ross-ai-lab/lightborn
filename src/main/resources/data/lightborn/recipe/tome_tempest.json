@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:netherite_scrap",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:lightning_rod",
+    "minecraft:lightning_rod",
+    "minecraft:copper_block",
+    "minecraft:glowstone_dust"
+  ],
+  "result": {
+    "id": "lightborn:tome_tempest",
+    "count": 1
+  }
+}

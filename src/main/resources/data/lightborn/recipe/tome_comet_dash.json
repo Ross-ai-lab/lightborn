@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:firework_rocket",
+    "minecraft:firework_rocket",
+    "minecraft:feather",
+    "minecraft:glowstone_dust"
+  ],
+  "result": {
+    "id": "lightborn:tome_comet_dash",
+    "count": 1
+  }
+}

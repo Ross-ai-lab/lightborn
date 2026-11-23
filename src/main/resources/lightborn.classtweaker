@@ -1,0 +1,21 @@
+classTweaker	v1	official
+accessible method net/minecraft/world/entity/Display$TextDisplay setText (Lnet/minecraft/network/chat/Component;)V
+accessible method net/minecraft/world/entity/Display$TextDisplay setBackgroundColor (I)V
+accessible method net/minecraft/world/entity/Display$TextDisplay setFlags (B)V
+accessible method net/minecraft/world/entity/Display setBillboardConstraints (Lnet/minecraft/world/entity/Display$BillboardConstraints;)V
+accessible method net/minecraft/world/entity/Display setPosRotInterpolationDuration (I)V
+accessible method net/minecraft/world/entity/Display setBrightnessOverride (Lnet/minecraft/util/Brightness;)V
+accessible method net/minecraft/world/entity/Display setTransformation (Lcom/mojang/math/Transformation;)V
+accessible method net/minecraft/world/entity/Display setViewRange (F)V
+accessible method net/minecraft/world/entity/Display$BlockDisplay setBlockState (Lnet/minecraft/world/level/block/state/BlockState;)V
+accessible method net/minecraft/world/entity/Display setTransformationInterpolationDuration (I)V
+accessible method net/minecraft/world/entity/Display setTransformationInterpolationDelay (I)V
+accessible method net/minecraft/world/entity/Display setGlowColorOverride (I)V
+accessible method net/minecraft/world/entity/Display$ItemDisplay setItemStack (Lnet/minecraft/world/item/ItemStack;)V
+accessible method net/minecraft/world/entity/Display$ItemDisplay setItemTransform (Lnet/minecraft/world/item/ItemDisplayContext;)V
+accessible method net/minecraft/world/entity/decoration/Mannequin setProfile (Lnet/minecraft/world/item/component/ResolvableProfile;)V
+accessible method net/minecraft/world/entity/decoration/Mannequin setHideDescription (Z)V
+accessible field net/minecraft/world/entity/WalkAnimationState speedOld F
+accessible field net/minecraft/world/entity/WalkAnimationState speed F
+accessible field net/minecraft/world/entity/WalkAnimationState position F
+accessible field net/minecraft/world/entity/WalkAnimationState positionScale F

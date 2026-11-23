@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:blue_ice",
+    "minecraft:snow_block",
+    "minecraft:snowball",
+    "minecraft:snowball"
+  ],
+  "result": {
+    "id": "lightborn:tome_blizzard",
+    "count": 1
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "P P",
+    "PWP",
+    "S S"
+  ],
+  "key": {
+    "P": "#minecraft:planks",
+    "W": "minecraft:white_wool",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "lightborn:chair",
+    "count": 1
+  }
+}

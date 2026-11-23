@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:fermented_spider_eye",
+    "minecraft:spider_eye",
+    "minecraft:bone",
+    "minecraft:sugar",
+    "minecraft:rotten_flesh",
+    "minecraft:rotten_flesh"
+  ],
+  "result": {
+    "id": "lightborn:tome_enfeeble",
+    "count": 1
+  }
+}

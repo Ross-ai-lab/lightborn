@@ -1,0 +1,54 @@
+{
+ "definitions": [
+  {
+   "index": 0,
+   "startColor": "#FFFFFF",
+   "endColor": "#B5BDC9",
+   "bgColor": "#F0101018",
+   "priority": 1000,
+   "selectors": [
+    "&lightborn_rarity=\"PLAIN\""
+   ]
+  },
+  {
+   "index": 0,
+   "startColor": "#5555FF",
+   "endColor": "#3535BA",
+   "bgColor": "#F0080820",
+   "priority": 1000,
+   "selectors": [
+    "&lightborn_rarity=\"MAGIC\""
+   ]
+  },
+  {
+   "index": 0,
+   "startColor": "#FFFF55",
+   "endColor": "#B5AB25",
+   "bgColor": "#F0181608",
+   "priority": 1000,
+   "selectors": [
+    "&lightborn_rarity=\"RARE\""
+   ]
+  },
+  {
+   "index": 0,
+   "startColor": "#FFAA00",
+   "endColor": "#C77800",
+   "bgColor": "#F0201005",
+   "priority": 1000,
+   "selectors": [
+    "&lightborn_rarity=\"LEGENDARY\""
+   ]
+  },
+  {
+   "index": 0,
+   "startColor": "#FF5555",
+   "endColor": "#B52020",
+   "bgColor": "#F0200808",
+   "priority": 1000,
+   "selectors": [
+    "&lightborn_rarity=\"MYTHIC\""
+   ]
+  }
+ ]
+}

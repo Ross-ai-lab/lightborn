@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:carved_pumpkin",
+    "minecraft:rotten_flesh",
+    "minecraft:gunpowder",
+    "minecraft:ink_sac",
+    "minecraft:bone",
+    "minecraft:bone"
+  ],
+  "result": {
+    "id": "lightborn:tome_fright",
+    "count": 1
+  }
+}

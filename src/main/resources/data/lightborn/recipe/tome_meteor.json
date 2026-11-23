@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:netherite_scrap",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:magma_block",
+    "minecraft:magma_block",
+    "minecraft:blaze_rod",
+    "minecraft:fire_charge"
+  ],
+  "result": {
+    "id": "lightborn:tome_meteor",
+    "count": 1
+  }
+}

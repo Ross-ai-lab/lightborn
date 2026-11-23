@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:amethyst_shard",
+    "minecraft:amethyst_shard",
+    "minecraft:ender_eye",
+    "minecraft:glowstone_dust"
+  ],
+  "result": {
+    "id": "lightborn:tome_twincast",
+    "count": 1
+  }
+}

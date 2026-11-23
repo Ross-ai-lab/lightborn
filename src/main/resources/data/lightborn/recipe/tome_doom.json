@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:wither_rose",
+    "minecraft:bone",
+    "minecraft:soul_sand",
+    "minecraft:ink_sac"
+  ],
+  "result": {
+    "id": "lightborn:tome_doom",
+    "count": 1
+  }
+}

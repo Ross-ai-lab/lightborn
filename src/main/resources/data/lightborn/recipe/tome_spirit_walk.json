@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:phantom_membrane",
+    "minecraft:phantom_membrane",
+    "minecraft:soul_sand",
+    "minecraft:soul_sand",
+    "minecraft:glass_bottle",
+    "minecraft:feather"
+  ],
+  "result": {
+    "id": "lightborn:tome_spirit_walk",
+    "count": 1
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:leather",
+    "minecraft:leather",
+    "minecraft:salmon",
+    "minecraft:sweet_berries"
+  ],
+  "result": {
+    "id": "lightborn:tome_bear_form",
+    "count": 1
+  }
+}

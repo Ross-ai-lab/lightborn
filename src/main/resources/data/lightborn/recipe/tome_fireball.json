@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:fire_charge",
+    "minecraft:fire_charge",
+    "minecraft:fire_charge"
+  ],
+  "result": {
+    "id": "lightborn:tome_fireball",
+    "count": 1
+  }
+}

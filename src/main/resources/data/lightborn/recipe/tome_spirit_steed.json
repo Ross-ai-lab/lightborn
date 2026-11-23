@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:gold_ingot",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:saddle",
+    "minecraft:golden_carrot",
+    "minecraft:hay_block"
+  ],
+  "result": {
+    "id": "lightborn:tome_spirit_steed",
+    "count": 1
+  }
+}

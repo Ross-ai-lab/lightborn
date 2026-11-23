@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:ender_pearl",
+    "minecraft:chest",
+    "minecraft:string",
+    "minecraft:leather",
+    "minecraft:obsidian",
+    "minecraft:obsidian"
+  ],
+  "result": {
+    "id": "lightborn:tome_ender_pocket",
+    "count": 1
+  }
+}

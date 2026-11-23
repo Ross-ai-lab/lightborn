@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " G ",
+    "ILI",
+    " P "
+  ],
+  "key": {
+    "G": "minecraft:glass",
+    "I": "minecraft:iron_ingot",
+    "L": "minecraft:glowstone_dust",
+    "P": "#minecraft:planks"
+  },
+  "result": {
+    "id": "lightborn:lamp",
+    "count": 1
+  }
+}

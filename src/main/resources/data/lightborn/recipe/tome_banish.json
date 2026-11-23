@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:ender_eye",
+    "minecraft:end_rod",
+    "minecraft:ghast_tear",
+    "minecraft:glowstone_dust"
+  ],
+  "result": {
+    "id": "lightborn:tome_banish",
+    "count": 1
+  }
+}

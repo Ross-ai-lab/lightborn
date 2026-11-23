@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:gold_ingot",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:amethyst_block",
+    "minecraft:light_blue_stained_glass",
+    "minecraft:glass"
+  ],
+  "result": {
+    "id": "lightborn:tome_crystal_shell",
+    "count": 1
+  }
+}

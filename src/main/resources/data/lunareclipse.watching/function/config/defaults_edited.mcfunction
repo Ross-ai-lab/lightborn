@@ -1,0 +1,22 @@
+# Lightborn's defaults for fresh worlds. From The Fog calls this supported hook before its own defaults.
+function lunareclipse.watching:config/set_default {option:"sneaky_strike",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"give_him_control",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"malicious_malfunction",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"no_sleep",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"burning_base",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"disappearing_torches",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"leafless_grove",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"crimson_curse",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"chilled_candles",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"ghost_miner",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"dreadful_donation",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"haunted_heirlooms",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"shrine_strike",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"mossy_pyramid",value:'"off"'}
+function lunareclipse.watching:config/set_default {option:"sand_pyramid",value:'"off"'}
+function lunareclipse.watching:config/set_default {option:"letter",value:'"off"'}
+function lunareclipse.watching:config/set_default {option:"wooden_cross",value:'"off"'}
+function lunareclipse.watching:config/set_default {option:"sinister_signs",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"twisted_tapestries",value:'"false"'}
+function lunareclipse.watching:config/set_default {option:"haunting_delay",value:0}
+function lunareclipse.watching:config/set_default {option:"sighting_window",value:'"night"'}

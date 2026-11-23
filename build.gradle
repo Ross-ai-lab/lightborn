@@ -1,0 +1,83 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+	id 'com.diffplug.spotless' version '8.11.0'
+}
+
+// One house style for every source set. tools\build.ps1 runs spotlessApply before compiling, so code
+// written in any style comes out formatted, and a reformat can never change behaviour.
+spotless {
+	java {
+		target 'src/**/*.java'
+		palantirJavaFormat('2.103.0')
+		removeUnusedImports()
+		trimTrailingWhitespace()
+		endWithNewline()
+	}
+}
+
+loom {
+	splitEnvironmentSourceSets()
+	accessWidenerPath = file("src/main/resources/lightborn.classtweaker")
+
+	mods {
+		"lightborn" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+
+	runs {
+		// Headless dedicated server that exercises every system, prints
+		// LIGHTBORN SELFTEST PASS/FAIL and shuts itself down.
+		selftest {
+			server()
+			name "Self-test server"
+			vmArg "-Dlightborn.selftest=true"
+			programArg "--nogui"
+			runDir "run-selftest"
+		}
+	}
+}
+
+// Client game test (runClientGameTest): opens a real game window, builds a scene, takes screenshots
+// of the HUD, skill tree, tooltips and a boss into build/run/clientGameTest/screenshots, then quits.
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "lightborn-test"
+		enableGameTests = false
+		enableClientGameTests = true
+		eula = true
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	// Companion content, atmosphere mods and required libraries load in every dev and test run, so the
+	// self-test and screenshots see the same game the owner plays. Pinned by tools/companion-mods.lock.json.
+	// -Plean (tools\build.ps1 -Lean) leaves them out of a quick client run: boot falls from about 2.5 minutes to under one.
+	if (!project.hasProperty("lean")) runtimeOnly fileTree(dir: "companion-mods", include: "*.jar")
+	// The owner's game also runs Sodium (installed by hand, not pinned). Set ORG_GRADLE_PROJECT_withSodium=1 to load
+	// that same jar from Game/mods in a run, to catch rendering that differs under Sodium.
+	if (project.hasProperty("withSodium")) runtimeOnly fileTree(dir: "Game/mods", include: "sodium-*.jar")
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+}
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}

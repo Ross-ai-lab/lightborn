@@ -1,0 +1,50 @@
+# gradle
+
+.gradle/
+build/
+out/
+classes/
+
+# eclipse
+
+*.launch
+
+# idea
+
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# vscode
+
+.settings/
+.vscode/
+bin/
+.classpath
+.project
+
+# macos
+
+*.DS_Store
+
+# fabric
+
+run/
+
+# java
+
+hs_err_*.log
+replay_*.log
+*.hprof
+*.jfr
+run-selftest/
+Game/
+# Other authors' mod jars, restored by tools/companion_mods.py fetch from the tracked lock file.
+companion-mods/
+# Owner-supplied soundtrack originals; the launcher builds a streaming pack from these folders.
+Music/
+
+# Python caches and scratch output
+__pycache__/
+.preview/

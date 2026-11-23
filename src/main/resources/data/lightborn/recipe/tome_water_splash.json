@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:water_bucket",
+    "minecraft:kelp",
+    "minecraft:kelp"
+  ],
+  "result": {
+    "id": "lightborn:tome_water_splash",
+    "count": 1
+  }
+}

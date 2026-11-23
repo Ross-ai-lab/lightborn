@@ -1,0 +1,16 @@
+from PIL import Image,ImageDraw
+from pathlib import Path
+im=Image.new("RGBA",(256,256),(255,189,49,9))
+d=ImageDraw.Draw(im)
+for width,alpha in [(13,12),(9,22),(5,42),(3,105),(1,255)]:
+    for x in range(-256,513,32):
+        d.line([(x,0),(x+256,256)],fill=(255,212,101,alpha),width=width)
+        d.line([(x,0),(x-256,256)],fill=(255,212,101,alpha),width=width)
+p=Path(__file__).resolve().parent.parent/"src/main/resources/assets/runeborn/textures/entity/ward_aura.png"
+p.parent.mkdir(parents=True,exist_ok=True);im.save(p)
+# A separate opaque, alpha-cutout core writes actual depth. Clouds behind it cannot wash out the gold.
+core=Image.new("RGBA",(256,256),(0,0,0,0));line=ImageDraw.Draw(core)
+for x in range(-256,513,32):
+    line.line([(x,0),(x+256,256)],fill=(255,212,101,255),width=1)
+    line.line([(x,0),(x-256,256)],fill=(255,212,101,255),width=1)
+core.save(p.with_name("ward_aura_core.png"))

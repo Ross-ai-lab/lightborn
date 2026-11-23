@@ -1,0 +1,10 @@
+{
+  "layers": {
+    "wings": [
+      {
+        "texture": "lightborn:light_wings",
+        "use_player_texture": false
+      }
+    ]
+  }
+}

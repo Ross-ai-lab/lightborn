@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "source=true": {
+      "model": "lightborn:block/ember_crust"
+    },
+    "source=false": {
+      "model": "lightborn:block/ember_crust"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:gold_ingot",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:clock",
+    "minecraft:ender_pearl",
+    "minecraft:amethyst_shard"
+  ],
+  "result": {
+    "id": "lightborn:tome_rewind",
+    "count": 1
+  }
+}

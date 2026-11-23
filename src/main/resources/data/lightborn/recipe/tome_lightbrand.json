@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:golden_sword",
+    "minecraft:glowstone_dust",
+    "minecraft:blaze_powder"
+  ],
+  "result": {
+    "id": "lightborn:tome_lightbrand",
+    "count": 1
+  }
+}

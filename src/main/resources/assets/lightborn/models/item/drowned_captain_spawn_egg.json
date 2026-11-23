@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "lightborn:item/drowned_captain_spawn_egg"
+  }
+}

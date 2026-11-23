@@ -1,0 +1,453 @@
+[
+ {
+  "slug": "ambientsounds",
+  "title": "AmbientSounds",
+  "version": "6.3.11",
+  "wanted": true,
+  "file": "AmbientSounds_FABRIC_v6.3.11_mc26.3.jar",
+  "url": "https://cdn.modrinth.com/data/fM515JnW/versions/LFUkYKC1/AmbientSounds_FABRIC_v6.3.11_mc26.3.jar",
+  "sha512": "bd042fec99c1178f5521166f4a0284a2d5d9780e43a20404b62933f3870bfa957ec30c038173df14ce615b095e73b5a78484a416d8b02c8aeadf2973f53426d0",
+  "size": 84825097
+ },
+ {
+  "slug": "double-doors",
+  "title": "Double Doors",
+  "version": "26.3.0-7.5-fabric+forge+neo",
+  "wanted": true,
+  "file": "doubledoors-26.3.0-7.5.jar",
+  "url": "https://cdn.modrinth.com/data/JrvR9OHr/versions/KicqUZ57/doubledoors-26.3.0-7.5.jar",
+  "sha512": "0aa88eb3d71975f05d11cee347fc02367aa9c6d7962d0dcb2d0b701c4b4a2a525c183de3a21df7f5a0eeb3260dc64a1b9de9d8bf121f88d88cacb0f0db944353",
+  "size": 71619
+ },
+ {
+  "slug": "dungeons-and-taverns",
+  "title": "Dungeons and Taverns",
+  "version": "6.1.0+mod",
+  "wanted": true,
+  "file": "dungeons-and-taverns-6.1.0.jar",
+  "url": "https://cdn.modrinth.com/data/tpehi7ww/versions/hn5CugpP/dungeons-and-taverns-6.1.0.jar",
+  "sha512": "b143a1780d8eda2b548307f6cbd22b9e8b7a8b34e7f65de63179c94331ce875d72a2bdc0e01b885cfdeb09c13f215dfb8016d00f4511270ba9dd3c0744fcff9e",
+  "size": 42595560
+ },
+ {
+  "slug": "enchantment-descriptions",
+  "title": "Enchantment Descriptions",
+  "version": "26.3.0.2",
+  "wanted": true,
+  "file": "EnchantmentDescriptions-fabric-MC26.3-26.3.0.2.jar",
+  "url": "https://cdn.modrinth.com/data/UVtY3ZAC/versions/uZf2qbql/EnchantmentDescriptions-fabric-MC26.3-26.3.0.2.jar",
+  "sha512": "143438ec287a5b591c64d527714d499086d20b3c8d87df35728249ab35cebaa2eba885e458bd3a9ca8b349be2ffb497308507c8bbce0e251437f43ab02d376e7",
+  "size": 81219
+ },
+ {
+  "slug": "entity-model-features",
+  "title": "[EMF] Entity Model Features",
+  "version": "3.3.12-fabric-26.3",
+  "wanted": true,
+  "file": "entity_model_features-3.3.12-26.3-fabric.jar",
+  "url": "https://cdn.modrinth.com/data/4I1XuqiY/versions/vF6qLXsA/entity_model_features-3.3.12-26.3-fabric.jar",
+  "sha512": "4572fc065e757264947aff35a96d17d5e45d4b43e8e385b9a207f5380a8f43da5dbf8e10f30a7bc7cc4c0c8f7999717b4dd22d325667bdf8a0de6e839ad81efc",
+  "size": 665386
+ },
+ {
+  "slug": "entityculling",
+  "title": "Entity Culling",
+  "version": "1.12.1",
+  "wanted": true,
+  "file": "entityculling-fabric-1.12.1-mc26.3.jar",
+  "url": "https://cdn.modrinth.com/data/NNAgCjsB/versions/UWpkLRV5/entityculling-fabric-1.12.1-mc26.3.jar",
+  "sha512": "c56e2a19fa98b8ee85d7f46b74966a272f03ec9a8edacd4a6eb629970f19fd4d2a9bddeacb8405f9abdb790a40895244927a28cf5dbbe4dcb65a0b307f493fcb",
+  "size": 1522184
+ },
+ {
+  "slug": "entitytexturefeatures",
+  "title": "[ETF] Entity Texture Features",
+  "version": "7.2.7-fabric-26.3",
+  "wanted": true,
+  "file": "entity_texture_features-7.2.7-26.3-fabric.jar",
+  "url": "https://cdn.modrinth.com/data/BVzZfTc1/versions/svwZ2o4d/entity_texture_features-7.2.7-26.3-fabric.jar",
+  "sha512": "69193c58d4d05e08fea9afa34cc47563e9b9e95aa2da276441085ade44ed36f8123b9cc1a2938f9ecac9aea6fd9ceb51120dd20f7284337a3bb592bc3b904336",
+  "size": 798322
+ },
+ {
+  "slug": "fresh-animations",
+  "title": "Fresh Animations",
+  "version": "1.11.2",
+  "wanted": true,
+  "file": "FreshAnimations_v1.11.2_26.1+.zip",
+  "url": "https://cdn.modrinth.com/data/50dA9Sha/versions/xfE3qfr5/FreshAnimations_v1.11.2_26.1%2B.zip",
+  "sha512": "c0a529479b9e43465d8b5c5f939711fded92d92fd26053b75fcbe0560046e23655f2d429d108b286cbfceb0470960b5a519ac2311ab108899b7529b76a9e9e30",
+  "size": 778725,
+  "resource_pack": true
+ },
+ {
+  "slug": "friends-and-foes",
+  "title": "Friends&Foes (Fabric/Quilt)",
+  "version": "fabric-5.0.4+mc26.3",
+  "wanted": true,
+  "file": "friendsandfoes-fabric-5.0.4+mc26.3.jar",
+  "url": "https://cdn.modrinth.com/data/POQ2i9zu/versions/RT5VU8LW/friendsandfoes-fabric-5.0.4%2Bmc26.3.jar",
+  "sha512": "3fcfb9b3d52d0d5fe2f41e4e9f4eb4ef3943ae83d211757e0ee3871dcea4e8d0a75357ebae252ba62deb648c4b38c8569df7d0b1837c5eaee35cf672e21a0a2b",
+  "size": 4419964
+ },
+ {
+  "slug": "from-the-fog",
+  "title": "From The Fog",
+  "version": "1.11.3",
+  "wanted": true,
+  "file": "From-The-Fog-Forge-Fabric-26.3-v1.11.3.jar",
+  "url": "https://cdn.modrinth.com/data/p1WH6sHr/versions/BqldNVyW/From-The-Fog-Forge-Fabric-26.3-v1.11.3.jar",
+  "sha512": "71e9a8ff8eedaa54087b0eb45f2c31ba020c88a2842ecafca5fa22e74b98f5015b5038f70bbff8307a171e38bf792dc1241167b1550a833e7fab6b9fc1ac8b85",
+  "size": 20971931
+ },
+ {
+  "slug": "fryc-mob-variants",
+  "title": "Mob Variants",
+  "version": "7.6.1+26.3",
+  "wanted": true,
+  "file": "frycmobvariants-7.6.1+26.3.jar",
+  "url": "https://cdn.modrinth.com/data/jnEFf2VO/versions/xuW7CGMG/frycmobvariants-7.6.1%2B26.3.jar",
+  "sha512": "6efdd62747ddc463d5cce5b8f2ae2af13b6b5834a6638f273411380d5bfcef00adca176508a2cbd7551ef471ca18962136223b10108ba87f6fad02fda3b15925",
+  "size": 290185
+ },
+ {
+  "slug": "item-borders",
+  "title": "Item Borders",
+  "version": "1.3.3",
+  "wanted": true,
+  "file": "ItemBorders-26.3-fabric-1.3.3.jar",
+  "url": "https://cdn.modrinth.com/data/b1fMg6sH/versions/pVZMoGZS/ItemBorders-26.3-fabric-1.3.3.jar",
+  "sha512": "434f79b4a7f3791a6646ddc7761050e7538b7558ad1ceb8ad8f03afd2367afad674c11c4caa2638e902a0242e6bb3646d0610ccac2e3c97fc46b3c1cef99d79d",
+  "size": 23010
+ },
+ {
+  "slug": "leaves-be-gone",
+  "title": "Leaves Be Gone",
+  "version": "26.3.0",
+  "wanted": true,
+  "file": "leavesbegone-v26.3.0-mc26.3.x+fabric.jar",
+  "url": "https://cdn.modrinth.com/data/AVq17PqV/versions/Ttuy044k/leavesbegone-v26.3.0-mc26.3.x%2Bfabric.jar",
+  "sha512": "8b9ac3bd8fb28cf4c1c06ec3d1f4c33b86993461e298fc4517e017518d22b0588fb4ac8a1daa8d6f8f6a74406bc69dcdbc8f39714d7b303d03bdd17e4336ccc2",
+  "size": 42796
+ },
+ {
+  "slug": "legendary-tooltips",
+  "title": "Legendary Tooltips",
+  "version": "1.6.3",
+  "wanted": true,
+  "file": "LegendaryTooltips-26.3-fabric-1.6.3.jar",
+  "url": "https://cdn.modrinth.com/data/atHH8NyV/versions/Yqi0k5XH/LegendaryTooltips-26.3-fabric-1.6.3.jar",
+  "sha512": "1c11ae09fed974b61d0e4ff915625fcb6f7992f196cd87fb48bcef58355932e68b19d319a8373660afa565ef2c2ab0157ad03c50b22552d1ed1c3eb7884cccb1",
+  "size": 67549
+ },
+ {
+  "slug": "lithium",
+  "title": "Lithium",
+  "version": "mc26.3-0.26.4-fabric",
+  "wanted": true,
+  "file": "lithium-fabric-0.26.4+mc26.3.jar",
+  "url": "https://cdn.modrinth.com/data/gvQqBUqZ/versions/Lal8mJGR/lithium-fabric-0.26.4%2Bmc26.3.jar",
+  "sha512": "033f85813b0bcafe848a55dd741b9b1a30685dcdf774a922507bf63716b16bfd0fc12856ffc4ca3c76a36f6dc73310a7dfdc4b6dc9e35c21a4482627b1d30b85",
+  "size": 921530
+ },
+ {
+  "slug": "mes-moogs-end-structures",
+  "title": "MES - Moog's End Structures",
+  "version": "2.1.1",
+  "wanted": true,
+  "file": "MoogsEndStructures-universal-1.21-2.1.1.jar",
+  "url": "https://cdn.modrinth.com/data/r4PuRGfV/versions/S7bUhX4n/MoogsEndStructures-universal-1.21-2.1.1.jar",
+  "sha512": "5732c98bf3d1e6aa3c76cf23db77301065dd96f060fb9bf85e8af00769bc6a93e213aad7ff79a3116b3cfd5015fe98437bdadf9fdc0dd829eae1759e3c1fee96",
+  "size": 2285901
+ },
+ {
+  "slug": "mns-moogs-nether-structures",
+  "title": "MNS - Moog's Nether Structures",
+  "version": "3.1.1",
+  "wanted": true,
+  "file": "MoogsNetherStructures-universal-1.21-3.1.1.jar",
+  "url": "https://cdn.modrinth.com/data/nGUXvjTa/versions/OLTqXnsN/MoogsNetherStructures-universal-1.21-3.1.1.jar",
+  "sha512": "95f8f8fcff3851bf1b92e2ab8465e551506fe819d5269ef7e251d446563546a318ee7fcb7b8a671209895e4fd5df084101f203da43b65d1af4833e9d7bae6c00",
+  "size": 3916038
+ },
+ {
+  "slug": "moogs-voyager-structures",
+  "title": "MVS - Moog's Voyager Structures",
+  "version": "5.1.3",
+  "wanted": true,
+  "file": "MoogsVoyagerStructures-universal-1.21-5.1.3.jar",
+  "url": "https://cdn.modrinth.com/data/OQAgZMH1/versions/PiFoSPXI/MoogsVoyagerStructures-universal-1.21-5.1.3.jar",
+  "sha512": "80e9e4a6543e8fc7d24d7e1fb4d4245d1d30f9aaf02ae2ba1098956106bea411a4502ce1d4b8fa97b935c9421a0eebf42226a46c8172cbbf621cc8ca16a50457",
+  "size": 2234287
+ },
+ {
+  "slug": "mouse-tweaks",
+  "title": "Mouse Tweaks",
+  "version": "26.3-2.31-fabric",
+  "wanted": true,
+  "file": "MouseTweaks-fabric-mc26.3-2.31.jar",
+  "url": "https://cdn.modrinth.com/data/aC3cM3Vq/versions/LeMuMhLv/MouseTweaks-fabric-mc26.3-2.31.jar",
+  "sha512": "61c011308b5d1d0b2163473cbbc1ad0f1b3ac873b77e3e9ff67ccb437a946fbe5f34077281ebd2b91647324969d319f6499ac4b319cfcb9ea027bac47a52c081",
+  "size": 74569
+ },
+ {
+  "slug": "mutant-monsters",
+  "title": "Mutant Monsters",
+  "version": "26.3.1",
+  "wanted": true,
+  "file": "mutantmonsters-v26.3.1-mc26.3.x+fabric.jar",
+  "url": "https://cdn.modrinth.com/data/derP0ten/versions/XNliGY5t/mutantmonsters-v26.3.1-mc26.3.x%2Bfabric.jar",
+  "sha512": "76c4ddd2a1b659270d0013ca758b0d64000a3b9fed44230b2a56e1b636cda83ec8661a76f39e1a7cf6e43af9ba04c358f9cfea02533c4f512e9cbd80d50e33c9",
+  "size": 1369167
+ },
+ {
+  "slug": "mutants-and-zombies",
+  "title": "Mutants and Zombies",
+  "version": "1.3.3-Fabric-mc26.1",
+  "wanted": true,
+  "file": "MutantsZombies-1.3.3-Fabric-mc26.1.jar",
+  "url": "https://cdn.modrinth.com/data/W0C544GP/versions/cwMAbHd8/MutantsZombies-1.3.3-Fabric-mc26.1.jar",
+  "sha512": "525dac5632043173f3a43747a87ed1037c2628340edab88ec473fb594385bb4034f3fb69f5c3bf67a1dc0d83e5e16e7d4195837c4267d0587e57eb09a13a60a0",
+  "size": 1444329
+ },
+ {
+  "slug": "naturalist",
+  "title": "Naturalist",
+  "version": "2.0.7+26.3-fabric",
+  "wanted": true,
+  "file": "naturalist-2.0.7-fabric-26.3.jar",
+  "url": "https://cdn.modrinth.com/data/F8BQNPWX/versions/4SzCjLeS/naturalist-2.0.7-fabric-26.3.jar",
+  "sha512": "69ab0b21eddb4ca33e082be27803ddaff6f9241a1f33d05e6b0579dd62b1c90955e0d12cb855d05e8769bc46cb866a6f1c57951c01962def31505fda0217820c",
+  "size": 11406776
+ },
+ {
+  "slug": "nemos-creatures",
+  "title": "Nemo's Creatures",
+  "version": "26.3-2.0.3",
+  "wanted": true,
+  "file": "nemos-creatures-26.3-2.0.3.jar",
+  "url": "https://cdn.modrinth.com/data/gfk2cUFK/versions/th8b227x/nemos-creatures-26.3-2.0.3.jar",
+  "sha512": "e49f5bf569fd3fb8e6e66d79f26a0e8888499d7d894fa77b1e02a6a5d4d6fb4deaeb554d4978048186204533c8288241891e23e2fd7e48cdc7a4e2a00612a404",
+  "size": 325491
+ },
+ {
+  "slug": "sit",
+  "title": "Sit!",
+  "version": "1.2.6.4+26.3",
+  "wanted": true,
+  "file": "sit!-1.2.6.4+26.3.jar",
+  "url": "https://cdn.modrinth.com/data/EsYqsGV4/versions/9zKJaj9v/sit%21-1.2.6.4%2B26.3.jar",
+  "sha512": "4e6ffa81816571fcd69336406015d7f3daaf36709b8abaa5a72934db7138d1409e32ea2b9c4e324559041f7cdfaaee5cd3fdd7291b4e34e9e944ba2d4e0db683",
+  "size": 391103
+ },
+ {
+  "slug": "sound",
+  "title": "Sounds",
+  "version": "2.6.0+26.3-fabric",
+  "wanted": true,
+  "file": "sounds-2.6.0+26.3-fabric.jar",
+  "url": "https://cdn.modrinth.com/data/ZouiUX7t/versions/QCFPBvDa/sounds-2.6.0%2B26.3-fabric.jar",
+  "sha512": "3d258e40e4166d96fdcdcc8f0246bd6e2ab961c27aba5fccbfdd52dde521f4b5127d49a3ff4eb3a7b92a55c335ec6b144a84f9fcc4a11d9652944bfb32cba515",
+  "size": 8143246
+ },
+ {
+  "slug": "spawn-animations",
+  "title": "Spawn Animations",
+  "version": "1.11.6+mod",
+  "wanted": true,
+  "file": "spawnanimations-v1.11.6-mc1.17-26.3.9-mod.jar",
+  "url": "https://cdn.modrinth.com/data/zrzYrlm0/versions/xFTfXEwk/spawnanimations-v1.11.6-mc1.17-26.3.9-mod.jar",
+  "sha512": "c2da9e00064d697c52016c2d823c6f5a079a2fb71ae4e23566be2dc064a3825b28d687c03cc309853188bad0a2ba3cac66653b550003e14c3f1fac7098e46f3b",
+  "size": 240770
+ },
+ {
+  "slug": "terralith",
+  "title": "Terralith",
+  "version": "2.6.5+26.3",
+  "wanted": true,
+  "file": "Terralith_26.3_v2.6.5+26.3.jar",
+  "url": "https://cdn.modrinth.com/data/8oi3bsk5/versions/aGE3hYAA/Terralith_26.3_v2.6.5%2B26.3.jar",
+  "sha512": "918b232df7a855bae89c7fa85affb5ce134e236c4726fa14a5bdaa179eb1e010f040a9fa981f006a0e26e421a2a961bc29a75e99a4500fd18361a8ba81478071",
+  "size": 2954218
+ },
+ {
+  "slug": "variants-and-ventures",
+  "title": "Variants&Ventures",
+  "version": "fabric-1.0.29+mc26.3",
+  "wanted": true,
+  "file": "variantsandventures-fabric-1.0.29+mc26.3.jar",
+  "url": "https://cdn.modrinth.com/data/lNDRiXkY/versions/kfN6PKwW/variantsandventures-fabric-1.0.29%2Bmc26.3.jar",
+  "sha512": "d69adc1c2e2967ad12b7f0fad30296c4e29fb4d46a790acc61e78279a538f23b5de587b335bae91fbfa9a426d7c544d061f323edb901c42ef89cc49ad89b53bf",
+  "size": 1113448
+ },
+ {
+  "slug": "visual-workbench",
+  "title": "Visual Workbench",
+  "version": "26.3.0",
+  "wanted": true,
+  "file": "visualworkbench-v26.3.0-mc26.3.x+fabric.jar",
+  "url": "https://cdn.modrinth.com/data/kfqD1JRw/versions/rcsB2H1O/visualworkbench-v26.3.0-mc26.3.x%2Bfabric.jar",
+  "sha512": "52006eaa57053a2f6cba75a0032a81d179f1a47cc4982e391ea5a380179b9b7aaf349afcd5ac3344dcd05e1b0e224f91cf6b1a1135698a7685f1321470966ad0",
+  "size": 64535
+ },
+ {
+  "slug": "xaeros-world-map",
+  "title": "Xaero's World Map",
+  "version": "fabric-26.3-1.47.2",
+  "wanted": true,
+  "file": "xaeroworldmap-fabric-26.3-1.47.2.jar",
+  "url": "https://cdn.modrinth.com/data/NcUtCpym/versions/VM8lNSSM/xaeroworldmap-fabric-26.3-1.47.2.jar",
+  "sha512": "cac3c0fb3121ddebc7f073571dcbce5f1811ca001ea94ef03c1da667e8a3413144f570c4b593f632358eff98fa138631ed7907fd1bd5da7d43c037ea782125fb",
+  "size": 1488669
+ },
+ {
+  "slug": "cloth-config",
+  "title": "Cloth Config API",
+  "version": "26.3.159+fabric",
+  "wanted": false,
+  "file": "cloth-config-fabric-26.3.159.jar",
+  "url": "https://cdn.modrinth.com/data/9s6osm5g/versions/fg2uyxOW/cloth-config-fabric-26.3.159.jar",
+  "sha512": "8924e19d41845096724fa10f3717bc51964a0edbbbcad0ff1e6c6187a398b08f356e49579a657c2dc44a7f92e3850771f3ca70bf8c1f654de60425163b91dbb1",
+  "size": 1135009
+ },
+ {
+  "slug": "collective",
+  "title": "Collective",
+  "version": "26.3.0-8.86-fabric+forge+neo",
+  "wanted": false,
+  "file": "collective-26.3.0-8.86.jar",
+  "url": "https://cdn.modrinth.com/data/e0M1UDsY/versions/jfxbozAD/collective-26.3.0-8.86.jar",
+  "sha512": "08d82111c0c4d4d53e4a686df23f7f579a8988caa0048c512d4fbea2f84c9556072e5b888d4bc785d323cafdeebdd3f3837b07109ed386be3b808a09a694b83a",
+  "size": 1665489
+ },
+ {
+  "slug": "creativecore",
+  "title": "CreativeCore",
+  "version": "2.14.25",
+  "wanted": false,
+  "file": "CreativeCore_FABRIC_v2.14.25_mc26.3.jar",
+  "url": "https://cdn.modrinth.com/data/OsZiaDHq/versions/pB8O6fTf/CreativeCore_FABRIC_v2.14.25_mc26.3.jar",
+  "sha512": "850a061691e57815ba9ab5df9c6ff2ab2a452496660059fec0c6fdeb10cee18b3fd67b3f7b7c5aea5725db5da1df2df68a0b5d9cc04c0ba251524aabac2f4890",
+  "size": 1422746
+ },
+ {
+  "slug": "forge-config-api-port",
+  "title": "Forge Config API Port",
+  "version": "26.3.1",
+  "wanted": false,
+  "file": "ForgeConfigAPIPort-v26.3.1-mc26.3.x-Fabric.jar",
+  "url": "https://cdn.modrinth.com/data/ohNO6lps/versions/JpKvrr9J/ForgeConfigAPIPort-v26.3.1-mc26.3.x-Fabric.jar",
+  "sha512": "b9339c21e14beec2eae0ca215317284bcaacef72e1d1dee8b3dfbe2de0eefaa758a172446df85419b6534557c479abe972d7d21f4ec194f2d436f9ed4329cb9f",
+  "size": 609574
+ },
+ {
+  "slug": "iceberg",
+  "title": "Iceberg",
+  "version": "1.4.3.1",
+  "wanted": false,
+  "file": "Iceberg-26.3-fabric-1.4.3.1.jar",
+  "url": "https://cdn.modrinth.com/data/5faXoLqX/versions/zhVGUJyW/Iceberg-26.3-fabric-1.4.3.1.jar",
+  "sha512": "22ab9c3394a289b16463c00116c44013e421bfca16f5370b92f32a193675322a9f47be47b21058721ecb2ce9ba534723bb1f39fd83e0c17dd0573d228a44ad4f",
+  "size": 361211
+ },
+ {
+  "slug": "lithostitched",
+  "title": "Lithostitched",
+  "version": "2.0.6-fabric-26.3",
+  "wanted": false,
+  "file": "lithostitched-2.0.6-fabric-26.3.jar",
+  "url": "https://cdn.modrinth.com/data/XaDC71GB/versions/pZgI6b2t/lithostitched-2.0.6-fabric-26.3.jar",
+  "sha512": "d7ffe9bb3ea653ae70317f8621c546e3331369c0dd3cd6cadb374cc71283ca1fae1e7de7d2d16eb5724e96f7159c8b043e15a618f32dad88c8e70a7d8d1db4ee",
+  "size": 997092
+ },
+ {
+  "slug": "midnightlib",
+  "title": "MidnightLib",
+  "version": "1.10.0+26.3-fabric",
+  "wanted": false,
+  "file": "midnightlib-fabric-1.10.0+26.3.jar",
+  "url": "https://cdn.modrinth.com/data/codAaoxh/versions/G9RaNHAC/midnightlib-fabric-1.10.0%2B26.3.jar",
+  "sha512": "e9988e031aca82ea8f9171df706cd4307a4ccc66a133642ab20c2c65c241bc7aa506699d6d9901bc1305f0070e45c9dcd40e5e1f474e0ddf6092320ff4b6b517",
+  "size": 65973
+ },
+ {
+  "slug": "moogs-structure-lib",
+  "title": "Moog's Structure Lib (moogs_structures)",
+  "version": "3.4.2-fabric-26.3",
+  "wanted": false,
+  "file": "MoogsStructureLib-fabric-26.3-3.4.2.jar",
+  "url": "https://cdn.modrinth.com/data/1oUDhxuy/versions/SkD4H9XM/MoogsStructureLib-fabric-26.3-3.4.2.jar",
+  "sha512": "2ebd787cfd2ba0622c44ab853b8daeae7039f1e73d4872218e536ea969e06503cae84351f037a1d007892ee4b4971f98770f7a1d68fa69ae4e164c59ad29bac9",
+  "size": 1097200
+ },
+ {
+  "slug": "mru",
+  "title": "MRU",
+  "version": "1.0.45+26.3-fabric",
+  "wanted": false,
+  "file": "mru-1.0.45+26.3-fabric.jar",
+  "url": "https://cdn.modrinth.com/data/SNVQ2c0g/versions/22Tvjurn/mru-1.0.45%2B26.3-fabric.jar",
+  "sha512": "9b62918f0a78a719fb98ad5f138e17a5640677b7f97cbe0434204cd51cffb9efa1b6231258e4aaf186b3170297b601e05f121e9157fd878f27e00dab9c35d5dc",
+  "size": 169134
+ },
+ {
+  "slug": "otterlib",
+  "title": "OtterLib",
+  "version": "0.4.0.2+26.3",
+  "wanted": false,
+  "file": "otterlib-0.4.0.2+26.3-fabric.jar",
+  "url": "https://cdn.modrinth.com/data/zVVpzurY/versions/EZmdLF7S/otterlib-0.4.0.2%2B26.3-fabric.jar",
+  "sha512": "854daeddea696399fdf7630a1f9ff860d9dca260948dd7fb6f28b39b99b60e40965b731837fd8e3e87ff4e200ec9b209c6db396da83df4bf63cb73f945d4250c",
+  "size": 1357981
+ },
+ {
+  "slug": "prickle",
+  "title": "Prickle",
+  "version": "26.3.0.2",
+  "wanted": false,
+  "file": "PrickleMC-fabric-MC26.3-26.3.0.2.jar",
+  "url": "https://cdn.modrinth.com/data/aaRl8GiW/versions/aPdekuq6/PrickleMC-fabric-MC26.3-26.3.0.2.jar",
+  "sha512": "8ac58d09d441e6c88c39b3e1f069ae674959c991389e35b27fa1f3e3a18ea1424d095697751e5618dd296b4eb120fe622ada7cd2214fd6bcfb2cafe398f9bffb",
+  "size": 85386
+ },
+ {
+  "slug": "prism-lib",
+  "title": "Prism",
+  "version": "1.1.3",
+  "wanted": false,
+  "file": "Prism-26.3-fabric-1.1.3.jar",
+  "url": "https://cdn.modrinth.com/data/1OE8wbN0/versions/ETN2U7Rc/Prism-26.3-fabric-1.1.3.jar",
+  "sha512": "fe6c9760c85ca6157e3219b1d61004ab8b2190a5ae9ccd1475a4ed2eec121dcf6c02883bb7575b4a31667c4f2d477d92081656c582f5274ee85a262fa9fb874f",
+  "size": 60462
+ },
+ {
+  "slug": "puzzles-lib",
+  "title": "Puzzles Lib",
+  "version": "26.3.17",
+  "wanted": false,
+  "file": "puzzleslib-v26.3.17-mc26.3.x+fabric.jar",
+  "url": "https://cdn.modrinth.com/data/QAGBst4M/versions/b1UA02v8/puzzleslib-v26.3.17-mc26.3.x%2Bfabric.jar",
+  "sha512": "6366724a2eb5320b02feacb0983fdd66bf8615c17d7a44426264434222acbc7462ab0c0b81756ae3a11aa82e32a584fae774fccd0f4abfd0db5535747ff74c40",
+  "size": 1094042
+ },
+ {
+  "slug": "resourceful-lib",
+  "title": "Resourceful Lib",
+  "version": "6.0.1",
+  "wanted": false,
+  "file": "ResourcefulLib-6.0.1.jar",
+  "url": "https://cdn.modrinth.com/data/G1hIVOrD/versions/P6Jq77km/ResourcefulLib-6.0.1.jar",
+  "sha512": "9850f92d59beb89e8c3e8ca55e56aacdd42500c4e6f560607e29549e3998f6c912e08bc6ec5350764751ced6a9d7821c4e6c545fb6194e8a0d0ac111c218cd87",
+  "size": 458351
+ },
+ {
+  "slug": "yacl",
+  "title": "YetAnotherConfigLib (YACL)",
+  "version": "3.9.7+26.3-fabric",
+  "wanted": false,
+  "file": "yet_another_config_lib_v3-3.9.7+26.3-fabric.jar",
+  "url": "https://cdn.modrinth.com/data/1eAoo2KR/versions/s9SjoFu1/yet_another_config_lib_v3-3.9.7%2B26.3-fabric.jar",
+  "sha512": "f3957028dd31cae78f08aee3e768f61bd12c4c8423257d357bc3c1a2172047c769d37901f99775c7ffff1e5ee794025dc72738b2869cab06f1c2811841d68b24",
+  "size": 1125377
+ }
+]

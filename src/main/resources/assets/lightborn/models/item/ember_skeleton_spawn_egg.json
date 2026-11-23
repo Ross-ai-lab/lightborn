@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "lightborn:item/ember_skeleton_spawn_egg"
+  }
+}

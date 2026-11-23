@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:tripwire_hook",
+    "minecraft:glow_ink_sac",
+    "minecraft:redstone"
+  ],
+  "result": {
+    "id": "lightborn:tome_rune_snare",
+    "count": 1
+  }
+}

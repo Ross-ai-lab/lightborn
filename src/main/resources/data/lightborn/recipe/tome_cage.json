@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:gold_ingot",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:iron_bars",
+    "minecraft:iron_bars",
+    "minecraft:iron_chain"
+  ],
+  "result": {
+    "id": "lightborn:tome_cage",
+    "count": 1
+  }
+}

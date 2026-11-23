@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:gold_ingot",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:spyglass",
+    "minecraft:glowstone_dust",
+    "minecraft:glowstone_dust"
+  ],
+  "result": {
+    "id": "lightborn:tome_ore_sight",
+    "count": 1
+  }
+}

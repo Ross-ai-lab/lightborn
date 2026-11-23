@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lightborn:block/light_chest"
+    },
+    "facing=east": {
+      "model": "lightborn:block/light_chest",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "lightborn:block/light_chest",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightborn:block/light_chest",
+      "y": 270
+    }
+  }
+}

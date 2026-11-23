@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:crafting_table",
+    "minecraft:stick",
+    "minecraft:stick",
+    "minecraft:oak_planks",
+    "minecraft:oak_planks",
+    "minecraft:oak_planks"
+  ],
+  "result": {
+    "id": "lightborn:tome_workbench",
+    "count": 1
+  }
+}

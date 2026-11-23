@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "lightborn:light"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "lightborn:light"
+      }
+    ]
+  }
+}

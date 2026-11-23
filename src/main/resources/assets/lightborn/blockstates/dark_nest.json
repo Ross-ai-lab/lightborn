@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "stage=1": {
+      "model": "lightborn:block/dark_nest_1"
+    },
+    "stage=2": {
+      "model": "lightborn:block/dark_nest_2"
+    },
+    "stage=3": {
+      "model": "lightborn:block/dark_nest_3"
+    },
+    "stage=4": {
+      "model": "lightborn:block/dark_nest_4"
+    }
+  }
+}

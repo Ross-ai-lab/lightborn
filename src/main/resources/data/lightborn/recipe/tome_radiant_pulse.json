@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:glowstone_dust",
+    "minecraft:glowstone_dust",
+    "minecraft:glowstone_dust",
+    "minecraft:torch",
+    "minecraft:torch",
+    "minecraft:torch"
+  ],
+  "result": {
+    "id": "lightborn:tome_radiant_pulse",
+    "count": 1
+  }
+}

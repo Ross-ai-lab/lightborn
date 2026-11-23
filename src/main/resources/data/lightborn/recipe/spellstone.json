@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "LGL",
+    "ASA",
+    "LGL"
+  ],
+  "key": {
+    "L": "minecraft:lapis_lazuli",
+    "G": "minecraft:gold_ingot",
+    "A": "minecraft:amethyst_shard",
+    "S": "minecraft:smooth_stone"
+  },
+  "result": {
+    "id": "lightborn:spellstone",
+    "count": 1
+  }
+}

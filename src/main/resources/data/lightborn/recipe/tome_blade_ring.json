@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:gold_ingot",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:iron_sword",
+    "minecraft:iron_sword",
+    "minecraft:iron_sword"
+  ],
+  "result": {
+    "id": "lightborn:tome_blade_ring",
+    "count": 1
+  }
+}

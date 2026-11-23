@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:cobblestone_wall",
+    "minecraft:cobblestone_wall",
+    "minecraft:stone_bricks"
+  ],
+  "result": {
+    "id": "lightborn:tome_stone_wall",
+    "count": 1
+  }
+}

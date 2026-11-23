@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:packed_ice",
+    "minecraft:ice",
+    "minecraft:leather_boots",
+    "minecraft:snowball",
+    "minecraft:snowball",
+    "minecraft:snowball"
+  ],
+  "result": {
+    "id": "lightborn:tome_frostwalk",
+    "count": 1
+  }
+}

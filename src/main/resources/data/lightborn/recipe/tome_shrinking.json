@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:red_mushroom",
+    "minecraft:red_mushroom",
+    "minecraft:red_mushroom",
+    "minecraft:brown_mushroom",
+    "minecraft:brown_mushroom",
+    "minecraft:sugar"
+  ],
+  "result": {
+    "id": "lightborn:tome_shrinking",
+    "count": 1
+  }
+}

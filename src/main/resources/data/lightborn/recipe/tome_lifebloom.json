@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:flowering_azalea",
+    "minecraft:glow_berries",
+    "minecraft:bone_meal",
+    "minecraft:golden_carrot"
+  ],
+  "result": {
+    "id": "lightborn:tome_lifebloom",
+    "count": 1
+  }
+}

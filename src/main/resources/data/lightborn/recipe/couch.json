@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "WWW",
+    "WPW",
+    "P P"
+  ],
+  "key": {
+    "P": "#minecraft:planks",
+    "W": "#minecraft:wool"
+  },
+  "result": {
+    "id": "lightborn:couch",
+    "count": 1
+  }
+}

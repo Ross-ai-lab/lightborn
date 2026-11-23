@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:netherite_scrap",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:clock",
+    "minecraft:clock",
+    "minecraft:ender_eye",
+    "minecraft:amethyst_shard"
+  ],
+  "result": {
+    "id": "lightborn:tome_time_stop",
+    "count": 1
+  }
+}

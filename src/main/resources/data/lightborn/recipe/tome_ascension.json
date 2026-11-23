@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:netherite_scrap",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:golden_apple",
+    "minecraft:glowstone",
+    "minecraft:feather",
+    "minecraft:blaze_rod"
+  ],
+  "result": {
+    "id": "lightborn:tome_ascension",
+    "count": 1
+  }
+}

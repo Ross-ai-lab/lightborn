@@ -1,0 +1,111 @@
+{
+  "parent": "minecraft:block/block",
+  "ambientocclusion": false,
+  "textures": {
+    "face": "lightborn:block/dark_core_face",
+    "tip": "lightborn:block/dark_core_tip",
+    "ooze": "lightborn:block/dark_core_ooze",
+    "particle": "lightborn:block/dark_core_tip"
+  },
+  "elements": [
+    {
+      "from": [
+        -7,
+        1.1,
+        -7
+      ],
+      "to": [
+        23,
+        1.2000000000000002,
+        23
+      ],
+      "rotation": {
+        "origin": [
+          8,
+          1.1,
+          8
+        ],
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "faces": {
+        "up": {
+          "texture": "#ooze",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        -7,
+        1.1800000000000002,
+        -7
+      ],
+      "to": [
+        23,
+        1.2800000000000002,
+        23
+      ],
+      "rotation": {
+        "origin": [
+          8,
+          1.1800000000000002,
+          8
+        ],
+        "x": 0,
+        "y": 30,
+        "z": 0
+      },
+      "faces": {
+        "up": {
+          "texture": "#ooze",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      }
+    },
+    {
+      "from": [
+        -7,
+        1.26,
+        -7
+      ],
+      "to": [
+        23,
+        1.36,
+        23
+      ],
+      "rotation": {
+        "origin": [
+          8,
+          1.26,
+          8
+        ],
+        "x": 0,
+        "y": 60,
+        "z": 0
+      },
+      "faces": {
+        "up": {
+          "texture": "#ooze",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      }
+    }
+  ]
+}

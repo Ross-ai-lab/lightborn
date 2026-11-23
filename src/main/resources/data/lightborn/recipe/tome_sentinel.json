@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:gold_ingot",
+    "minecraft:diamond",
+    "minecraft:diamond",
+    "minecraft:blue_ice",
+    "minecraft:packed_ice",
+    "minecraft:ice",
+    "minecraft:prismarine_crystals"
+  ],
+  "result": {
+    "id": "lightborn:tome_sentinel",
+    "count": 1
+  }
+}

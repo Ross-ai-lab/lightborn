@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:furnace",
+    "minecraft:coal",
+    "minecraft:coal"
+  ],
+  "result": {
+    "id": "lightborn:tome_forge_fire",
+    "count": 1
+  }
+}

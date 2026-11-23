@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "lightborn:block/fridge",
+      "y": 0
+    },
+    "facing=east": {
+      "model": "lightborn:block/fridge",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "lightborn:block/fridge",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "lightborn:block/fridge",
+      "y": 270
+    }
+  }
+}

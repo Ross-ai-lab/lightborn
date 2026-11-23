@@ -1,0 +1,91 @@
+package runeborn.client;
+
+import com.mojang.blaze3d.vertex.*;
+import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.entity.*;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.client.renderer.rendertype.*;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.AABB;
+import runeborn.WardAura;
+
+/** Cached sphere with a depth-writing gold core and a transparent glow. */
+public final class WardAuraRenderer extends EntityRenderer<WardAura, WardAuraRenderer.State> {
+    private static final RenderType TYPE = RenderTypes.entityTranslucentEmissive(
+            Identifier.fromNamespaceAndPath("runeborn", "textures/entity/ward_aura.png"));
+    private static final RenderType CORE =
+            RenderTypes.entityCutout(Identifier.fromNamespaceAndPath("runeborn", "textures/entity/ward_aura_core.png"));
+    private static final int LON = 64, LAT = 32;
+    private static final float[][] VERTICES = mesh();
+
+    public static final class State extends EntityRenderState {
+        float radius, phase;
+    }
+
+    public WardAuraRenderer(EntityRendererProvider.Context c) {
+        super(c);
+        shadowRadius = 0;
+    }
+
+    @Override
+    public State createRenderState() {
+        return new State();
+    }
+
+    @Override
+    public void extractRenderState(WardAura e, State s, float partial) {
+        super.extractRenderState(e, s, partial);
+        s.radius = e.radius();
+        s.phase = (e.tickCount + partial) * .015f;
+    }
+
+    @Override
+    protected AABB getBoundingBoxForCulling(WardAura e, float partial) {
+        return new AABB(e.position(), e.position()).inflate(e.radius());
+    }
+
+    @Override
+    public void submit(State s, PoseStack pose, SubmitNodeCollector collector, CameraRenderState camera) {
+        float radius = s.radius;
+        int alpha = (int) (244 + 10 * Math.sin(s.phase));
+        collector.submitCustomGeometry(pose, CORE, (p, out) -> {
+            for (float[] v : VERTICES)
+                out.addVertex(p, v[0] * radius, v[1] * radius, v[2] * radius)
+                        .setColor(255, 255, 255, 255)
+                        .setUv(v[3], v[4])
+                        .setOverlay(OverlayTexture.NO_OVERLAY)
+                        .setLight(15728880)
+                        .setNormal(p, 0, 1, 0);
+        });
+        collector.submitCustomGeometry(pose, TYPE, (p, out) -> {
+            for (float[] v : VERTICES)
+                out.addVertex(p, v[0] * radius, v[1] * radius, v[2] * radius)
+                        .setColor(255, 255, 255, alpha)
+                        .setUv(v[3], v[4])
+                        .setOverlay(OverlayTexture.NO_OVERLAY)
+                        .setLight(15728880)
+                        .setNormal(p, v[0], v[1], v[2]);
+        });
+    }
+
+    private static float[][] mesh() {
+        var v = new float[LON * LAT * 4][5];
+        int i = 0;
+        for (int y = 0; y < LAT; y++)
+            for (int x = 0; x < LON; x++)
+                for (int[] corner : new int[][] {{0, 0}, {0, 1}, {1, 1}, {1, 0}}) {
+                    float u = (x + corner[0]) / (float) LON, w = (y + corner[1]) / (float) LAT;
+                    double a = u * Math.PI * 2, b = w * Math.PI;
+                    v[i++] = new float[] {
+                        (float) (Math.sin(b) * Math.cos(a)),
+                        (float) Math.cos(b),
+                        (float) (Math.sin(b) * Math.sin(a)),
+                        u * 8,
+                        w * 4
+                    };
+                }
+        return v;
+    }
+}

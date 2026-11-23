@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:wheat",
+    "minecraft:wheat",
+    "minecraft:wheat",
+    "minecraft:carrot",
+    "minecraft:carrot",
+    "minecraft:egg"
+  ],
+  "result": {
+    "id": "lightborn:tome_quickening",
+    "count": 1
+  }
+}

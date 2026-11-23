@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lapis_lazuli",
+    "minecraft:lapis_lazuli",
+    "minecraft:milk_bucket",
+    "minecraft:honey_bottle",
+    "minecraft:sugar",
+    "minecraft:sugar",
+    "minecraft:glass_bottle",
+    "minecraft:glass_bottle"
+  ],
+  "result": {
+    "id": "lightborn:tome_purify",
+    "count": 1
+  }
+}

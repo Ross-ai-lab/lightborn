@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "lightborn",
+	"version": "${version}",
+	"name": "Lightborn",
+	"description": "Path of Exile 2, in Minecraft: nearly 90 spells with upgrades, bosses and new monster kinds, loot worth chasing, a warded home that is also a collection book, and a chained Light Dragon with a story of his own.",
+	"authors": ["Ross"],
+	"icon": "assets/lightborn/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["lightborn.Lightborn"],
+		"client": ["lightborn.client.LightbornClient"]
+	},
+	"mixins": [
+		"lightborn.mixins.json",
+		{ "config": "lightborn.client.mixins.json", "environment": "client" }
+	],
+	"accessWidener": "lightborn.classtweaker",
+	"depends": {
+		"fabricloader": ">=0.20.1",
+		"minecraft": "~26.3",
+		"java": ">=25",
+		"fabric-api": "*"
+	},
+	"custom": {
+		"lithium:options": {
+			"mixin.world.explosions": false
+		}
+	}
+}
