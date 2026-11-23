@@ -834,6 +834,21 @@ public class VisualTest implements FabricClientGameTest {
                 ctx.waitTicks(10);
                 ctx.takeScreenshot("lightborn_meteor_impact");
                 ctx.waitTicks(30);
+                // For the README: aimed about 18 blocks off, then the camera tilts up to hold the rock mid-fall
+                // over its ring, with no chat line or advancement popup on screen.
+                fresh(ctx, sp, 6000, true);
+                ctx.getInput().lookAt(-90f, 5f);
+                ctx.waitTicks(4);
+                castGreater(sp, Spell.METEOR);
+                ctx.getInput().lookAt(-90f, -14f);
+                ctx.waitTicks(7); // the rock falls in about 20 ticks: this is mid-sky
+                ctx.runOnClient(mc -> {
+                    mc.gui.hud.getChat().clearMessages(false);
+                    mc.gui.toastManager().clear();
+                });
+                ctx.waitTicks(2);
+                ctx.takeScreenshot("lightborn_comet_falling");
+                ctx.waitTicks(30);
             }
 
             if (scene("ore_sight")) {

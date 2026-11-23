@@ -38,6 +38,8 @@ public class LightUpdateClientTest implements FabricClientGameTest {
                 level.getGameRules().set(GameRules.ADVANCE_WEATHER, false, server);
                 p.getInventory().setItem(1, new ItemStack(ModItems.SPARK, 64));
                 p.getInventory().setItem(2, new ItemStack(ModItems.SPARK, 64));
+                // The shop sells only once its tab has opened (ChestTabs.SHOP_NIGHTS); open it as a player would.
+                p.setAttached(lightborn.ChestTabs.NIGHTS_SURVIVED, lightborn.ChestTabs.SHOP_NIGHTS);
                 return level.getRespawnData().pos();
             });
             BlockPos chest = SpawnHut.lightChestAt(inside);
