@@ -7,7 +7,7 @@ if (-not $jar) { throw 'No built jar; run tools\build.ps1 first' }
 $game = Join-Path $root 'Game'
 $mods = Join-Path $game 'mods'
 # The mod was Runeborn until 2026-11-18: retire its jar and music pack, and carry the owner's key binds and pack list
-# over to the new id. Idempotent; worlds are never touched (README: fresh worlds only).
+# over to the new id. Idempotent; worlds are never touched.
 Get-ChildItem $mods -Filter 'runeborn-*.jar' | Remove-Item
 $oldMusic = Join-Path $game 'resourcepacks\Runeborn-Music'
 if (Test-Path -LiteralPath $oldMusic) { Remove-Item -LiteralPath $oldMusic -Recurse -Force }
