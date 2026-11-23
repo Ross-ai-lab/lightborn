@@ -1281,7 +1281,7 @@ apparent width at any range, and by day it burns 1.6 times brighter so it reads 
   creeps in from the screen's edges), then it tears and you break free. Walking in meets the same membrane for the
   same time. **Walking in, the ward pulls you in** (owner, 2026-11-23: from a mine shaft below, its wall held you
   off the stairs): touching the membrane from outside flashes gold and draws you toward its centre. At night,
-  outside, a slow heartbeat sounds with a faint red pulse at the edges (no darkened screen: owner, 2026-11-23), and
+  outside, a slow heartbeat sounds (no darkened screen and no red pulse: owner, 2026-11-23), and
   dark rain runs down the screen (owner, 2026-11-17: dark raindrops, not small dots): near-black beads that streak
   downward, a new one about every two thirds of a second, at most seven (owner, 2026-11-23: half). Coming home at
   night plays a

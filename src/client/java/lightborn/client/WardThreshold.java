@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
  * day and night). Pressing through, the dome's light holds you like warm syrup: for about five seconds you barely
  * advance while gold creeps in from the edges of the screen, then it tears and you break through. Coming home is the
  * other way round: the ward pulls you in (owner, 2026-11-23: climbing into it from a mine below left you stuck). Leaving
- * at night, you hear a slow heartbeat and dark rain runs down the screen (owner, 2026-11-17: dark raindrops, not small
+ * at night, you hear a slow heartbeat (sound only) and dark rain runs down the screen (owner, 2026-11-17: dark raindrops, not small
  * dots; 2026-11-23: half as many, and no darkened screen). Coming home at night ends in a soft chime.
  *
  * <p>All of it runs on the client: the local player's movement is the client's to shape, and the ward itself (the
@@ -31,8 +31,6 @@ final class WardThreshold {
 
     private static final Identifier MEMBRANE =
             Identifier.fromNamespaceAndPath("lightborn", "textures/gui/ward_membrane.png");
-    private static final Identifier NIGHT =
-            Identifier.fromNamespaceAndPath("lightborn", "textures/gui/night_vignette.png");
     /** Ticks of pressing through before the ward lets go: five seconds, either way. */
     private static final float HOLD_TICKS = 100;
     /**
@@ -50,7 +48,7 @@ final class WardThreshold {
     /** Which side of the membrane you were last clear of: 1 inside, -1 outside, 0 not yet known. */
     private static int side;
 
-    private static int heartbeat, sinceBeat = 1000, sinceFree = 1000;
+    private static int heartbeat, sinceFree = 1000;
     private static boolean wasOutside;
 
     /** A drop of the dark's goo on the screen: where (gui pixels), how big, how old, how long it lasts, how fast. */
@@ -73,7 +71,6 @@ final class WardThreshold {
         lastPressure = pressure;
         lastDanger = danger;
         if (flash > 0) flash--;
-        sinceBeat++;
         DROPS.removeIf(d -> ++d.age >= d.life);
         var p = mc.player;
         if (p == null
@@ -163,7 +160,6 @@ final class WardThreshold {
             if (--heartbeat <= 0) {
                 float fade = Mth.clamp(1 - sinceFree / 240f, .25f, 1);
                 play(mc, SoundEvents.WARDEN_HEARTBEAT, .7f, .8f * fade);
-                sinceBeat = 0;
                 heartbeat = sinceFree < 120 ? 22 : 36;
             }
             if (DROPS.size() < DROP_MAX && RANDOM.nextInt(DROP_EVERY) == 0) {
@@ -208,18 +204,14 @@ final class WardThreshold {
         mc.getSoundManager().play(SimpleSoundInstance.forUI(sound, pitch, volume));
     }
 
-    /** Drawn under the hotbar: the gold grip, the tear's flash, and the night's edges with their pulse. */
+    /** Drawn under the hotbar: the gold grip, the tear's flash and the dark rain. */
     static void extract(GuiGraphicsExtractor g, DeltaTracker delta) {
         float t = delta.getGameTimeDeltaPartialTick(false);
-        float press = Mth.lerp(t, lastPressure, pressure), dark = Mth.lerp(t, lastDanger, danger);
+        float press = Mth.lerp(t, lastPressure, pressure);
         int w = g.guiWidth(), h = g.guiHeight();
         long now = ClientState.tick;
-        if (dark > 0) {
-            // No darkened screen at night (owner, 2026-11-23); only the heartbeat: a red bloom at the edges with each
-            // beat, strongest just after breaking free.
-            float pulse = Math.max(0, 1 - (sinceBeat + t) / 9f) * Mth.clamp(1 - sinceFree / 240f, .3f, 1);
-            if (pulse > 0) vignette(g, NIGHT, w, h, 1.15f, dark * pulse * .45f, 0x6A0010);
-        }
+        // Nothing drawn for the night itself (owner, 2026-11-23): no darkened screen, no red pulse; the heartbeat is
+        // sound.
         if (press > 0) {
             g.fill(0, 0, w, h, ((int) (press * 50) << 24) | 0x3A2400);
             float wobble = (float) Math.sin(now * .45) * .015f;

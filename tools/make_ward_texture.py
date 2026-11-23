@@ -7,9 +7,8 @@ they never flicker; only the soft veil is still a texture:
                        its RGB is its brightness)
   ward_crack.png       a Cleanse scar strip, tinted at draw time
 
-Two screen overlays for crossing the ward at night (WardThreshold), in textures/gui:
+A screen overlay for crossing the ward (WardThreshold), in textures/gui:
   ward_membrane.png    golden, viscous light pressing in from the screen's edges while the ward holds you back
-  night_vignette.png   ragged darkness closing in from the edges once you are outside, unprotected
 """
 from pathlib import Path
 
@@ -88,15 +87,6 @@ membrane[..., :3] = warm * (1 - mix) + hot * mix
 membrane[..., 3] = alpha * 255
 save(membrane, "../gui/ward_membrane.png")
 
-# The night outside: darkness that eats in from the edges in ragged tongues, deepest in the corners.
-reach2 = 0.42 + lobes(11, 12, 0.08)
-dark = smooth(reach2, reach2 + 0.62, edge) ** 1.3
-grain = np.random.default_rng(23).random((M, M))
-dark = np.clip(dark * (0.92 + 0.16 * grain), 0, 1)
-night = np.zeros((M, M, 4))
-night[..., :3] = 255  # tinted at draw time
-night[..., 3] = dark * 255
-save(night, "../gui/night_vignette.png")
 # A Cleanse scar: a white strip, opaque down its middle and fading to both edges (tinted at draw time), with a
 # ragged inner edge so a crack reads as torn, not ruled.
 CW, CH = 64, 16
@@ -108,6 +98,6 @@ crack = np.zeros((CH, CW, 4))
 crack[..., :3] = 255
 crack[..., 3] = np.clip(1 - width, 0, 1) ** 1.6 * 255
 save(crack, "ward_crack.png")
-for name in ["ward_membrane", "night_vignette"]:
+for name in ["ward_membrane"]:
     (GUI / (name + ".png.mcmeta")).write_text('{"texture": {"blur": true}}\n', encoding="utf-8")
 print("ward textures written to", OUT)
