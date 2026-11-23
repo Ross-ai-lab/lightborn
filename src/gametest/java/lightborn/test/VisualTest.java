@@ -396,6 +396,21 @@ public class VisualTest implements FabricClientGameTest {
                     mc.grabPanoramixScreenshot(mc.gameDirectory);
                 });
                 ctx.waitTicks(5);
+                // For the README: the same hut at midnight, straight in front of its door (south), the whole lit dome
+                // in frame.
+                sp.getServer().runCommand("time set 18000");
+                sp.getServer().runOnServer(server -> {
+                    // Stand the camera clear of the ground in front, or a rise there hides the hut.
+                    BlockPos s = showcase[0];
+                    int ground = server.overworld()
+                            .getHeight(
+                                    net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                                    s.getX(),
+                                    s.getZ() + 15);
+                    look(server, s, 0, Math.max(4.5, ground - s.getY() + 3), 15, 0, 2.2, 0);
+                });
+                ctx.waitTicks(80);
+                ctx.takeScreenshot("lightborn_ward_front_night");
             }
         }
     }

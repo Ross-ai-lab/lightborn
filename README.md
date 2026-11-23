@@ -7,7 +7,7 @@ of his own.
 
 | | |
 |---|---|
-| ![The Chest of Light's ward dome at dusk](screenshots/ward-dome.jpg) | ![The Light Dragon over his chest](screenshots/light-dragon.jpg) |
+| ![The Chest of Light's ward dome at night](screenshots/ward-dome.jpg) | ![The Light Dragon over his chest](screenshots/light-dragon.jpg) |
 | ![A Comet falling on its burning ring](screenshots/comet-falling.jpg) | ![The Chest of Light's collection](screenshots/chest-of-light.jpg) |
 
 ## What it plays like
