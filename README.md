@@ -5,6 +5,11 @@ nearly 90 spells in twelve schools, each with three tiers of upgrades; bosses an
 chasing; a Chest of Light that is both your home's ward and a collection book; and a chained Light Dragon with a story
 of his own.
 
+| | |
+|---|---|
+| ![The Chest of Light's ward dome at dusk](screenshots/ward-dome.jpg) | ![The Light Dragon over his chest](screenshots/light-dragon.jpg) |
+| ![Spirit Wolves hunting inside a ring of fire](screenshots/spirit-wolves.jpg) | ![The Chest of Light's collection](screenshots/chest-of-light.jpg) |
+
 ## What it plays like
 
 - **Spells, not levels.** You cast from tomes held in the off hand or slotted into a Spellstone. Tomes drop from
@@ -24,7 +29,7 @@ of his own.
 ## Install and play
 
 1. Install **Minecraft Java 26.3** with **Fabric Loader 0.20.1** or newer and **Fabric API**, on **Java 25**.
-2. Download `lightborn-1.0.0.jar` from this repository's [Releases](../../releases) and put it in your `mods` folder.
+2. Download the newest `lightborn-*.jar` from this repository's [Releases](../../releases) and put it in your `mods` folder.
 3. Optional, the way it is meant to be played: the companion mods in [Companion mods](#17-companion-mods) (pinned in
    `tools/companion-mods.lock.json`). Lightborn runs without them.
 4. Start a **new world**. Every world is locked to Normal difficulty.
