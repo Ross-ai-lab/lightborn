@@ -48,7 +48,7 @@ def toml_settings(path,section,values):
   end=re.search(r'(?m)^\s*\[',text[start.end():]);stop=start.end()+end.start() if end else len(text);body=text[start.end():stop]
   for key,value in values.items():
    line=key+' = '+value
-   if re.search(r'(?m)^\s*'+re.escape(key)+r'\s*=',body):body=re.sub(r'(?m)^\s*'+re.escape(key)+r'\s*=.*$',lambda m:line,body)
+   if re.search(r'(?m)^\s*'+re.escape(key)+r'\s*=',body):body=re.sub(r'(?m)^\s*'+re.escape(key)+r'\s*=.*$',lambda m:line,body)  # noqa: B023 (re.sub calls it at once)
    else:body+='\n'+line+'\n'
   text=text[:start.end()]+body+text[stop:]
  else:text+='\n['+section+']\n'+'\n'.join(key+' = '+value for key,value in values.items())+'\n'

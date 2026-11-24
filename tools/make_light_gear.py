@@ -76,7 +76,7 @@ class Icon:
                 g = 1 - ((x - x0) / w + (y - y0) / h)  # +1 at the top left, -1 at the bottom right
                 t = base + g * grad
                 if bevel:
-                    other = lambda dx, dy: not (0 <= x + dx < N and 0 <= y + dy < N) or self.layer[y + dy][x + dx] != i
+                    other = lambda dx, dy: not (0 <= x + dx < N and 0 <= y + dy < N) or self.layer[y + dy][x + dx] != i  # noqa: B023 (only called in this same pass)
                     if other(0, -1) or other(-1, 0):
                         t += 1
                     if other(0, 1) or other(1, 0):

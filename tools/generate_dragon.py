@@ -433,7 +433,7 @@ for side in (-1, 1):
         b += band
 
     def plane(a, bb):  # a point of the wing's own frame (the membrane boxes above are laid out in it)
-        return shoulder + m[:, 0] * a + m[:, 1] * bb
+        return shoulder + m[:, 0] * a + m[:, 1] * bb  # noqa: B023 (only called in this same pass)
 
     bones = [((0, 0), ELBOW, 1.7), (ELBOW, WRIST, 1.4)]
     bones += [(WRIST, t, 0.9 - 0.1 * n) for n, t in enumerate(WING_TIPS)]
@@ -548,7 +548,7 @@ def world_quads():
         for region, x, y, z, w, h, d in p.boxes:
             c = [vec(x + w * i, y + h * j, z + d * k) for i in (0, 1) for j in (0, 1) for k in (0, 1)]
             wc = [p.pos + p.m @ q for q in c]
-            idx = lambda i, j, k: wc[i * 4 + j * 2 + k]
+            idx = lambda i, j, k: wc[i * 4 + j * 2 + k]  # noqa: B023 (only called in this same pass)
             faces = [
                 [idx(0, 0, 0), idx(0, 1, 0), idx(0, 1, 1), idx(0, 0, 1)],
                 [idx(1, 0, 0), idx(1, 0, 1), idx(1, 1, 1), idx(1, 1, 0)],
