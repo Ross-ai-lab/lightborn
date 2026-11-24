@@ -157,11 +157,12 @@ public final class ChestWardClientTest implements FabricClientGameTest {
                                     .computeOnServer(s -> new BlockPos(
                                             surface.getX() + 24, s.overworld().getMinY() + 1, surface.getZ())),
                     house = surface.offset(0, 0, 24),
-                    magic = surface.offset(24, 0, 24);
+                    magic = surface.offset(24, 0, 24),
+                    village = house.south(18);
             sp.getServer().runOnServer(s -> {
                 var l = s.overworld();
                 for (int x = (surface.getX() >> 4) - 1; x <= (magic.getX() >> 4) + 1; x++)
-                    for (int z = (surface.getZ() >> 4) - 1; z <= (magic.getZ() >> 4) + 1; z++) {
+                    for (int z = (surface.getZ() >> 4) - 1; z <= (village.getZ() >> 4) + 1; z++) {
                         l.setChunkForced(x, z, true);
                         l.getChunk(x, z);
                     }
@@ -176,17 +177,28 @@ public final class ChestWardClientTest implements FabricClientGameTest {
                     l.setBlockAndUpdate(at, Blocks.STONE.defaultBlockState());
                 l.setBlockAndUpdate(cave.below(), Blocks.STONE.defaultBlockState());
                 l.setBlockAndUpdate(cave, Blocks.TORCH.defaultBlockState());
-                // A player-built stone roof must count as a surface house, not a cave.
-                for (var at : BlockPos.betweenClosed(house.offset(-2, 2, -2), house.offset(2, 2, 2))) {
+                for (var at : BlockPos.betweenClosed(house.offset(-2, 2, -2), house.offset(2, 2, 2)))
                     l.setBlockAndUpdate(at, Blocks.STONE.defaultBlockState());
-                    SurfaceLights.placed(l, at);
+                for (var at : BlockPos.betweenClosed(village.offset(-2, -1, -3), village.offset(2, -1, 3)))
+                    l.setBlockAndUpdate(at, Blocks.OAK_PLANKS.defaultBlockState());
+                for (var at : BlockPos.betweenClosed(village.offset(-2, 0, -3), village.offset(2, 2, 3))) {
+                    if (Math.abs(at.getX() - village.getX()) == 2 || at.getZ() == village.getZ() - 3)
+                        l.setBlockAndUpdate(at, Blocks.OAK_PLANKS.defaultBlockState());
                 }
+                for (var at : BlockPos.betweenClosed(village.offset(-2, 3, -3), village.offset(2, 3, 3)))
+                    l.setBlockAndUpdate(at, Blocks.OAK_STAIRS.defaultBlockState());
+                l.setBlockAndUpdate(village, Blocks.TORCH.defaultBlockState());
+                l.setBlockAndUpdate(
+                        surface.above(2), Blocks.OAK_LEAVES.defaultBlockState().setValue(LeavesBlock.PERSISTENT, true));
                 l.setBlockAndUpdate(magic, Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, 15));
                 check(SurfaceLights.surface(l.getChunkAt(surface), surface), "Open surface classified as cave");
                 check(
                         !SurfaceLights.surface(l.getChunkAt(cave), cave),
                         "Natural underground ceiling missed: " + l.getBlockState(cave.above(2)));
-                check(SurfaceLights.surface(l.getChunkAt(house), house), "Built stone roof classified as cave");
+                check(!SurfaceLights.surface(l.getChunkAt(house), house), "Stone roof did not shelter a house light");
+                check(
+                        !SurfaceLights.surface(l.getChunkAt(village), village),
+                        "Stair roof did not shelter a cottage light");
             });
             sp.getServer().runCommand("time set 6000");
             ctx.waitTicks(65);
@@ -202,15 +214,44 @@ public final class ChestWardClientTest implements FabricClientGameTest {
                         b = l.getBrightness(LightLayer.BLOCK, cave),
                         c = l.getBrightness(LightLayer.BLOCK, house),
                         d = l.getBrightness(LightLayer.BLOCK, magic);
-                System.out.println("NIGHT LIGHTS surface=" + a + " cave=" + b + " house=" + c + " magic=" + d);
-                check(a == 0 && b == 14 && c == 0 && d == 15, "Surface/cave/magic lighting rule failed");
+                int e = l.getBrightness(LightLayer.BLOCK, village);
+                System.out.println(
+                        "NIGHT LIGHTS surface=" + a + " cave=" + b + " house=" + c + " magic=" + d + " cottage=" + e);
+                check(
+                        a == 0 && b == 14 && c == 14 && d == 15 && e == 14,
+                        "Open air, stone and stair roofs, caves or magical lights had the wrong brightness");
             });
             ctx.runOnClient(mc -> check(
                     mc.level.getBrightness(LightLayer.BLOCK, surface) == 0
-                            && mc.level.getBrightness(LightLayer.BLOCK, house) == 0
+                            && mc.level.getBrightness(LightLayer.BLOCK, house) == 14
+                            && mc.level.getBrightness(LightLayer.BLOCK, village) == 14
                             && mc.level.getBrightness(LightLayer.BLOCK, cave) == 14
                             && mc.level.getBrightness(LightLayer.BLOCK, magic) == 15,
                     "Client lighting disagrees with server"));
+            sp.getServer().runOnServer(s -> {
+                var p = s.getPlayerList().getPlayers().getFirst();
+                var at = Vec3.atBottomCenterOf(village.south(4));
+                p.teleportTo(s.overworld(), at.x, at.y, at.z, Set.of(), 180, 0, false);
+            });
+            ctx.waitTicks(15);
+            ctx.getInput().lookAt(village.above());
+            ctx.waitTicks(4);
+            ctx.takeScreenshot("village_roof_lit_at_night");
+            sp.getServer()
+                    .runOnServer(
+                            s -> s.overworld().setBlockAndUpdate(surface.above(2), Blocks.GLASS.defaultBlockState()));
+            ctx.waitTicks(25);
+            sp.getServer().runOnServer(s -> {
+                check(
+                        s.overworld().getBrightness(LightLayer.BLOCK, surface) == 14,
+                        "Building a glass roof at night did not relight the torch");
+                s.overworld().setBlockAndUpdate(surface.above(2), Blocks.AIR.defaultBlockState());
+            });
+            ctx.waitTicks(25);
+            sp.getServer()
+                    .runOnServer(s -> check(
+                            s.overworld().getBrightness(LightLayer.BLOCK, surface) == 0,
+                            "Removing the glass roof at night did not extinguish the torch"));
             sp.getServer().runCommand("time set 6000");
             ctx.waitTicks(60);
             sp.getServer().runOnServer(s -> {

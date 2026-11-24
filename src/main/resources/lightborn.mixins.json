@@ -46,7 +46,6 @@
     "SurfaceBlockLightMixin",
     "SurfaceBlockLightMixin$Access",
     "SurfaceLightEditMixin",
-    "SurfaceLightEditMixin$Placement",
     "WardMovementMixin",
     "WitchHealingMixin",
     "WardProjectileMixin",

@@ -5,9 +5,10 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import net.fabricmc.fabric.api.attachment.v1.*;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -18,14 +19,9 @@ import net.minecraft.world.level.chunk.LightChunkGetter;
 public final class SurfaceLights {
     private SurfaceLights() {}
 
-    private static final AttachmentType<Set<Long>> CONSTRUCTED_EARTH = AttachmentRegistry.create(
-            ModItems.id("constructed_earth"),
-            b -> b.persistent(Codec.LONG.listOf().xmap(Set::copyOf, s -> new ArrayList<>(s)))
-                    .syncWith(
-                            ByteBufCodecs.VAR_LONG
-                                    .apply(ByteBufCodecs.list())
-                                    .map(Set::copyOf, s -> new ArrayList<>(s)),
-                            AttachmentSyncPredicate.all()));
+    // Retire the old construction records on first load so older chunks deserialize cleanly.
+    private static final AttachmentType<List<Long>> CONSTRUCTED_EARTH =
+            AttachmentRegistry.create(ModItems.id("constructed_earth"), b -> b.persistent(Codec.LONG.listOf()));
 
     public static void init() {}
 
@@ -54,25 +50,18 @@ public final class SurfaceLights {
         return s.getLightEmission() > 0 && !s.is(Blocks.LIGHT) && !s.is(ModItems.LIGHT_CHEST);
     }
 
-    private static boolean earth(BlockState s) {
-        return s.is(BlockTags.BASE_STONE_OVERWORLD)
-                || s.is(BlockTags.DIRT)
-                || s.is(BlockTags.SAND)
-                || s.is(BlockTags.TERRACOTTA)
-                || s.is(Blocks.GRAVEL)
-                || s.is(Blocks.CLAY)
-                || s.is(Blocks.MUD)
-                || s.is(Blocks.SNOW_BLOCK)
-                || s.is(Blocks.PACKED_ICE)
-                || s.is(Blocks.BLUE_ICE);
+    private static boolean covers(LightChunk chunk, BlockPos pos, BlockState state) {
+        if (state.isAir() || state.is(BlockTags.LEAVES)) return false;
+        var shape = state.getCollisionShape(chunk, pos);
+        return Block.isFaceFull(shape, Direction.UP) || Block.isFaceFull(shape, Direction.DOWN);
     }
-    /** Natural earth/stone above makes a cave; roofs, leaves and tree canopies remain surface. */
+
+    /** A real roof or cave ceiling shelters the source; foliage and open sky leave it exposed. */
     public static boolean surface(LightChunk chunk, BlockPos pos) {
-        Set<Long> built = chunk instanceof LevelChunk c ? c.getAttachedOrElse(CONSTRUCTED_EARTH, Set.of()) : Set.of();
         var at = pos.mutable();
-        for (int y = pos.getY() + 1; y < chunk.getMaxY(); y++) {
+        for (int y = pos.getY() + 1; y <= chunk.getMaxY(); y++) {
             at.setY(y);
-            if (earth(chunk.getBlockState(at)) && !built.contains(at.asLong())) return false;
+            if (covers(chunk, at, chunk.getBlockState(at))) return false;
         }
         return true;
     }
@@ -90,6 +79,8 @@ public final class SurfaceLights {
 
     public static void loaded(Level level, LevelChunk chunk) {
         if (level.dimension() != Level.OVERWORLD) return;
+        if (!level.isClientSide() && chunk.getAttached(CONSTRUCTED_EARTH) != null)
+            chunk.removeAttached(CONSTRUCTED_EARTH);
         var s = state(level);
         chunk.findBlockLightSources((pos, block) -> {
             if (ordinary(block)) {
@@ -98,16 +89,6 @@ public final class SurfaceLights {
                 s.pending.add(at);
             }
         });
-        if (level.isClientSide())
-            chunk.onAttachedSet(CONSTRUCTED_EARTH).register((before, after) -> {
-                var p = chunk.getPos();
-                for (long k : s.sources.keySet())
-                    if ((BlockPos.getX(k) >> 4) == p.x() && (BlockPos.getZ(k) >> 4) == p.z()) {
-                        var at = BlockPos.of(k);
-                        s.sources.put(k, surface(chunk, at));
-                        s.pending.add(at);
-                    }
-            });
     }
 
     public static void unloaded(Level level, LevelChunk chunk) {
@@ -116,36 +97,18 @@ public final class SurfaceLights {
         var p = chunk.getPos();
         s.sources.keySet().removeIf(k -> (BlockPos.getX(k) >> 4) == p.x() && (BlockPos.getZ(k) >> 4) == p.z());
     }
-    /** Block edits invalidate only lights in that vertical column, so a mined cave roof takes effect immediately. */
+    /** Recompute emitters below a roof edit in the affected column. */
     public static void changed(LevelChunk chunk, BlockPos pos, BlockState now, BlockState old) {
         var level = chunk.getLevel();
         if (level.dimension() != Level.OVERWORLD) return;
         var s = state(level);
-        var built = chunk.getAttachedOrElse(CONSTRUCTED_EARTH, Set.of());
-        boolean oldNatural = old != null && earth(old) && !built.contains(pos.asLong());
-        if (!level.isClientSide() && !earth(now) && built.contains(pos.asLong())) {
-            var next = new HashSet<>(built);
-            next.remove(pos.asLong());
-            if (!next.equals(built)) chunk.setAttached(CONSTRUCTED_EARTH, Set.copyOf(next));
-        }
         if (ordinary(now)) {
             s.sources.put(pos.asLong(), surface(chunk, pos));
-        } else if (old != null && ordinary(old)) s.sources.remove(pos.asLong());
-        boolean naturalNow = earth(now)
-                && !chunk.getAttachedOrElse(CONSTRUCTED_EARTH, Set.of()).contains(pos.asLong());
-        if (oldNatural == naturalNow) return;
-        refreshColumn(chunk, pos, s);
-    }
-    /** Record actual block-item construction, not natural grass/dirt changes or world generation. */
-    public static void placed(Level level, BlockPos pos) {
-        if (level.isClientSide() || level.dimension() != Level.OVERWORLD || !earth(level.getBlockState(pos))) return;
-        var chunk = level.getChunkAt(pos);
-        var built = chunk.getAttachedOrElse(CONSTRUCTED_EARTH, Set.of());
-        if (built.contains(pos.asLong())) return;
-        var next = new HashSet<>(built);
-        next.add(pos.asLong());
-        chunk.setAttached(CONSTRUCTED_EARTH, Set.copyOf(next));
-        refreshColumn(chunk, pos, state(level));
+        } else if (old != null && ordinary(old)) {
+            s.sources.remove(pos.asLong());
+        }
+        boolean coveredBefore = old != null && covers(chunk, pos, old);
+        if (coveredBefore != covers(chunk, pos, now)) refreshColumn(chunk, pos, s);
     }
 
     private static void refreshColumn(LevelChunk chunk, BlockPos pos, State s) {

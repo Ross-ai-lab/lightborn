@@ -2038,13 +2038,12 @@ real items, keeping them through reloads and dropping them when broken.
 
 ## 14. Atmosphere and music
 
-**Nights are 100% dark**: zero night sky and ambient fill, with eased dusk and dawn. Ordinary surface light sources
-(torches, lamps, lanterns, campfires, fire and other light-emitting blocks) give no light at night and recover at
-dawn, including lights under a house roof or tree canopy. A natural earth/stone ceiling identifies caves and
-underground, whose sources keep working. Player-built stone or earth roofs are recorded with the chunk and synced on
-load, so building a stone house does not turn its lights into cave lights. Dusk and dawn relight only cached sources
-in bounded batches, and roof edits invalidate only their source column. The rule covers the Overworld only. The Chest
-of Light, its golden ward and magical Light gear and spell radiance keep shining.
+**Nights are 100% dark**: zero night sky and ambient fill, with eased dusk and dawn. Ordinary lights are
+suppressed at night only where they are exposed on the Overworld surface, and recover at dawn. A roof or cave ceiling
+directly above a light keeps it at full strength, including player builds and village homes with stone, wood, glass,
+slab or stair roofs. Tree leaves still count as outdoors. Dusk and dawn relight only cached sources in bounded
+batches, and building or removing a roof updates emitters in the edited column. The Chest of Light, ward lighting,
+Light gear and spells keep shining.
 
 Day and night each take 12,000 ticks (10 minutes at 20 ticks per second), with the normal clock rate throughout.
 A bed still skips the night.
