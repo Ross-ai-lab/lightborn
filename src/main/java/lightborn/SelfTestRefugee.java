@@ -12,8 +12,7 @@ import net.minecraft.world.level.block.Blocks;
 
 /**
  * The dawn refugee: one night in five, arrives running from outside the ward, pleads at night and offers three places
- * at dawn, leads the way and waits for a straggler, stays on arrival and is gone once unwatched; can be sent off or
- * fought.
+ * or two direct gifts at dawn, leads the way, waits for a straggler and builds dirt steps at a blocked ledge.
  */
 final class SelfTestRefugee {
     private SelfTestRefugee() {}
@@ -94,10 +93,11 @@ final class SelfTestRefugee {
             guest.searchDone = true;
             var offer = guest.respond(owner, 0);
             check(
-                    "offers_three_places_at_dawn",
-                    offer.choices().size() == 3
-                            && offer.choices().get(1).label().startsWith("Show me a witch hut")
-                            && offer.choices().get(1).label().contains("north"),
+                    "offers_three_places_and_two_gifts_at_dawn",
+                    offer.choices().size() == 5
+                            && offer.choices().get(1).label().equals("Show me a witch hut (60 blocks)")
+                            && offer.choices().get(3).action() == Refugee.TAKE_SPARKS
+                            && offer.choices().get(4).action() == Refugee.TAKE_TOME,
                     offer.choices());
             guest.respond(owner, Refugee.PICK + 1);
             check(
@@ -110,8 +110,9 @@ final class SelfTestRefugee {
                     guest.target);
 
             owner.setPos(guest.getX(), guest.getY(), guest.getZ() + 40);
+            guest.callCooldown = 40;
             guest.guideStep(l, owner);
-            boolean waited = guest.waiting;
+            boolean waited = guest.waiting && guest.callCooldown == Balance.REFUGEE_SHOUT_TICKS;
             owner.setPos(guest.getX(), guest.getY(), guest.getZ() + 5);
             guest.guideStep(l, owner);
             check("waits_for_a_straggler", waited && !guest.waiting, waited + " / " + guest.waiting);
@@ -132,11 +133,7 @@ final class SelfTestRefugee {
                     stayedWatched && guest.isRemoved(),
                     stayedWatched + " / " + guest.isRemoved());
 
-            check(
-                    "only_unfound_places",
-                    !Refugee.fresh(l, chest, chest.offset(20, 0, 0))
-                            && Refugee.compass(0, -10).equals("north"),
-                    Refugee.compass(0, -10));
+            check("only_unfound_places", !Refugee.fresh(l, chest, chest.offset(20, 0, 0)), null);
 
             var kicked = make(l, chest, Refugee.SHELTERED);
             made.add(kicked);
@@ -152,16 +149,41 @@ final class SelfTestRefugee {
                     fought.state == Refugee.HOSTILE && fought.getTarget() == owner,
                     fought.state + " " + fought.getTarget());
 
-            var empty = make(l, chest, Refugee.SHELTERED);
-            made.add(empty);
-            empty.searchDone = true;
+            var withSparks = make(l, chest, Refugee.SHELTERED);
+            made.add(withSparks);
+            withSparks.searchDone = true;
             int sparks = LightShop.carriedSparks(owner);
-            empty.respond(owner, 0);
+            var gifts = withSparks.respond(owner, 0);
+            boolean noAutoPayment = LightShop.carriedSparks(owner) == sparks && withSparks.state == Refugee.SHELTERED;
+            withSparks.respond(owner, Refugee.TAKE_SPARKS);
+            int paid = LightShop.carriedSparks(owner) - sparks;
+            withSparks.respond(owner, Refugee.TAKE_SPARKS);
             check(
-                    "no_place_left_pays_sparks",
-                    LightShop.carriedSparks(owner) - sparks == Balance.REFUGEE_FALLBACK_SPARKS
-                            && empty.state == Refugee.LEAVING,
-                    LightShop.carriedSparks(owner) - sparks);
+                    "direct_sparks_match_shown_offer_and_pay_once",
+                    noAutoPayment
+                            && gifts.choices().size() == 2
+                            && paid >= Balance.REFUGEE_MIN_SPARKS
+                            && paid <= Balance.REFUGEE_MAX_SPARKS
+                            && gifts.choices().getFirst().label().contains(" " + paid + " ")
+                            && LightShop.carriedSparks(owner) - sparks == paid
+                            && withSparks.state == Refugee.LEAVING,
+                    paid);
+
+            var withTome = make(l, chest, Refugee.SHELTERED);
+            made.add(withTome);
+            withTome.searchDone = true;
+            withTome.respond(owner, Refugee.TAKE_TOME);
+            withTome.respond(owner, Refugee.TAKE_TOME);
+            int tomes = 0;
+            for (int i = 0; i < owner.getInventory().getContainerSize(); i++) {
+                Spell spell = TomeItem.spellOf(owner.getInventory().getItem(i));
+                if (spell != null && spell.drops) tomes++;
+            }
+            check("one_weighted_tome_ends_the_visit", tomes == 1 && withTome.state == Refugee.LEAVING, tomes);
+
+            var climber = make(l, chest, Refugee.GUIDING);
+            made.add(climber);
+            testClimb(l, chest.offset(6, 0, 14), climber, owner);
         } finally {
             l.clockManager().setTotalTicks(clock, oldTime);
             l.setAttached(Refugee.SHOWN, shownBefore);
@@ -171,5 +193,31 @@ final class SelfTestRefugee {
                     l.setBlockAndUpdate(chest.offset(x, -1, z), Blocks.AIR.defaultBlockState());
             owner.discard();
         }
+    }
+
+    private static void testClimb(ServerLevel level, BlockPos foot, Refugee guide, FakePlayer follower) {
+        for (int x = -4; x <= 20; x++) {
+            for (int y = 0; y < 4; y++) {
+                level.setBlockAndUpdate(foot.offset(x, y, -1), Blocks.STONE.defaultBlockState());
+                level.setBlockAndUpdate(foot.offset(x, y, 1), Blocks.STONE.defaultBlockState());
+                if (x == -4) level.setBlockAndUpdate(foot.offset(x, y, 0), Blocks.STONE.defaultBlockState());
+            }
+            if (x > 0) {
+                level.setBlockAndUpdate(foot.east(x), Blocks.STONE.defaultBlockState());
+                level.setBlockAndUpdate(foot.east(x).above(), Blocks.STONE.defaultBlockState());
+            }
+        }
+        guide.snapTo(foot.getX() + .5, foot.getY(), foot.getZ() + .5, -90, 0);
+        guide.setOnGround(true);
+        var climb = RefugeeClimb.find(guide, level, 1, 0);
+        follower.setPos(foot.getX() - 1.5, foot.getY(), foot.getZ() + .5);
+        guide.snapTo(foot.getX() - .5, foot.getY(), foot.getZ() + .5, -90, 0);
+        boolean built = climb != null && climb.advance(guide, level);
+        check(
+                "stuck_guide_builds_a_dirt_step_without_overwriting_the_ledge",
+                built
+                        && level.getBlockState(foot).is(Blocks.DIRT)
+                        && level.getBlockState(foot.east().above()).is(Blocks.STONE),
+                built);
     }
 }

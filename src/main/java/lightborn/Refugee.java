@@ -11,8 +11,10 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -62,20 +64,24 @@ import net.minecraft.world.phys.Vec3;
  * The dawn refugee (owner, 2026-11-15): on one night in five, shortly before dawn, a frightened stranger comes running
  * out of the dark into a home's ward, begging to be let stay. The owner may throw them out, fight them, or let them
  * stay; one who stays repays the night at sunrise by offering to lead the way to one of up to three nearby places no
- * player has found yet (a village, a temple, a ruined portal...). They walk there ahead of you, stop and call when you
- * fall behind, stay at the place once shown, and slip away the moment nobody is watching.
+ * player has found yet, or giving Sparks or a tome. Guides stop and shout when you fall behind, build dirt steps at
+ * steep ledges, and stay at the destination until nobody is watching.
  * <p>
  * The talk reuses the Dragon's dialogue box ({@link DragonTalk.Reply} with a speaker name); answers come back through
  * {@link DragonTalk.Answer} keyed by this entity's id.
  */
 public final class Refugee extends PathfinderMob {
     static final int RUNNING = 0, SHELTERED = 1, GUIDING = 2, ARRIVED = 3, LEAVING = 4, HOSTILE = 5;
-    /** Answer actions: 0 opens, 1 lets them stay, 2 sends them away, 10..12 picks an offered place. */
-    static final int STAY = 1, SEND_AWAY = 2, PICK = 10;
+    /** Answer actions: 0 opens, 1 lets them stay, 2 sends them away, 3 and 4 claim a gift, 10..12 pick a place. */
+    static final int STAY = 1, SEND_AWAY = 2, TAKE_SPARKS = 3, TAKE_TOME = 4, PICK = 10;
 
     static final int SKINS = 9;
     private static final EntityDataAccessor<Integer> SKIN =
             SynchedEntityData.defineId(Refugee.class, EntityDataSerializers.INT);
+    private static final String WAIT_SHOUT = "Hey! Over here! Keep up!";
+    private static final String DAWN_SHOUT = "Hey! Over here!";
+    private static SoundEvent waitShout;
+    private static SoundEvent dawnShout;
 
     /** Places already shown by some refugee in this world (packed positions): never offered twice. */
     static final AttachmentType<List<Long>> SHOWN =
@@ -135,9 +141,11 @@ public final class Refugee extends PathfinderMob {
     BlockPos target;
     String targetName = "";
     boolean announced, waiting;
+    private boolean dawnApproached;
     int dayTicks, unseen, callCooldown, stuck, detour, pleaded, lost, beaconCooldown;
     private Vec3 lastPos;
     private double detourX, detourZ;
+    private RefugeeClimb climb;
 
     /** Places found for the dawn offer; worked out one kind at a time while they shelter (not saved, redone). */
     final List<Site> offers = new ArrayList<>();
@@ -229,9 +237,16 @@ public final class Refugee extends PathfinderMob {
         ROLLED.clear();
     }
 
-    /** Registers the world's list of shown places (the attachment must exist before any world loads). */
+    /** Registers the world's list of shown places and the voiced guide call. */
     static void init() {
         java.util.Objects.requireNonNull(SHOWN);
+        waitShout = registerShout("refugee.wait_shout");
+        dawnShout = registerShout("refugee.dawn_shout");
+    }
+
+    private static SoundEvent registerShout(String path) {
+        var id = ModItems.id(path);
+        return Registry.register(BuiltInRegistries.SOUND_EVENT, id, SoundEvent.createFixedRangeEvent(id, 96));
     }
 
     /** Sets a refugee down on dry ground just outside the ward, running for the chest. Null if no spot was found. */
@@ -283,8 +298,11 @@ public final class Refugee extends PathfinderMob {
             default -> {}
         }
         if (state == GUIDING) beacon(level, follower(level));
-        else if (state == SHELTERED && announced) beacon(level, level.getNearestPlayer(this, 64));
-        else lost = 0;
+        else if (state == SHELTERED && announced && !dawnApproached && !LightDragons.night(level)) {
+            Player player = level.getNearestPlayer(this, 64);
+            dawnCall(level, player);
+            if (!dawnApproached) beacon(level, player);
+        } else lost = 0;
         swimStep();
     }
 
@@ -303,7 +321,6 @@ public final class Refugee extends PathfinderMob {
         lost = seen ? 0 : lost + 1;
         if (lost < Balance.REFUGEE_LOST_TICKS || beaconCooldown > 0) return;
         beaconCooldown = Balance.REFUGEE_BEACON_TICKS;
-        callCooldown = Math.max(callCooldown, 120);
         say(p, whereLine(p));
         for (float pitch : new float[] {1.2f, 1.6f})
             level.playSound(
@@ -319,6 +336,24 @@ public final class Refugee extends PathfinderMob {
         for (int i = 0; i < 12; i++)
             level.sendParticles(
                     ParticleTypes.END_ROD, true, true, getX(), getY() + 2.2 + i * .45, getZ(), 2, .05, .1, .05, 0);
+    }
+
+    void dawnCall(ServerLevel level, Player player) {
+        if (dawnApproached || player == null || player.isSpectator()) return;
+        if (distanceToSqr(player) <= 36 && player.hasLineOfSight(this)) {
+            dawnApproached = true;
+            return;
+        }
+        if (callCooldown == 0) {
+            if (dayTicks > 1) say(player, DAWN_SHOUT);
+            playShout(level, dawnShout);
+        }
+    }
+
+    private void playShout(ServerLevel level, SoundEvent sound) {
+        callCooldown = Balance.REFUGEE_SHOUT_TICKS;
+        beaconCooldown = Math.max(beaconCooldown, 40);
+        level.playSound(null, getX(), getEyeY(), getZ(), sound, SoundSource.NEUTRAL, 1.6f, 1f);
     }
 
     /** Whether he is in front of this player and nothing blocks the view. */
@@ -452,24 +487,39 @@ public final class Refugee extends PathfinderMob {
             getNavigation().stop();
             return;
         }
-        double behind = Math.hypot(p.getX() - getX(), p.getZ() - getZ());
+        double behind = p.distanceTo(this);
         if (waiting && behind <= Balance.REFUGEE_RESUME_DISTANCE) waiting = false;
-        else if (!waiting && behind > Balance.REFUGEE_WAIT_DISTANCE) waiting = true;
+        else if (!waiting && behind > Balance.REFUGEE_WAIT_DISTANCE) {
+            waiting = true;
+            callCooldown = 0;
+        }
         if (waiting) {
             getNavigation().stop();
             getLookControl().setLookAt(p);
             if (callCooldown == 0) {
-                callCooldown = 160;
-                say(p, getRandom().nextBoolean() ? "This way! Keep up!" : "Over here! Don't lose me!");
+                say(p, WAIT_SHOUT);
+                playShout(level, waitShout);
             }
             return;
+        }
+        if (climb != null) {
+            if (climb.advance(this, level)) return;
+            climb = null;
+            getNavigation().stop();
+            lastPos = position();
+            stuck = 0;
         }
         if (tickCount % 40 == 0) {
             stuck = lastPos != null && position().distanceToSqr(lastPos) < 1 ? stuck + 40 : 0;
             lastPos = position();
         }
         if (stuck >= 120 && detour == 0) {
-            // Blocked: step around at an angle for a few seconds; if that fails too, slip past unseen.
+            climb = RefugeeClimb.find(this, level, tx, tz);
+            if (climb != null) {
+                getNavigation().stop();
+                return;
+            }
+            // Step around at an angle for a few seconds, and slip past unseen if that fails.
             double side = (getRandom().nextBoolean() ? 1 : -1) * Math.PI * .4, a = Math.atan2(tz, tx) + side;
             detourX = getX() + Math.cos(a) * 12;
             detourZ = getZ() + Math.sin(a) * 12;
@@ -594,8 +644,25 @@ public final class Refugee extends PathfinderMob {
         };
     }
 
-    /** At sunrise: up to three undiscovered places to choose from, or a few Sparks when none is left nearby. */
+    /** At sunrise: choose one lead, the offered Sparks, or a random tome. */
     private DragonTalk.Reply dawn(ServerPlayer p, int action) {
+        dawnApproached = true;
+        if (!searchDone) return page("Give me a moment... I'm trying to remember the way. Ask me again soon.");
+        int sparks = offeredSparks();
+        if (action == TAKE_SPARKS) {
+            state = LEAVING;
+            getNavigation().stop();
+            DragonTalk.give(p, new ItemStack(ModItems.SPARK, sparks));
+            return page("Here, take the Sparks. I hope they help you keep your light burning.");
+        }
+        if (action == TAKE_TOME) {
+            state = LEAVING;
+            getNavigation().stop();
+            ItemStack tome = TomeItem.roll(getRandom());
+            String spell = TomeItem.spellOf(tome).label;
+            DragonTalk.give(p, tome);
+            return page("I picked up a tome of " + spell + " on the road. It's yours now.");
+        }
         if (action >= PICK && action < PICK + offers.size()) {
             Site site = offers.get(action - PICK);
             target = site.pos();
@@ -609,34 +676,29 @@ public final class Refugee extends PathfinderMob {
             level().setAttached(SHOWN, List.copyOf(shown));
             return page("Then follow me, and keep close. If you fall behind, I'll wait.");
         }
-        if (!searchDone) return page("Give me a moment... I'm trying to remember the way. Ask me again soon.");
-        if (offers.isEmpty()) {
-            state = LEAVING;
-            DragonTalk.give(p, new ItemStack(ModItems.SPARK, Balance.REFUGEE_FALLBACK_SPARKS));
-            return page("I meant to show you something, but everything near here is already known. Take these. It's all"
-                    + " I have.");
-        }
         var choices = new ArrayList<DragonTalk.Choice>();
         for (int i = 0; i < offers.size(); i++) {
             Site s = offers.get(i);
             int dx = s.pos().getX() - getBlockX(), dz = s.pos().getZ() - getBlockZ();
-            choices.add(c(
-                    "Show me " + s.name() + " (" + (int) Math.hypot(dx, dz) + " blocks " + compass(dx, dz) + ")",
-                    PICK + i));
+            choices.add(c("Show me " + s.name() + " (" + (int) Math.hypot(dx, dz) + " blocks)", PICK + i));
         }
-        // Three places at most and no goodbye (owner, 2026-11-16): Escape closes, and he leaves on his own later.
+        choices.add(c("I'll take the " + sparks + " Sparks.", TAKE_SPARKS));
+        choices.add(c("I'll take a random spell tome.", TAKE_TOME));
         return new DragonTalk.Reply(
                 getId(),
-                "The sun's up, and I'm still breathing because of you. I've wandered a long way, and I've seen places"
-                        + " out there nobody has found yet. Pick one, and I'll lead you to it.",
+                offers.isEmpty()
+                        ? "I couldn't find anywhere new to show you. I've got some Sparks and a spell tome."
+                                + " Take whichever helps you most."
+                        : "I'm still breathing because of you. I know a few places worth seeing, and I can take you"
+                                + " to one. Or you can have my Sparks or a spell tome.",
                 List.copyOf(choices),
                 name());
     }
 
-    static String compass(int dx, int dz) {
-        String[] names = {"east", "south-east", "south", "south-west", "west", "north-west", "north", "north-east"};
-        int i = Math.floorMod((int) Math.round(Math.atan2(dz, dx) / (Math.PI / 4)), 8);
-        return names[i];
+    private int offeredSparks() {
+        return Balance.REFUGEE_MIN_SPARKS
+                + RandomSource.create(getUUID().getMostSignificantBits())
+                        .nextInt(Balance.REFUGEE_MAX_SPARKS - Balance.REFUGEE_MIN_SPARKS + 1);
     }
 
     /** A line to everyone close enough to hear. */
@@ -691,6 +753,7 @@ public final class Refugee extends PathfinderMob {
         out.putInt("refugee_skin", skin());
         out.putInt("refugee_day_ticks", dayTicks);
         out.putInt("refugee_announced", announced ? 1 : 0);
+        out.putInt("refugee_dawn_approached", dawnApproached ? 1 : 0);
         if (guided != null) out.store("refugee_guided", UUIDUtil.CODEC, guided);
         if (target != null) out.putLong("refugee_target", target.asLong());
         out.putString("refugee_target_name", targetName);
@@ -705,6 +768,7 @@ public final class Refugee extends PathfinderMob {
         setSkin(in.getIntOr("refugee_skin", 0));
         dayTicks = in.getIntOr("refugee_day_ticks", 0);
         announced = in.getIntOr("refugee_announced", 0) == 1;
+        dawnApproached = in.getIntOr("refugee_dawn_approached", 0) == 1;
         guided = in.read("refugee_guided", UUIDUtil.CODEC).orElse(null);
         long t = in.getLongOr("refugee_target", Long.MIN_VALUE);
         target = t == Long.MIN_VALUE ? null : BlockPos.of(t);

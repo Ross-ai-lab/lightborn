@@ -5,22 +5,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lightborn.Bosses;
 import lightborn.Collection;
 import lightborn.DragonStory;
+import lightborn.ExpansionClientTest;
 import lightborn.LootBeams;
 import lightborn.LootRoller;
 import lightborn.ModData;
 import lightborn.ModEntities;
 import lightborn.ModItems;
 import lightborn.Progression;
+import lightborn.Refugee;
 import lightborn.SpawnHut;
 import lightborn.Spell;
 import lightborn.SpellUpgrades;
 import lightborn.Spells;
 import lightborn.client.CollectionScreen;
+import lightborn.client.DragonDialogueScreen;
 import net.fabricmc.fabric.api.client.gametest.v1.FabricClientGameTest;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
@@ -29,6 +34,7 @@ import net.minecraft.client.CameraType;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.BookViewScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.sounds.SoundEventListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -746,6 +752,95 @@ public class VisualTest implements FabricClientGameTest {
                 });
                 ctx.waitTicks(20);
                 ctx.takeScreenshot("lightborn_refugees");
+                sp.getServer().runCommand("time set 6000");
+                ctx.getInput().resizeWindow(1920, 1080);
+                ctx.runOnClient(mc -> {
+                    mc.options.guiScale().set(4);
+                    mc.resizeGui();
+                });
+                int kitId = sp.getServer().computeOnServer(server -> {
+                    var player = player(server);
+                    var kit = player.level()
+                            .getEntitiesOfClass(
+                                    Refugee.class,
+                                    player.getBoundingBox().inflate(12),
+                                    r -> r.entityTags().contains("lightborn_lineup")
+                                            && r.getName().getString().equals("Kit"))
+                            .getFirst();
+                    return kit.getId();
+                });
+                var dawnCalls = new AtomicInteger();
+                var called = new AtomicBoolean();
+                var dawnShout = Identifier.fromNamespaceAndPath("lightborn", "refugee.dawn_shout");
+                var guideShout = Identifier.fromNamespaceAndPath("lightborn", "refugee.wait_shout");
+                SoundEventListener listener = (sound, event, range) -> {
+                    if (sound.getIdentifier().equals(dawnShout)) dawnCalls.incrementAndGet();
+                    if (sound.getIdentifier().equals(guideShout)) called.set(true);
+                };
+                ctx.runOnClient(mc -> mc.getSoundManager().addListener(listener));
+                sp.getServer().runOnServer(server -> {
+                    var player = player(server);
+                    ExpansionClientTest.callAtDawn(
+                            player, (Refugee) player.level().getEntity(kitId), 32);
+                });
+                ctx.waitTicks(12);
+                Soft.require(dawnCalls.get() == 1, "The dawn call did not reach the client sound engine");
+                sp.getServer().runOnServer(server -> {
+                    var player = player(server);
+                    ExpansionClientTest.dawnCallBehindWall(
+                            player, (Refugee) player.level().getEntity(kitId));
+                });
+                ctx.waitTicks(12);
+                Soft.require(dawnCalls.get() == 2, "A wall between Kit and the player stopped the dawn call");
+                sp.getServer().runOnServer(server -> {
+                    var player = player(server);
+                    var kit = (Refugee) player.level().getEntity(kitId);
+                    ExpansionClientTest.callAtDawn(player, kit, 4);
+                    ExpansionClientTest.callAtDawn(player, kit, 32);
+                });
+                ctx.waitTicks(12);
+                Soft.require(dawnCalls.get() == 2, "Kit called again after the player approached");
+                sp.getServer().runOnServer(server -> {
+                    var player = player(server);
+                    ExpansionClientTest.showRefugeeOffer(
+                            player, (Refugee) player.level().getEntity(kitId));
+                });
+                ctx.waitTicks(10);
+                Soft.require(
+                        ctx.computeOnClient(mc -> mc.gui.screen() instanceof DragonDialogueScreen dialogue
+                                && dialogue.children().stream()
+                                                .filter(Button.class::isInstance)
+                                                .count()
+                                        == 5),
+                        "Kit's dawn dialogue did not show five choices");
+                ctx.takeScreenshot("lightborn_refugee_dawn_choices");
+                ctx.setScreen(() -> null);
+                sp.getServer()
+                        .runOnServer(server -> ExpansionClientTest.makeGuideWait(
+                                player(server), (Refugee) player(server).level().getEntity(kitId)));
+                ctx.waitTicks(12);
+                ctx.runOnClient(mc -> mc.getSoundManager().removeListener(listener));
+                Soft.require(called.get(), "The guide's shouted line did not reach the client sound engine");
+                var ledge = sp.getServer().computeOnServer(server -> {
+                    var player = player(server);
+                    return ExpansionClientTest.guideClimbFixture(
+                            player, (Refugee) player.level().getEntity(kitId));
+                });
+                ctx.waitTicks(260);
+                sp.getServer().runOnServer(server -> {
+                    var level = player(server).level();
+                    var kit = (Refugee) level.getEntity(kitId);
+                    Soft.require(
+                            level.getBlockState(ledge).is(Blocks.DIRT)
+                                    && kit.getX() > ledge.getX() + 1
+                                    && kit.getY() >= ledge.getY() + 2,
+                            "Kit did not build and climb the dirt step at " + ledge + ", guide at " + kit.position());
+                });
+                ctx.runOnClient(mc -> {
+                    mc.options.guiScale().set(0);
+                    mc.resizeGui();
+                });
+                ctx.getInput().resizeWindow(1600, 900);
             }
 
             if (scene("hud")) {

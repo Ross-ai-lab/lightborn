@@ -393,7 +393,7 @@ spends them (`VillagerSparksMixin`, rewriting offers as they are read, so old vi
 | Any boss / a named boss | 3 / 8 |
 | Clearing a Cleanse | 2 per cache item (8 to 26) |
 | Surviving a Cleanse to dawn | 3 |
-| A dawn refugee with no place left to show | 8 |
+| A dawn refugee's direct Sparks reward | 4 to 12 |
 | Breaking a Dark Fountain | 7 to 25, rising with its stage |
 | Catching a Light Butterfly | 1; 2 one time in four; 3 one time in eight |
 | Monster kills not from a spawner | By the monster's tier: 1; 2-3; 5; 10; 25 (owner, 2026-11-20) |
@@ -1976,12 +1976,18 @@ looked at, 20 health. They talk in the Dragon's dialogue box under their own nam
 - **At sunrise** one who stayed asks to repay the night and offers **up to three places nobody has found yet** within
   40 chunks: a village, pillager outpost, ruined portal, desert pyramid, jungle temple, witch hut, igloo, abandoned
   camp, trail ruins, beached shipwreck or buried treasure. "Not found yet" means well clear of the home, never shown
-  by another refugee, and no player has spent a minute near it (the chunk's inhabited time). With none left, they pay
-  8 Sparks instead.
+  by another refugee, and no player has spent a minute near it (the chunk's inhabited time). Each lead shows its
+  distance in blocks. The fourth choice is a
+  random offer of 4 to 12 Sparks, shown before accepting. The fifth is a random spell tome, drawn at the usual tome
+  drop weights so higher tiers are rarer (owner, 2026-11-24). A refugee with fewer leads still offers both gifts.
+  Taking either gift ends the visit. At dawn they shout "Hey! Over here!" so you can find them around your home.
+  They repeat the call until you come within six blocks with a clear line of sight or talk to them once.
 - **Leading the way.** Choose one and they walk there ahead of you. When you fall more than 24 blocks behind they stop,
-  turn and call ("This way! Keep up!") and go on once you are within 10. Blocked, they step around; still stuck and
-  unwatched, they slip a few blocks ahead. They **swim** across water along their path, lying flat like a swimming
-  player (owner, 2026-11-16).
+  turn and shout aloud ("Hey! Over here! Keep up!"), with a repeat every eight seconds while waiting, and go on
+  once you are within 10. At a steep ledge they can build a short dirt stair that you can both climb (owner,
+  2026-11-24). The stair uses open space and respects the mob griefing rule. Otherwise they try walking around,
+  then slip a few blocks ahead if they are still stuck and unwatched. They **swim** across water along their path,
+  lying flat like a swimming player (owner, 2026-11-16).
 - **Calling when lost** (owner, 2026-11-16). While leading, or waiting at a sheltered home after dawn, a refugee out of
   the player's sight for 4 seconds calls out where they are ("Over here, to your left! About 20 blocks. Follow my
   voice!"), plays two loud flute notes, glows through walls for 3 seconds and sends up a column of light; again every

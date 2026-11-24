@@ -104,7 +104,9 @@ public final class Balance {
             REFUGEE_RESUME_DISTANCE = 10,
             REFUGEE_ARRIVE_DISTANCE = 10,
             REFUGEE_UNSEEN_TICKS = 60,
-            REFUGEE_FALLBACK_SPARKS = 8,
+            REFUGEE_MIN_SPARKS = 4,
+            REFUGEE_MAX_SPARKS = 12,
+            REFUGEE_SHOUT_TICKS = 160,
             // Lost: four seconds out of the player's sight, then a call every six.
             REFUGEE_LOST_TICKS = 80,
             REFUGEE_BEACON_TICKS = 120;

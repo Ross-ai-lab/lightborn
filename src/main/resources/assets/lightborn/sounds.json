@@ -32,6 +32,24 @@
   "music.boss": {
     "sounds": []
   },
+  "refugee.wait_shout": {
+    "subtitle": "subtitles.lightborn.refugee.wait_shout",
+    "sounds": [
+      {
+        "name": "lightborn:refugee/wait_shout",
+        "attenuation_distance": 96
+      }
+    ]
+  },
+  "refugee.dawn_shout": {
+    "subtitle": "subtitles.lightborn.refugee.wait_shout",
+    "sounds": [
+      {
+        "name": "lightborn:refugee/dawn_shout",
+        "attenuation_distance": 96
+      }
+    ]
+  },
   "night.roar": {
     "sounds": [
       {

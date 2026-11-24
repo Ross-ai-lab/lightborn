@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BlockItem;
@@ -35,6 +36,66 @@ public final class ExpansionClientTest implements FabricClientGameTest {
 
     private static Block block(String id) {
         return BuiltInRegistries.BLOCK.getValue(Identifier.parse(id));
+    }
+
+    /** Use the real server reply with a full set of known destinations for the refugee screenshot. */
+    public static void showRefugeeOffer(ServerPlayer player, Refugee refugee) {
+        BlockPos here = refugee.blockPosition();
+        refugee.state = Refugee.SHELTERED;
+        refugee.searchDone = true;
+        refugee.offers.addAll(List.of(
+                new Refugee.Site("a village", here.east(180)),
+                new Refugee.Site("a witch hut", here.north(240)),
+                new Refugee.Site("a ruined portal", here.south(320))));
+        DragonTalk.send(player, refugee.respond(player, 0));
+    }
+
+    public static void makeGuideWait(ServerPlayer player, Refugee refugee) {
+        player.teleportTo(player.level(), refugee.getX() - 32, refugee.getY(), refugee.getZ(), Set.of(), -90, 0, false);
+        refugee.state = Refugee.GUIDING;
+        refugee.target = refugee.blockPosition().east(80);
+        refugee.guideStep(player.level(), player);
+    }
+
+    public static void callAtDawn(ServerPlayer player, Refugee refugee, int blocksAway) {
+        player.teleportTo(
+                player.level(), refugee.getX() - blocksAway, refugee.getY(), refugee.getZ(), Set.of(), -90, 0, false);
+        refugee.callCooldown = 0;
+        refugee.dawnCall(player.level(), player);
+    }
+
+    public static void dawnCallBehindWall(ServerPlayer player, Refugee refugee) {
+        var level = player.level();
+        BlockPos wall = refugee.blockPosition().west(2);
+        var base = level.getBlockState(wall);
+        var top = level.getBlockState(wall.above());
+        level.setBlockAndUpdate(wall, Blocks.STONE.defaultBlockState());
+        level.setBlockAndUpdate(wall.above(), Blocks.STONE.defaultBlockState());
+        callAtDawn(player, refugee, 4);
+        level.setBlockAndUpdate(wall.above(), top);
+        level.setBlockAndUpdate(wall, base);
+    }
+
+    public static BlockPos guideClimbFixture(ServerPlayer player, Refugee guide) {
+        var level = player.level();
+        BlockPos foot = player.blockPosition().above(24);
+        for (int x = -4; x <= 26; x++) {
+            level.setBlockAndUpdate(foot.offset(x, -1, 0), Blocks.STONE.defaultBlockState());
+            for (int y = 0; y < 4; y++) {
+                level.setBlockAndUpdate(foot.offset(x, y, -1), Blocks.STONE.defaultBlockState());
+                level.setBlockAndUpdate(foot.offset(x, y, 1), Blocks.STONE.defaultBlockState());
+                if (x == -4 || x > 0 && y < 2)
+                    level.setBlockAndUpdate(foot.offset(x, y, 0), Blocks.STONE.defaultBlockState());
+            }
+        }
+        player.teleportTo(level, foot.getX() - 1.5, foot.getY(), foot.getZ() + .5, Set.of(), -90, 0, false);
+        guide.snapTo(foot.getX() + .5, foot.getY(), foot.getZ() + .5, -90, 0);
+        guide.setNoAi(false);
+        guide.target = foot.east(40).above(2);
+        guide.guided = player.getUUID();
+        guide.follower = player;
+        guide.waiting = false;
+        return foot;
     }
 
     @Override
