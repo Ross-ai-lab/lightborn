@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.UUID;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -198,20 +200,37 @@ final class SelfTestCollection {
                 new ItemStack(DragonStory.LIGHT_KEY));
         for (int i = 0; i < protectedItems.size(); i++)
             p.getInventory().setItem(i + 1, protectedItems.get(i).copy());
-        int selective = Collection.giveAllNew(p, chest, true);
+        p.getInventory().setItem(11, new ItemStack(Items.DIRT, 64)); // One dirt is already in the chest.
+        ItemStack namedPickle = new ItemStack(Items.SEA_PICKLE);
+        namedPickle.set(DataComponents.CUSTOM_NAME, Component.literal("Keepsake"));
+        p.getInventory().setItem(12, namedPickle);
+        int sparksBefore = p.getInventory().countItem(ModItems.SPARK);
+        int selective = Collection.giveNonEssential(p, chest);
         boolean protectedInPlace = true;
         for (int i = 0; i < protectedItems.size(); i++)
             protectedInPlace &=
                     p.getInventory().getItem(i + 1).is(protectedItems.get(i).getItem());
         check(
                 "collection_give_non_essential_only",
-                selective == 1
+                selective == 66
                         && protectedInPlace
-                        && p.getInventory().getItem(0).getCount() == 2
-                        && Collection.stored(p, "minecraft:sea_pickle").getCount() == 1
-                        && Collection.giveAllNew(p, chest, true) == 0
+                        && p.getInventory().getItem(0).isEmpty()
+                        && p.getInventory().getItem(11).getCount() == 1
+                        && p.getInventory().getItem(12).has(DataComponents.CUSTOM_NAME)
+                        && Collection.stored(p, "minecraft:dirt").getCount() == 64
+                        && Collection.stored(p, "minecraft:sea_pickle").getCount() == 3
+                        && p.getInventory().countItem(ModItems.SPARK) == sparksBefore + Balance.COLLECTION_GIFT_SPARKS,
+                selective + " items moved");
+        p.getInventory().setItem(0, new ItemStack(Items.SEA_PICKLE, 2));
+        int repeats = Collection.giveNonEssential(p, chest);
+        check(
+                "collection_repeat_bulk_gifts_only_fill_storage",
+                repeats == 2
+                        && Collection.stored(p, "minecraft:sea_pickle").getCount() == 5
+                        && p.getInventory().countItem(ModItems.SPARK) == sparksBefore + Balance.COLLECTION_GIFT_SPARKS
+                        && Collection.giveNonEssential(p, chest) == 0
                         && Collection.giveAllNew(p, chest) > 0,
-                selective + " selective gifts");
+                repeats + " repeat items moved");
         p.setAttached(ModData.COLLECTION, List.of());
         p.setAttached(ModData.STORAGE, List.of());
         // The ward grows only when bought with Sparks (owner, 2026-11-16), never from gifts.

@@ -237,8 +237,11 @@ public class VisualTest implements FabricClientGameTest {
                 // The owner's screen (1920 x 1080 at GUI scale 4): no button on any tab may cross the chest's frame.
                 sp.getServer().runOnServer(server -> {
                     look(server, -1, 1, -0.5, 2, 1.2, 1);
-                    player(server).setGameMode(GameType.SURVIVAL); // a spectator gets no shop snapshot
-                    player(server).getInventory().setItem(9, new ItemStack(Items.SEA_PICKLE, 3));
+                    var player = player(server);
+                    player.setGameMode(GameType.SURVIVAL); // a spectator gets no shop snapshot
+                    player.setAttached(ModData.COLLECTION, List.of("minecraft:sea_pickle"));
+                    player.setAttached(ModData.STORAGE, List.of(new ItemStack(Items.SEA_PICKLE, 60)));
+                    player.getInventory().setItem(9, new ItemStack(Items.SEA_PICKLE, 3));
                 });
                 ctx.getInput().resizeWindow(1920, 1080);
                 ctx.runOnClient(mc -> {
@@ -291,8 +294,11 @@ public class VisualTest implements FabricClientGameTest {
                         Soft.require(
                                 sp.getServer()
                                         .computeOnServer(server ->
-                                                player(server).getInventory().countItem(Items.SEA_PICKLE) == 2),
-                                "The compact non-essential donation button did not give one sea pickle");
+                                                player(server).getInventory().countItem(Items.SEA_PICKLE) == 0
+                                                        && Collection.stored(player(server), "minecraft:sea_pickle")
+                                                                        .getCount()
+                                                                == 63),
+                                "The non-essential donation button did not store all three previously collected sea pickles");
                     }
                 }
                 ctx.setScreen(() -> null);

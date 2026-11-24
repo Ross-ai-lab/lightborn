@@ -181,7 +181,7 @@ public final class Net {
             if (!atChest(ctx.player(), p.chest())) return;
             if (p.action() == ChestMove.PUT_IN) Collection.deposit(ctx.player(), p.item(), p.chest());
             else if (p.action() == ChestMove.GIVE_NEW) Collection.giveAllNew(ctx.player(), p.chest());
-            else if (p.action() == ChestMove.GIVE_NON_ESSENTIAL) Collection.giveAllNew(ctx.player(), p.chest(), true);
+            else if (p.action() == ChestMove.GIVE_NON_ESSENTIAL) Collection.giveNonEssential(ctx.player(), p.chest());
             else if (p.action() == ChestMove.TAKE_ONE || p.action() == ChestMove.TAKE_ALL) {
                 Collection.withdraw(ctx.player(), p.item(), p.action() == ChestMove.TAKE_ALL, p.chest());
             }

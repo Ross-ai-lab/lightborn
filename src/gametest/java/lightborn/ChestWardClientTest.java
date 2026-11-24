@@ -300,7 +300,7 @@ public final class ChestWardClientTest implements FabricClientGameTest {
                 .forEach((tier, material) -> {
                     var id = Identifier.fromNamespaceAndPath("thetruepaxels", tier + "_paxel");
                     int actual = new ItemStack(BuiltInRegistries.ITEM.getValue(id)).getMaxDamage();
-                    check(actual == 3 * material.durability(), tier + " paxel has durability " + actual);
+                    check(actual == 4 * material.durability(), tier + " paxel has durability " + actual);
                 });
     }
 

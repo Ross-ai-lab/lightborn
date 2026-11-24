@@ -340,10 +340,11 @@ Ordinary food and equipment keep their useful subject groups.
 **Gifts.** A new gift's tooltip says "New for the Light" in gold, in inventories and other item views. Give all new
 deposits one of each new carried item that fits, through the same rules as single gifts, then opens an **Unlocked**
 window over the book listing everything just given (scrolling when long) until it is closed. Give all non-essential
-items uses that same first-gift rule and keeps equipment, tools, weapons, food and drinks, torches, loaded storage,
-Sparks, spell tomes, staffs, the Spellstone and progression items in the bag. Sea pickles and other eligible finds
-still count. Donation feedback shows the
-affected subgroup's x/x rather than the global total; bulk gifts report each group they changed. Every first gift pays one Spark. Repeated deposits and withdrawals never pay again.
+items stores every eligible copy that fits, including items already given to the Light (owner, 2026-11-24). It keeps
+equipment, tools, weapons, food and drinks, torches, loaded storage, Sparks, spell tomes, staffs, the Spellstone and
+progression items in the bag. Sea pickles and other eligible finds still count. Each first gift pays one Spark.
+Repeat gifts go into storage. Donation feedback shows the affected subgroup's x/x and bulk gifts report each group
+they changed.
 
 **Set bonuses.** Stat-bearing sets pay at each 25%. Bonuses are whole numbers, except life regeneration at 0.2/s per
 quarter, shown with one decimal.
@@ -2030,9 +2031,9 @@ load, so building a stone house does not turn its lights into cave lights. Dusk 
 in bounded batches, and roof edits invalidate only their source column. The rule covers the Overworld only. The Chest
 of Light, its golden ward and magical Light gear and spell radiance keep shining.
 
-**Nights last twice as long** (owner, 2026-11-16): from dusk to dawn the Overworld clock runs at half speed, through
-the clock's own rate, which the game syncs to every client so the sky moves smoothly (`LongNights`). Days keep their
-length; a bed still skips the night.
+**Nights last 1.5 times as long as days** (owner, 2026-11-24). The Overworld's clock slows from dusk to dawn,
+giving 16 minutes 15 seconds of night and 10 minutes 50 seconds of daylight at 20 ticks per second. The game syncs
+the clock's rate to every client so the sky moves smoothly (`LongNights`). A bed still skips the night.
 
 - **The chained moon** (owner, 2026-11-15). Every moon phase is redrawn with iron chains across its face
   (`tools/make_chained_moon.py`, at 128 px). The chains stay on the moon's face with a short overhang, about four links
@@ -2165,7 +2166,7 @@ Other authors' mods, pinned in `tools/companion-mods.lock.json` (exact files and
 `py -3.14 -I tools/companion_mods.py fetch`; `resolve --keep-pins` adds required dependencies while keeping existing
 pins. Builds verify and restore the test cache only; deliberate deployment copies the pinned companions into the game.
 The True Paxels adds craftable mining and farming multitools (owner, 2026-11-24). Its items stay outside the Chest
-of Light catalogue, which is already at its 999-item limit. The launcher sets each paxel's durability to three times
+of Light catalogue, which is already at its 999-item limit. The launcher sets each paxel's durability to four times
 the matching Minecraft tool's durability.
 
 ### Rules every mod must pass

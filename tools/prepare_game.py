@@ -75,7 +75,7 @@ def prepare(game,music):
  lock=json.loads((ROOT/'tools/companion-mods.lock.json').read_text(encoding='utf-8'))
  if any(pin['slug']=='thetruepaxels' for pin in lock):
   vanilla_durability={'wooden':59,'stone':131,'copper':190,'golden':32,'iron':250,'diamond':1561,'netherite':2031}
-  toml_settings(game/'config/thetruepaxels.toml','durability',{tier:str(3*base) for tier,base in vanilla_durability.items()})
+  toml_settings(game/'config/thetruepaxels.toml','durability',{tier:str(4*base) for tier,base in vanilla_durability.items()})
  for pin in lock:
   if not pin.get('resource_pack'):continue
   source=ROOT/'companion-mods'/pin['file'];target=packs/pin['file']

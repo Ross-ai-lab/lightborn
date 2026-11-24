@@ -399,12 +399,17 @@ public final class Collection {
         return !stack.isEmpty() && categoryOf(id) != null && !collected(player).contains(id);
     }
 
+    public static boolean canGiveNonEssential(Player player, ItemStack stack) {
+        return nonEssentialGift(stack) && room(stored(player, idOf(stack.getItem())), stack) > 0;
+    }
+
     /** Keep the player's working kit and progression items in their inventory during the selective bulk gift. */
-    public static boolean nonEssentialGift(ItemStack stack) {
+    private static boolean nonEssentialGift(ItemStack stack) {
+        if (stack.isEmpty()) return false;
         Item item = stack.getItem();
         Category category = categoryOf(idOf(item));
-        if (category != null
-                && switch (category.key()) {
+        if (category == null
+                || switch (category.key()) {
                     case "tools_and_utilities" ->
                         !(item instanceof BlockItem) && !stack.has(DataComponents.JUKEBOX_PLAYABLE);
                     case "combat", "food_and_drinks" -> true;
@@ -570,10 +575,6 @@ public final class Collection {
 
     /** Donate one of each new carried type through the same storage and reward path as single gifts. */
     public static int giveAllNew(ServerPlayer player, BlockPos chest) {
-        return giveAllNew(player, chest, false);
-    }
-
-    public static int giveAllNew(ServerPlayer player, BlockPos chest, boolean nonEssentialOnly) {
         ensure(player);
         LightWards.claim(player.level(), chest, player);
         Set<String> seen = new LinkedHashSet<>(collected(player));
@@ -584,7 +585,6 @@ public final class Collection {
             if (stack.isEmpty()) continue;
             String id = idOf(stack.getItem());
             if (seen.contains(id) || categoryOf(id) == null) continue;
-            if (nonEssentialOnly && !nonEssentialGift(stack)) continue;
             ItemStack stored = stored(player, id);
             if (room(stored, stack) == 0) continue;
             ItemStack one = stack.copyWithCount(1);
@@ -594,16 +594,56 @@ public final class Collection {
             given.add(id);
         }
         if (!given.isEmpty()) {
-            take(player, given, chest);
-            ServerPlayNetworking.send(
-                    player, new Net.Unlocked(chest, List.copyOf(given), Balance.COLLECTION_GIFT_SPARKS * given.size()));
-        } else
-            player.sendOverlayMessage(Component.literal(
-                            nonEssentialOnly
-                                    ? "You carry no new non-essential items"
-                                    : "You carry no new things that fit")
-                    .withStyle(ChatFormatting.GRAY));
+            unlockGifts(player, chest, given);
+        } else {
+            player.sendOverlayMessage(
+                    Component.literal("You carry no new things that fit").withStyle(ChatFormatting.GRAY));
+        }
         return given.size();
+    }
+
+    /** Store every eligible copy that fits, with collection rewards only for the first gift of each type. */
+    public static int giveNonEssential(ServerPlayer player, BlockPos chest) {
+        ensure(player);
+        LightWards.claim(player.level(), chest, player);
+        var contents = new LinkedHashMap<String, ItemStack>();
+        for (ItemStack kept : storage(player)) contents.putIfAbsent(idOf(kept.getItem()), kept);
+        Set<String> seen = new LinkedHashSet<>(collected(player));
+        List<String> given = new ArrayList<>();
+        var inventory = player.getInventory();
+        int moved = 0;
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (!nonEssentialGift(stack)) continue;
+            String id = idOf(stack.getItem());
+            ItemStack kept = contents.getOrDefault(id, ItemStack.EMPTY);
+            int count = Math.min(stack.getCount(), room(kept, stack));
+            if (count <= 0) continue;
+            contents.put(id, stack.copyWithCount(kept.getCount() + count));
+            stack.shrink(count);
+            moved += count;
+            if (seen.add(id)) given.add(id);
+        }
+        if (moved == 0) {
+            player.sendOverlayMessage(Component.literal("You carry no non-essential items that fit")
+                    .withStyle(ChatFormatting.GRAY));
+            return 0;
+        }
+        player.setAttached(ModData.STORAGE, List.copyOf(contents.values()));
+        if (given.isEmpty()) {
+            player.sendOverlayMessage(Component.literal("Stored " + moved + (moved == 1 ? " item" : " items"))
+                    .withStyle(ChatFormatting.YELLOW));
+            player.level().playSound(null, chest, SoundEvents.AMETHYST_BLOCK_STEP, SoundSource.BLOCKS, 0.8f, 1.4f);
+        } else {
+            unlockGifts(player, chest, given);
+        }
+        return moved;
+    }
+
+    private static void unlockGifts(ServerPlayer player, BlockPos chest, List<String> given) {
+        take(player, given, chest);
+        ServerPlayNetworking.send(
+                player, new Net.Unlocked(chest, List.copyOf(given), Balance.COLLECTION_GIFT_SPARKS * given.size()));
     }
 
     /**

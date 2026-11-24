@@ -93,7 +93,7 @@ final class CollectionTab extends ChestTab {
                 footerY,
                 b -> ClientPlayNetworking.send(new Net.ChestMove(s.chest, "", Net.ChestMove.GIVE_NON_ESSENTIAL))));
         giveNonEssential.setTooltip(Tooltip.create(
-                Component.literal("Give one of each new collectible. Keeps your gear, spells, food and Sparks.")));
+                Component.literal("Store every non-essential collectible that fits, including past gifts.")));
     }
 
     /** A compact vanilla button for the footer, with a scaled label. */
@@ -254,12 +254,9 @@ final class CollectionTab extends ChestTab {
             var inventory = mc().player.getInventory();
             for (int i = 0; i < inventory.getContainerSize(); i++) {
                 ItemStack stack = inventory.getItem(i);
-                if (!Collection.newForLight(mc().player, stack)) continue;
-                giveNew.active = true;
-                if (Collection.nonEssentialGift(stack)) {
-                    giveNonEssential.active = true;
-                    break;
-                }
+                giveNew.active |= Collection.newForLight(mc().player, stack);
+                giveNonEssential.active |= Collection.canGiveNonEssential(mc().player, stack);
+                if (giveNew.active && giveNonEssential.active) break;
             }
         }
     }

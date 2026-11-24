@@ -44,6 +44,17 @@ final class SelfTestCleanse {
     static void testMoonNights(BlockPos center) {
         var clock = level.registryAccess().getOrThrow(WorldClocks.OVERWORLD);
         long originalTime = level.getOverworldClockTime();
+        level.clockManager().setTotalTicks(clock, Balance.DUSK_TICK);
+        LongNights.tick(level.getServer());
+        float nightRate = level.clockManager().getInstance(clock).rate();
+        level.clockManager().setTotalTicks(clock, Balance.DAWN_TICK);
+        LongNights.tick(level.getServer());
+        float dayRate = level.clockManager().getInstance(clock).rate();
+        double nightTicks = Balance.DAWN_TICK - Balance.DUSK_TICK;
+        double ratio = (nightTicks / nightRate) / ((Hordes.DAY_TICKS - nightTicks) / dayRate);
+        check("night_is_one_and_a_half_days", dayRate == 1 && Math.abs(ratio - 1.5) < 0.0001, ratio);
+        level.clockManager().setTotalTicks(clock, originalTime);
+        LongNights.tick(level.getServer());
         var box = new AABB(center).inflate(55, 12, 55);
         int[] scoutCounts = {0, 1, 1, 3, 0, 0, 0, 0};
         boolean schedule = true;
