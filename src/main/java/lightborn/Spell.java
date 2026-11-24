@@ -293,12 +293,12 @@ public enum Spell {
     RADIANT_PULSE(
             "Radiant Pulse",
             "minecraft:glowstone_dust",
-            18,
-            240,
+            30,
+            600,
             0,
             1,
             true,
-            "A sphere of light ripples outward from the book to 24 blocks. Open paths stay lit for 20 seconds. No damage.",
+            "A sphere of light ripples outward from the book to 24 blocks. Open paths stay lit for 30 seconds. No damage.",
             Kind.UTILITY),
     // A line of light running to treasure (owner, 2026-11-16).
     TREASURE_THREAD(
@@ -429,7 +429,7 @@ public enum Spell {
     OWL_SIGHT(
             "Owl Sight",
             "minecraft:ender_eye",
-            10,
+            30,
             3600,
             0,
             1,

@@ -22,10 +22,12 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
 
 /** Exercise the expanded pack in a normal generated world, including physical workstations and real consumption. */
@@ -55,6 +57,19 @@ public final class ExpansionClientTest implements FabricClientGameTest {
         refugee.state = Refugee.GUIDING;
         refugee.target = refugee.blockPosition().east(80);
         refugee.guideStep(player.level(), player);
+    }
+
+    public static BlockPos showBuriedCache(ServerPlayer player, Refugee guide, BlockPos ledge) {
+        var level = player.level();
+        BlockPos cache = ledge.east(7).below();
+        level.setBlockAndUpdate(cache, Blocks.CHEST.defaultBlockState());
+        var chest = (RandomizableContainerBlockEntity) level.getBlockEntity(cache);
+        chest.setLootTable(BuiltInLootTables.BURIED_TREASURE);
+        guide.snapTo(cache.getX() + 2.5, cache.getY() + 3, cache.getZ() + .5, 90, 0);
+        guide.targetName = "buried treasure";
+        guide.target = cache.atY(0);
+        guide.guideStep(level, player);
+        return cache;
     }
 
     public static void callAtDawn(ServerPlayer player, Refugee refugee, int blocksAway) {

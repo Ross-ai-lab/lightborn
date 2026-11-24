@@ -142,6 +142,7 @@ public final class Refugee extends PathfinderMob {
     String targetName = "";
     boolean announced, waiting;
     private boolean dawnApproached;
+    private boolean treasureRevealed;
     int dayTicks, unseen, callCooldown, stuck, detour, pleaded, lost, beaconCooldown;
     private Vec3 lastPos;
     private double detourX, detourZ;
@@ -288,7 +289,11 @@ public final class Refugee extends PathfinderMob {
             case RUNNING -> run(level);
             case SHELTERED -> shelter(level);
             case GUIDING -> guideStep(level, follower(level));
-            case ARRIVED, LEAVING -> lingerStep(level, level.players());
+            case ARRIVED -> {
+                revealTreasure(level);
+                lingerStep(level, level.players());
+            }
+            case LEAVING -> lingerStep(level, level.players());
             case HOSTILE -> {
                 if (getTarget() == null || !getTarget().isAlive()) {
                     setTarget(null);
@@ -308,9 +313,8 @@ public final class Refugee extends PathfinderMob {
 
     /**
      * Calls out when the one he is waiting for has lost him (owner, 2026-11-16: silent, he was easy to lose): after
-     * {@link Balance#REFUGEE_LOST_TICKS} out of their sight, every {@link Balance#REFUGEE_BEACON_TICKS} he shouts which
-     * way he is from where they are looking, whistles loud enough to hear through trees, glows through walls for three
-     * seconds and sends a short column of light up.
+     * four seconds out of their sight, he gives his bearing and sends up a column of light. During an escort this
+     * shares the waiting shout's cooldown.
      */
     void beacon(ServerLevel level, Player p) {
         if (p == null || p.level() != level() || isRemoved()) {
@@ -319,8 +323,9 @@ public final class Refugee extends PathfinderMob {
         }
         boolean seen = distanceToSqr(p) < 6 * 6 || sees(p);
         lost = seen ? 0 : lost + 1;
-        if (lost < Balance.REFUGEE_LOST_TICKS || beaconCooldown > 0) return;
+        if (lost < Balance.REFUGEE_LOST_TICKS || beaconCooldown > 0 || state == GUIDING && callCooldown > 0) return;
         beaconCooldown = Balance.REFUGEE_BEACON_TICKS;
+        if (state == GUIDING) callCooldown = Balance.REFUGEE_GUIDE_SHOUT_TICKS;
         say(p, whereLine(p));
         for (float pitch : new float[] {1.2f, 1.6f})
             level.playSound(
@@ -351,7 +356,7 @@ public final class Refugee extends PathfinderMob {
     }
 
     private void playShout(ServerLevel level, SoundEvent sound) {
-        callCooldown = Balance.REFUGEE_SHOUT_TICKS;
+        callCooldown = state == GUIDING ? Balance.REFUGEE_GUIDE_SHOUT_TICKS : Balance.REFUGEE_DAWN_SHOUT_TICKS;
         beaconCooldown = Math.max(beaconCooldown, 40);
         level.playSound(null, getX(), getEyeY(), getZ(), sound, SoundSource.NEUTRAL, 1.6f, 1f);
     }
@@ -489,14 +494,11 @@ public final class Refugee extends PathfinderMob {
         }
         double behind = p.distanceTo(this);
         if (waiting && behind <= Balance.REFUGEE_RESUME_DISTANCE) waiting = false;
-        else if (!waiting && behind > Balance.REFUGEE_WAIT_DISTANCE) {
-            waiting = true;
-            callCooldown = 0;
-        }
+        else if (!waiting && behind > Balance.REFUGEE_WAIT_DISTANCE) waiting = true;
         if (waiting) {
             getNavigation().stop();
             getLookControl().setLookAt(p);
-            if (callCooldown == 0) {
+            if (callCooldown == 0 && lost < Balance.REFUGEE_LOST_TICKS) {
                 say(p, WAIT_SHOUT);
                 playShout(level, waitShout);
             }
@@ -563,9 +565,28 @@ public final class Refugee extends PathfinderMob {
         getNavigation().stop();
         unseen = 0;
         Player p = follower(level);
-        String line = "There it is: " + targetName + ". I think I'll stay here a while. Thank you, for the night.";
+        boolean marked = revealTreasure(level) > 0;
+        String line = "There it is: " + targetName + ". "
+                + (marked ? "Look for the gold glow. I marked what I found." : "I'll stay here a while.")
+                + " Thank you for the night.";
         if (p != null) say(p, line);
         else shout(line);
+    }
+
+    private int revealTreasure(ServerLevel level) {
+        if (treasureRevealed || target == null || !level.hasChunkAt(target)) return 0;
+        treasureRevealed = true;
+        for (Kind kind : KINDS) {
+            if (kind.name().equals(targetName)) {
+                return RefugeeTreasure.reveal(
+                        level,
+                        target,
+                        blockPosition(),
+                        kind.holders(level),
+                        StructureTags.ON_TREASURE_MAPS.equals(kind.tag()));
+            }
+        }
+        return 0;
     }
 
     /** Whether any of these players is looking roughly toward this refugee with nothing in between. */
@@ -671,6 +692,9 @@ public final class Refugee extends PathfinderMob {
             follower = p;
             state = GUIDING;
             waiting = false;
+            callCooldown = 0;
+            beaconCooldown = 0;
+            lost = 0;
             var shown = new ArrayList<>(((ServerLevel) level()).getAttachedOrElse(SHOWN, List.of()));
             shown.add(target.asLong());
             level().setAttached(SHOWN, List.copyOf(shown));
@@ -754,6 +778,7 @@ public final class Refugee extends PathfinderMob {
         out.putInt("refugee_day_ticks", dayTicks);
         out.putInt("refugee_announced", announced ? 1 : 0);
         out.putInt("refugee_dawn_approached", dawnApproached ? 1 : 0);
+        out.putInt("refugee_treasure_revealed", treasureRevealed ? 1 : 0);
         if (guided != null) out.store("refugee_guided", UUIDUtil.CODEC, guided);
         if (target != null) out.putLong("refugee_target", target.asLong());
         out.putString("refugee_target_name", targetName);
@@ -769,6 +794,7 @@ public final class Refugee extends PathfinderMob {
         dayTicks = in.getIntOr("refugee_day_ticks", 0);
         announced = in.getIntOr("refugee_announced", 0) == 1;
         dawnApproached = in.getIntOr("refugee_dawn_approached", 0) == 1;
+        treasureRevealed = in.getIntOr("refugee_treasure_revealed", 0) == 1;
         guided = in.read("refugee_guided", UUIDUtil.CODEC).orElse(null);
         long t = in.getLongOr("refugee_target", Long.MIN_VALUE);
         target = t == Long.MIN_VALUE ? null : BlockPos.of(t);

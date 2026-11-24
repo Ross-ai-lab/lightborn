@@ -24,7 +24,7 @@ import net.minecraft.world.phys.*;
 public final class RadiantPulse {
     private RadiantPulse() {}
 
-    public static final int RANGE = 24, LIGHT_TICKS = 400, WAVE_TICKS = 24;
+    public static final int RANGE = 24, LIGHT_TICKS = 600, WAVE_TICKS = 24;
     private static final int SPACING = 6, MAX_LIGHTS_PER_CAST = 320;
     private static final AttachmentType<List<CollectionLight.Placed>> SAVED = AttachmentRegistry.create(
             ModItems.id("radiant_pulse_lights"), b -> b.persistent(CollectionLight.Placed.CODEC.listOf()));

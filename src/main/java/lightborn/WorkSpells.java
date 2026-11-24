@@ -1020,6 +1020,25 @@ public final class WorkSpells {
         }
     }
 
+    /** A guide's arrival can extend an existing Treasure Thread marker on the same block. */
+    static void highlight(ServerLevel level, BlockPos pos, BlockState state, int colour, int ticks) {
+        var iterator = GLOWS.entrySet().iterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            Glow old = entry.getValue();
+            if (old.level() != level || !old.pos().equals(pos)) continue;
+            if (entry.getKey().isRemoved() || !state.is(old.ore().getBlock())) {
+                entry.getKey().discard();
+                iterator.remove();
+                break;
+            }
+            entry.getKey().setGlowColorOverride(colour);
+            entry.setValue(new Glow(level, pos, state, Math.max(old.until(), level.getGameTime() + ticks)));
+            return;
+        }
+        glow(level, pos, state, colour, ticks);
+    }
+
     /** Glow colour that names the ore at a glance. */
     private static int oreColour(BlockState state) {
         String id = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath();

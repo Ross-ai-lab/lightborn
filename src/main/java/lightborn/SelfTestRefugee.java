@@ -9,6 +9,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.clock.WorldClocks;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
 /**
  * The dawn refugee: one night in five, arrives running from outside the ward, pleads at night and offers three places
@@ -112,7 +115,10 @@ final class SelfTestRefugee {
             owner.setPos(guest.getX(), guest.getY(), guest.getZ() + 40);
             guest.callCooldown = 40;
             guest.guideStep(l, owner);
-            boolean waited = guest.waiting && guest.callCooldown == Balance.REFUGEE_SHOUT_TICKS;
+            boolean heldInterval = guest.waiting && guest.callCooldown == 40;
+            guest.callCooldown = 0;
+            guest.guideStep(l, owner);
+            boolean waited = heldInterval && guest.callCooldown == 320;
             owner.setPos(guest.getX(), guest.getY(), guest.getZ() + 5);
             guest.guideStep(l, owner);
             check("waits_for_a_straggler", waited && !guest.waiting, waited + " / " + guest.waiting);
@@ -120,6 +126,7 @@ final class SelfTestRefugee {
             guest.teleportTo(b.getX() + 3.5, guest.getY(), b.getZ() + .5);
             guest.guideStep(l, owner);
             check("stays_on_arrival", guest.state == Refugee.ARRIVED, guest.state);
+            testHiddenLoot(l, chest.offset(10, -8, 4), owner);
 
             // Watched, they stay; once nobody looks for three seconds (and nobody stands close), they are gone.
             owner.setPos(guest.getX() + 20, guest.getY(), guest.getZ());
@@ -192,6 +199,45 @@ final class SelfTestRefugee {
                 for (int z = -26; z <= 26; z++)
                     l.setBlockAndUpdate(chest.offset(x, -1, z), Blocks.AIR.defaultBlockState());
             owner.discard();
+        }
+    }
+
+    private static void testHiddenLoot(ServerLevel level, BlockPos cache, FakePlayer player) {
+        BlockPos unrelated = cache.east(3), brush = cache.west(3);
+        level.setBlockAndUpdate(cache, Blocks.CHEST.defaultBlockState());
+        var treasure = (RandomizableContainerBlockEntity) level.getBlockEntity(cache);
+        treasure.setLootTable(BuiltInLootTables.BURIED_TREASURE);
+        level.setBlockAndUpdate(unrelated, Blocks.BARREL.defaultBlockState());
+        var barrel = (RandomizableContainerBlockEntity) level.getBlockEntity(unrelated);
+        barrel.setLootTable(BuiltInLootTables.SIMPLE_DUNGEON);
+        level.setBlockAndUpdate(brush, Blocks.SUSPICIOUS_GRAVEL.defaultBlockState());
+
+        var guide = make(level, cache.above(4), Refugee.GUIDING);
+        try {
+            guide.target = cache.atY(0);
+            guide.targetName = "buried treasure";
+            guide.guided = player.getUUID();
+            guide.follower = player;
+            guide.guideStep(level, player);
+            check(
+                    "arrival_reveals_the_actual_buried_chest",
+                    guide.state == Refugee.ARRIVED
+                            && WorkSpells.glowing(level, cache)
+                            && !WorkSpells.glowing(level, unrelated)
+                            && BuiltInLootTables.BURIED_TREASURE.equals(treasure.getLootTable())
+                            && RefugeeTreasure.GLOW_TICKS == 6_000,
+                    cache);
+
+            int marked = RefugeeTreasure.revealIn(
+                    level, brush, guide.blockPosition(), List.of(new BoundingBox(brush)), false);
+            check(
+                    "hidden_loot_marker_is_limited_to_the_structure_piece",
+                    marked == 1 && WorkSpells.glowing(level, brush) && !WorkSpells.glowing(level, unrelated),
+                    marked);
+        } finally {
+            guide.discard();
+            for (BlockPos pos : List.of(cache, unrelated, brush))
+                level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
         }
     }
 

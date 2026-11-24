@@ -721,7 +721,7 @@ when they have nothing useful to do. Light and Trees keep the item ids `tome_men
 | Gathering | utility | - | 10 | 5 s | 1 | every dropped item within 16 lands at your feet |
 | Homeward | utility | - | 100 | 3 min | 5 | after a 10 s channel (a small "Homeward · 9, 8, 7…" countdown in the action bar), returns beside the placed Light chest (another dimension included), or the world's first spawn if none is placed; upgrades can shorten the channel |
 | Skies | utility | - | 40 | 60 s | 5 | rain clears for 10 minutes, or a clear sky brings 5 minutes of rain; overworld only |
-| Radiant Pulse | utility | none | 18 | 12 s | 1 | a 24-block spherical light ripple, leaving real illumination for 20 s; no damage; upgrades can stretch the light to 30 s |
+| Radiant Pulse | utility | none | 30 | 30 s | 1 | a 24-block spherical light ripple, leaving real illumination for 30 s. No damage. |
 | Treasure Thread | utility | none | 100 | 2 min | 10 | a line of light to the nearest unopened chest within 60 blocks, which then shows through stone |
 | Flight | utility | - | 15 a second | 3 s | 20 | ride your staff through the air; 15 mana a second |
 | Cage | defence | - | 20 | 20 s | 10 | shuts the monster or animal you look at in iron bars for 20 s; it can't move, strike or be hurt |
@@ -774,7 +774,7 @@ and after a restart they leave air. The Light Steed is never saved with the worl
 
 | Spell | Kind | Base | Mana | Cooldown | Shop band (week) | Effect |
 |---|---|---|---|---|---|---|
-| Owl Sight | utility | - | 10 | 3 min (owner, 2026-11-22) | 1 | Night Vision, and every monster within 32 glows through walls for the caster alone, for 30 s |
+| Owl Sight | utility | - | 30 | 3 min | 1 | Night Vision, and every monster within 32 glows through walls for the caster alone, for 30 s |
 | Wisps | attack | 1 a strike | 30 | 16 s | 5 | five motes of light that each hunt the nearest monster within 16 (spreading over a pack) for 10 s, striking it once a second and bouncing off between strikes, then the next monster when it dies; with nothing to hunt they circle you (owner, 2026-11-23: they keep attacking, 1 a hit, 10 s, 16 s cooldown, a bit more mana) |
 | Halo Disc | attack | 6 a cut | 12 | 1.5 s | 5 | a spinning blade of light flies 14 blocks (or to a wall) and back, cutting each creature once going and once coming |
 | Stone Wall | defence | - | 10 | 10 s | 5 | a wall 8 wide (owner, 2026-11-22) and 3 high rises across your gaze where you look (12), row by row, pushing aside what stands there; crumbles after 10 s |
@@ -1983,17 +1983,19 @@ looked at, 20 health. They talk in the Dragon's dialogue box under their own nam
   Taking either gift ends the visit. At dawn they shout "Hey! Over here!" so you can find them around your home.
   They repeat the call until you come within six blocks with a clear line of sight or talk to them once.
 - **Leading the way.** Choose one and they walk there ahead of you. When you fall more than 24 blocks behind they stop,
-  turn and shout aloud ("Hey! Over here! Keep up!"), with a repeat every eight seconds while waiting, and go on
+  turn and shout aloud ("Hey! Over here! Keep up!"), with a repeat every 16 seconds while waiting, and go on
   once you are within 10. At a steep ledge they can build a short dirt stair that you can both climb (owner,
   2026-11-24). The stair uses open space and respects the mob griefing rule. Otherwise they try walking around,
   then slip a few blocks ahead if they are still stuck and unwatched. They **swim** across water along their path,
   lying flat like a swimming player (owner, 2026-11-16).
-- **Calling when lost** (owner, 2026-11-16). While leading, or waiting at a sheltered home after dawn, a refugee out of
-  the player's sight for 4 seconds calls out where they are ("Over here, to your left! About 20 blocks. Follow my
-  voice!"), plays two loud flute notes, glows through walls for 3 seconds and sends up a column of light; again every
-  6 seconds until seen.
-- **After showing it** they stay at the place, never coming back with you, and leave the moment no player has looked
-  at them for three seconds (and nobody stands within 8 blocks). One never claimed by the next dusk leaves too.
+- **Calling when lost** (owner, 2026-11-16). After 4 seconds out of sight, a refugee calls out where they are
+  ("Over here, to your left! About 20 blocks. Follow my voice!"), plays two flute notes, glows through walls for
+  3 seconds and sends up a column of light. While escorting, this and the waiting shout share the same 16-second
+  interval. At home after dawn, it repeats every 6 seconds until seen.
+- **After showing it** they outline the site's unopened loot chests, barrels and brushable blocks in gold through
+  walls for five minutes, including buried chests under sand (owner, 2026-11-24). They stay at the place and leave
+  once no player has looked at them for three seconds and nobody stands within 8 blocks. One never claimed by the
+  next dusk leaves too.
 
 ### Steady hunger and healing
 

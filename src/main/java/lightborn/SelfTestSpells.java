@@ -190,6 +190,7 @@ final class SelfTestSpells {
                 "radiant_pulse_floods_caves",
                 farLeg && !inRock && cells.size() >= 3,
                 "cells=" + cells.size() + " farLeg=" + farLeg + " inRock=" + inRock);
+        check("radiant_pulse_base_lights_last_thirty_seconds", RadiantPulse.duration() == 600, RadiantPulse.duration());
     }
 
     static void castAll() {
@@ -224,7 +225,7 @@ final class SelfTestSpells {
             {10, 100}, // Updraft: 5 s (owner, 2026-11-18)
             {50, 2400}, // Eclipse (owner, 2026-11-22: two minutes)
             {100, 400}, // Book of Souls: 100 mana (owner, 2026-11-16)
-            {18, 240},
+            {30, 600}, // Radiant Pulse
             {100, 2400}, // Treasure Thread (owner, 2026-11-17: 100 mana, two minutes)
             {15, 60}, // Flight: 15 mana a second (owner, 2026-11-18)
             {20, 400}, // Cage: 20 mana, 20 seconds (owner, 2026-11-18)
@@ -238,7 +239,7 @@ final class SelfTestSpells {
             {10, 200}, // Stone Wall (owner, 2026-11-22)
             {35, 2400}, // Ward, was Sanctuary (owner, 2026-11-22)
             {20, 100},
-            {10, 3600}, // Owl Sight (owner, 2026-11-22)
+            {30, 3600}, // Owl Sight
             {100, 4800}, // Light Steed (owner, 2026-11-22)
             // The fourth shelf (2026-11-21): Tether, Wayglow, Thornfield, Lightbrand, Ball Lightning, Blade Ring,
             // Rewind, Twincast (Mend and Angler's Call deleted 2026-11-22).

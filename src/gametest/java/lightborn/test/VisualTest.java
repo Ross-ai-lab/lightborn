@@ -45,6 +45,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
@@ -836,6 +837,23 @@ public class VisualTest implements FabricClientGameTest {
                                     && kit.getY() >= ledge.getY() + 2,
                             "Kit did not build and climb the dirt step at " + ledge + ", guide at " + kit.position());
                 });
+                BlockPos cache = sp.getServer().computeOnServer(server -> {
+                    var player = player(server);
+                    return ExpansionClientTest.showBuriedCache(
+                            player, (Refugee) player.level().getEntity(kitId), ledge);
+                });
+                ctx.getInput().lookAt(cache);
+                ctx.waitTicks(12);
+                Soft.require(
+                        ctx.computeOnClient(mc -> !mc.level
+                                .getEntitiesOfClass(
+                                        Display.BlockDisplay.class,
+                                        new AABB(cache).inflate(1),
+                                        display ->
+                                                display.blockPosition().equals(cache) && display.isCurrentlyGlowing())
+                                .isEmpty()),
+                        "The buried chest did not receive a through-block outline");
+                ctx.takeScreenshot("lightborn_refugee_buried_treasure");
                 ctx.runOnClient(mc -> {
                     mc.options.guiScale().set(0);
                     mc.resizeGui();
