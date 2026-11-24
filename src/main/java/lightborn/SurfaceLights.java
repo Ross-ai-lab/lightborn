@@ -47,7 +47,7 @@ public final class SurfaceLights {
 
     public static boolean night(Level l) {
         long t = Math.floorMod(l.getOverworldClockTime(), 24000);
-        return l.dimension() == Level.OVERWORLD && t >= 12000 && t < 23000;
+        return l.dimension() == Level.OVERWORLD && t >= Balance.DUSK_TICK && t < Balance.DAWN_TICK;
     }
 
     private static boolean ordinary(BlockState s) {

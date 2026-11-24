@@ -235,8 +235,26 @@ final class SelfTestFavours {
         int growth = 0;
         for (var pos : BlockPos.betweenClosed(core.offset(-5, 0, -5), core.offset(5, 0, 5)))
             if (level.getBlockState(pos).is(DarkNests.GROWTH)) growth++;
+        var beforeNests = DarkNests.nests(level);
+        int beforeWins = DarkNests.victories(level);
+        var nether = level.getServer().getLevel(net.minecraft.world.level.Level.NETHER);
+        int beforeNetherWins = DarkNests.victories(nether);
+        level.setAttached(
+                DarkNests.NESTS,
+                java.util.stream.Stream.concat(
+                                beforeNests.stream(),
+                                java.util.stream.Stream.of(new DarkNests.Nest(core, core, owner, latest, 0)))
+                        .toList());
         level.setBlockAndUpdate(core, Blocks.AIR.defaultBlockState());
         DarkNests.cleared(level, p, core, 2);
+        check(
+                "fountain_victories_raise_guards_only_in_their_dimension",
+                DarkNests.victories(level) == beforeWins + 1
+                        && DarkNests.victories(nether) == beforeNetherWins
+                        && DarkNests.guardCount(level, net.minecraft.util.RandomSource.create(1)) >= 3,
+                DarkNests.victories(level));
+        level.setAttached(DarkNests.NESTS, beforeNests);
+        level.setAttached(DarkNests.VICTORIES, beforeWins);
         DarkLand.healNow(level, core); // the 15-second healing wave, run at once
         int left = 0;
         for (var pos : BlockPos.betweenClosed(core.offset(-5, 0, -5), core.offset(5, 0, 5)))
@@ -245,8 +263,8 @@ final class SelfTestFavours {
                 level.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new AABB(core).inflate(3));
         boolean paid = drops.stream()
                 .anyMatch(i -> i.getItem().is(ModItems.SPARK)
-                        && i.getItem().getCount() >= 12
-                        && i.getItem().getCount() <= 16);
+                        && i.getItem().getCount() >= 7
+                        && i.getItem().getCount() <= 11);
         check("dark_nest_spreads_and_clears_with_pay", growth > 0 && left == 0 && paid, growth + "/" + left);
         boolean healed = level.getBlockState(pond).is(Blocks.WATER)
                 && level.getBlockState(rock).is(Blocks.STONE);
@@ -499,12 +517,23 @@ final class SelfTestFavours {
         var core = new BlockPos(8, 210, 8);
         boolean stronger = new DarkNests.Nest(core, core, p.getUUID(), latest, 0).stage(dark) == 2
                 && new DarkNests.Nest(core, core, p.getUUID(), latest - 8, 0).stage(dark) == 4;
+        var darkNests = DarkNests.nests(dark);
+        int darkWins = DarkNests.victories(dark);
+        dark.setAttached(
+                DarkNests.NESTS,
+                java.util.stream.Stream.concat(
+                                darkNests.stream(),
+                                java.util.stream.Stream.of(new DarkNests.Nest(core, core, p.getUUID(), latest, 0)))
+                        .toList());
         DarkNests.cleared(dark, p, core, 2);
+        stronger &= DarkNests.victories(dark) == darkWins + 1;
+        dark.setAttached(DarkNests.NESTS, darkNests);
+        dark.setAttached(DarkNests.VICTORIES, darkWins);
         var paid = dark.getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class, new AABB(core).inflate(3));
         boolean more = paid.stream()
                 .anyMatch(i -> i.getItem().is(ModItems.SPARK)
-                        && i.getItem().getCount() >= 18
-                        && i.getItem().getCount() <= 24); // 12 to 16, half again
+                        && i.getItem().getCount() >= 10
+                        && i.getItem().getCount() <= 16); // 7 to 11, half again
         paid.forEach(Entity::discard);
         // Dark Phantoms of the Dark never meet a dawn.
         var phantom = DarkPhantom.TYPE.create(dark, EntitySpawnReason.COMMAND);

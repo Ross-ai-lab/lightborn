@@ -52,7 +52,7 @@ final class SelfTestCleanse {
         float dayRate = level.clockManager().getInstance(clock).rate();
         double nightTicks = Balance.DAWN_TICK - Balance.DUSK_TICK;
         double ratio = (nightTicks / nightRate) / ((Hordes.DAY_TICKS - nightTicks) / dayRate);
-        check("night_is_one_and_a_half_days", dayRate == 1 && Math.abs(ratio - 1.5) < 0.0001, ratio);
+        check("night_matches_day", dayRate == 1 && nightRate == 1 && Math.abs(ratio - 1) < 0.0001, ratio);
         level.clockManager().setTotalTicks(clock, originalTime);
         LongNights.tick(level.getServer());
         var box = new AABB(center).inflate(55, 12, 55);
@@ -392,6 +392,16 @@ final class SelfTestCleanse {
             boolean heavyOutside = (boolean) naturalCheck.invoke(null, level, candidate, 1024.0);
             mutant.setPos(inside);
             boolean mutantVeto = LightWards.preventsNaturalSpawn(level, mutant);
+            var rim = Vec3.atCenterOf(chest).add(19, 3, 0);
+            candidate.snapTo(rim.x, rim.y, rim.z);
+            candidate.tickCount = 30;
+            candidate.setPos(rim.add(-12, -6, 0));
+            var diagonal = new Vec3(-12, -.25, 1);
+            var stopped = LightWards.limitMovement(candidate, diagonal);
+            check(
+                    "ward_rejects_direct_positions_without_pushing_mobs_down",
+                    candidate.position().distanceToSqr(rim) < .0001 && stopped.y >= diagonal.y - .0001,
+                    candidate.position() + " " + stopped);
             Entity fromEgg = mutantType.spawn(level, chest.west(15), EntitySpawnReason.SPAWN_ITEM_USE);
             check(
                     "ward_natural_hostile_boundary",

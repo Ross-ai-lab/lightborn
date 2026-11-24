@@ -42,6 +42,8 @@ import net.minecraft.world.entity.player.Player;
  */
 public class CollectionScreen extends Screen {
     /** One fixed tab: its code, name, colour and whether this player has it yet. */
+    public static final int CRAFTING = -8;
+
     private record Fixed(int code, String name, int color, Predicate<Player> open) {}
 
     /**
@@ -51,6 +53,7 @@ public class CollectionScreen extends Screen {
     private static final List<Fixed> FIXED = List.of(
             new Fixed(UPGRADE_SPELLS, "Upgrade Spells", QUEST_RED, p -> true),
             new Fixed(UPGRADE_GEAR, "Upgrade Gear", LIGHT_GOLD, p -> true),
+            new Fixed(CRAFTING, "Crafting", GOLD, p -> true),
             new Fixed(CLEANSE, "Cleanse", CLEANSE_VIOLET, ChestTabs::cleanse),
             new Fixed(SHOP, "Shop", SHOP_BLUE, ChestTabs::shop),
             new Fixed(TRAVEL, "Travel", TRAVEL_GREEN, ChestTabs::travel),
@@ -63,6 +66,7 @@ public class CollectionScreen extends Screen {
     private final UpgradeTab spells = new UpgradeTab(this, false), gear = new UpgradeTab(this, true);
     private final CleanseTab cleanse = new CleanseTab(this);
     private final ShopTab shopTab = new ShopTab(this);
+    private final CraftingTab crafting = new CraftingTab(this);
     private final TravelTab travel = new TravelTab(this);
     private final SpiritsTab spirits = new SpiritsTab(this);
     private final CollectionTab collection = new CollectionTab(this);
@@ -82,6 +86,7 @@ public class CollectionScreen extends Screen {
         this.chest = chest;
         fixedTabs.put(UPGRADE_SPELLS, spells);
         fixedTabs.put(UPGRADE_GEAR, gear);
+        fixedTabs.put(CRAFTING, crafting);
         fixedTabs.put(CLEANSE, cleanse);
         fixedTabs.put(SHOP, shopTab);
         fixedTabs.put(TRAVEL, travel);
@@ -101,6 +106,10 @@ public class CollectionScreen extends Screen {
 
     public void receiveCleanse(Cleanse.Show show) {
         cleanse.receive(show);
+    }
+
+    public void receiveCrafting(lightborn.ChestCrafting.Show show) {
+        crafting.receive(show);
     }
 
     public void receiveShop(LightShop.Show show) {
@@ -452,6 +461,14 @@ public class CollectionScreen extends Screen {
         if (selected < 0) select(collection.set);
         collection.pick(id);
         layout();
+    }
+
+    public void previewCraft(String recipe) {
+        crafting.preview(recipe);
+    }
+
+    public boolean canCraft() {
+        return crafting.canCraft();
     }
 
     /** Opens one spirit in the Spirits tab. */

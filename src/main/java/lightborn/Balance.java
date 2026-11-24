@@ -42,7 +42,7 @@ public final class Balance {
      * Extra Max Mana a staff carries by rarity (Basic, Magic, Rare, Legendary), a line of its own outside the affix
      * count (owner, 2026-11-16).
      */
-    public static final int[] STAFF_RARITY_MANA = {0, 25, 50, 100, 150}; // by rarity, Basic to Mythic
+    public static final int[] STAFF_RARITY_MANA = {0, 10, 20, 35, 55}; // by rarity, Basic to Mythic
     /** Owner, 2026-11-18: doubled to 5.6 per second, a full starting bar in about 18 seconds. */
     public static final double MANA_REGEN_PER_SECOND = 5.6;
 
@@ -84,7 +84,7 @@ public final class Balance {
     public static final double TOME_FROM_GIANT = 0.125; // halved with the rest (owner, 2026-11-18)
 
     // ---- Moon nights ----
-    static final int DUSK_TICK = 12_000, DAWN_TICK = 23_000, SCOUT_START_TICK = 13_000;
+    static final int DUSK_TICK = 12_000, DAWN_TICK = 24_000, SCOUT_START_TICK = 13_000;
     /**
      * The dawn refugee (Refugee): one night in five per home whose owner is within 64 blocks, starting a minute before
      * dawn, 14 blocks outside the ward. At sunrise they offer up to three places within 40 chunks that no player has
@@ -130,7 +130,7 @@ public final class Balance {
 
     public static final int[] WARD_RADII = {9, 13, 18, 26, 36, 48};
     /** Sparks for each step: WARD_PRICES[i] grows WARD_RADII[i] to WARD_RADII[i + 1]. */
-    public static final int[] WARD_PRICES = {20, 40, 80, 150, 250};
+    public static final int[] WARD_PRICES = {40, 80, 160, 300, 500};
     /**
      * Moving home (the chest's Travel tab): a flat price, any distance. The Light picks completely random ground up to
      * a million blocks out (far beyond that the game's own rendering starts to shake) and at least two thousand away,

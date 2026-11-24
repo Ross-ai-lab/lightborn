@@ -70,8 +70,16 @@ import net.minecraft.world.phys.Vec3;
  */
 public class VisualTest implements FabricClientGameTest {
     /** Scenes in the generated world with the spawn hut, in order. */
-    static final List<String> HUT =
-            List.of("hut", "chest", "chest_gui4", "chest_hands", "hut_outside", "loot_beams", "showcase", "title");
+    static final List<String> HUT = List.of(
+            "hut",
+            "chest",
+            "chest_gui4",
+            "chest_crafting",
+            "chest_hands",
+            "hut_outside",
+            "loot_beams",
+            "showcase",
+            "title");
     /** Scenes in the open field beside the hut, in order. */
     static final List<String> FIELD = List.of(
             "zombies",
@@ -237,6 +245,35 @@ public class VisualTest implements FabricClientGameTest {
                 });
                 ctx.waitTicks(10);
                 ctx.takeScreenshot("lightborn_collection_kept");
+                ctx.setScreen(() -> null);
+            }
+
+            if (scene("chest_crafting")) {
+                sp.getServer().runOnServer(server -> {
+                    look(server, -1, 1, -.5, 2, 1.2, 1);
+                    var player = player(server);
+                    player.setGameMode(GameType.SURVIVAL);
+                    player.setAttached(
+                            ModData.STORAGE,
+                            List.of(
+                                    new ItemStack(Items.OAK_PLANKS, 32), new ItemStack(Items.COBBLESTONE, 32),
+                                    new ItemStack(Items.IRON_INGOT, 16), new ItemStack(Items.STICK, 12)));
+                });
+                ctx.getInput().resizeWindow(1920, 1080);
+                ctx.runOnClient(mc -> {
+                    mc.options.guiScale().set(4);
+                    mc.resizeGui();
+                    var screen = new CollectionScreen(chestAt);
+                    mc.gui.setScreen(screen);
+                    screen.select(CollectionScreen.CRAFTING);
+                });
+                ctx.waitTicks(20);
+                ctx.runOnClient(mc -> ((CollectionScreen) mc.gui.screen()).previewCraft("minecraft:crafting_table"));
+                ctx.waitTicks(20);
+                ctx.takeScreenshot("lightborn_chest_crafting");
+                Soft.require(
+                        ctx.computeOnClient(mc -> ((CollectionScreen) mc.gui.screen()).canCraft()),
+                        "The Crafting tab could not preview a crafting table from only stored planks");
                 ctx.setScreen(() -> null);
             }
 
@@ -854,6 +891,28 @@ public class VisualTest implements FabricClientGameTest {
                                 .isEmpty()),
                         "The buried chest did not receive a through-block outline");
                 ctx.takeScreenshot("lightborn_refugee_buried_treasure");
+                var distance = sp.getServer().computeOnServer(server -> {
+                    var p = player(server);
+                    var kit = (Refugee) p.level().getEntity(kitId);
+                    Soft.require(
+                            ExpansionClientTest.recruitAndLendGear(p, kit), "Kit could not join and equip lent armour");
+                    p.teleportTo(p.level(), kit.getX() + 8, kit.getY(), kit.getZ(), Set.of(), 90, 0, false);
+                    return kit.distanceToSqr(p);
+                });
+                ctx.waitTicks(90);
+                var halted = sp.getServer().computeOnServer(server -> {
+                    var p = player(server);
+                    var kit = (Refugee) p.level().getEntity(kitId);
+                    Soft.require(kit.distanceToSqr(p) < distance - 10, "Kit did not follow his traveling partner");
+                    ExpansionClientTest.waitHere(p, kit);
+                    p.teleportTo(p.level(), p.getX() + 6, p.getY(), p.getZ(), Set.of(), 90, 0, false);
+                    return kit.getX();
+                });
+                ctx.waitTicks(30);
+                sp.getServer().runOnServer(server -> {
+                    var kit = (Refugee) player(server).level().getEntity(kitId);
+                    Soft.require(Math.abs(kit.getX() - halted) < 1, "Kit kept following after being told to wait");
+                });
                 ctx.runOnClient(mc -> {
                     mc.options.guiScale().set(0);
                     mc.resizeGui();

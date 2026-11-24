@@ -223,8 +223,13 @@ public class Lightborn implements ModInitializer {
             // Rolled gear named under the old ladder ("Magic ...") takes its new name in a player's hands and pack.
             if (server.getTickCount() % 100 == 0)
                 for (var p : server.getPlayerList().getPlayers()) {
-                    for (var stack : p.getInventory()) LootRoller.relabel(stack);
-                    for (var stack : p.getEnderChestInventory()) LootRoller.relabel(stack);
+                    for (var stack : p.getInventory()) LootRoller.refresh(stack);
+                    for (var stack : p.getEnderChestInventory()) LootRoller.refresh(stack);
+                    var stored =
+                            Collection.storage(p).stream().map(ItemStack::copy).toList();
+                    boolean changed = false;
+                    for (var stack : stored) changed |= LootRoller.refresh(stack);
+                    if (changed) p.setAttached(ModData.STORAGE, stored);
                 }
             ChestTabs.tick(server);
             NightHearing.tick(server);

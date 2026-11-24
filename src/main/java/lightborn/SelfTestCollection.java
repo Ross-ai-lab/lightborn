@@ -48,7 +48,9 @@ final class SelfTestCollection {
                 "collection_catalogue",
                 all.size() > 400
                         && Collection.categories().size() == 10
-                        && all.size() <= 999
+                        && all.size() > 999
+                        && all.contains("minecraft:oak_stairs")
+                        && all.contains("minecraft:red_banner")
                         && everyday
                         && !all.contains("lightborn:light_chest")
                         && Collection.categories().stream().noneMatch(c -> CuratedCollection.RETIRED.contains(c.key()))
@@ -137,7 +139,61 @@ final class SelfTestCollection {
                 lightborn.key() + " " + manaBefore + " -> " + manaAfter + " -> " + manaReset);
         caster.getInventory().clearContent();
         caster.setAttached(ModData.STORAGE, List.of());
+        testCrafting(chest);
         testCollectionPhase3();
+    }
+
+    private static void testCrafting(BlockPos chest) {
+        caster.getInventory().clearContent();
+        caster.setAttached(ModData.STORAGE, List.of(new ItemStack(Items.OAK_PLANKS, 3)));
+        caster.getInventory().setItem(0, new ItemStack(Items.OAK_PLANKS));
+        var ask = new ChestCrafting.Ask(
+                chest, false, "crafting_table", "minecraft:crafting_table", List.of(), 0, ChestCrafting.BROWSE);
+        var offered = ChestCrafting.handle(caster, ask);
+        var result = ChestCrafting.handle(
+                caster, new ChestCrafting.Ask(chest, false, "", offered.matched(), List.of(), 0, ChestCrafting.CRAFT));
+        check(
+                "crafting_from_store_and_inventory",
+                offered.output().is(Items.CRAFTING_TABLE)
+                        && result.output().isEmpty()
+                        && Enchanting.count(caster, Items.CRAFTING_TABLE) == 1
+                        && Enchanting.count(caster, Items.OAK_PLANKS) == 0
+                        && Collection.stored(caster, "minecraft:oak_planks").isEmpty(),
+                result.message());
+
+        caster.getInventory().clearContent();
+        caster.setAttached(
+                ModData.STORAGE,
+                List.of(
+                        new ItemStack(Items.WHEAT, 3),
+                        new ItemStack(Items.SUGAR, 2),
+                        new ItemStack(Items.EGG),
+                        new ItemStack(Items.MILK_BUCKET)));
+        caster.getInventory().setItem(0, new ItemStack(Items.MILK_BUCKET));
+        caster.getInventory().setItem(1, new ItemStack(Items.MILK_BUCKET));
+        var cells = List.of(
+                "minecraft:milk_bucket",
+                "@0",
+                "@1",
+                "minecraft:sugar",
+                "minecraft:egg",
+                "minecraft:sugar",
+                "minecraft:wheat",
+                "minecraft:wheat",
+                "minecraft:wheat");
+        offered = ChestCrafting.handle(
+                caster, new ChestCrafting.Ask(chest, true, "", "", cells, 0, ChestCrafting.BROWSE));
+        result = ChestCrafting.handle(
+                caster, new ChestCrafting.Ask(chest, true, "", offered.matched(), cells, 0, ChestCrafting.CRAFT));
+        check(
+                "crafting_manual_remainders",
+                offered.output().is(Items.CAKE)
+                        && Enchanting.count(caster, Items.BUCKET) == 3
+                        && Enchanting.count(caster, Items.CAKE) == 1
+                        && Collection.storage(caster).isEmpty(),
+                result.message());
+        caster.getInventory().clearContent();
+        caster.setAttached(ModData.STORAGE, List.of());
     }
 
     private static void testCollectionPhase3() {
@@ -204,6 +260,7 @@ final class SelfTestCollection {
         ItemStack namedPickle = new ItemStack(Items.SEA_PICKLE);
         namedPickle.set(DataComponents.CUSTOM_NAME, Component.literal("Keepsake"));
         p.getInventory().setItem(12, namedPickle);
+        p.getInventory().setItem(13, new ItemStack(Items.SPIDER_EYE, 2));
         int sparksBefore = p.getInventory().countItem(ModItems.SPARK);
         int selective = Collection.giveNonEssential(p, chest);
         boolean protectedInPlace = true;
@@ -212,14 +269,16 @@ final class SelfTestCollection {
                     p.getInventory().getItem(i + 1).is(protectedItems.get(i).getItem());
         check(
                 "collection_give_non_essential_only",
-                selective == 66
+                selective == 68
                         && protectedInPlace
                         && p.getInventory().getItem(0).isEmpty()
                         && p.getInventory().getItem(11).getCount() == 1
                         && p.getInventory().getItem(12).has(DataComponents.CUSTOM_NAME)
                         && Collection.stored(p, "minecraft:dirt").getCount() == 64
                         && Collection.stored(p, "minecraft:sea_pickle").getCount() == 3
-                        && p.getInventory().countItem(ModItems.SPARK) == sparksBefore + Balance.COLLECTION_GIFT_SPARKS,
+                        && Collection.stored(p, "minecraft:spider_eye").getCount() == 2
+                        && p.getInventory().countItem(ModItems.SPARK)
+                                == sparksBefore + 2 * Balance.COLLECTION_GIFT_SPARKS,
                 selective + " items moved");
         p.getInventory().setItem(0, new ItemStack(Items.SEA_PICKLE, 2));
         int repeats = Collection.giveNonEssential(p, chest);
@@ -227,7 +286,8 @@ final class SelfTestCollection {
                 "collection_repeat_bulk_gifts_only_fill_storage",
                 repeats == 2
                         && Collection.stored(p, "minecraft:sea_pickle").getCount() == 5
-                        && p.getInventory().countItem(ModItems.SPARK) == sparksBefore + Balance.COLLECTION_GIFT_SPARKS
+                        && p.getInventory().countItem(ModItems.SPARK)
+                                == sparksBefore + 2 * Balance.COLLECTION_GIFT_SPARKS
                         && Collection.giveNonEssential(p, chest) == 0
                         && Collection.giveAllNew(p, chest) > 0,
                 repeats + " repeat items moved");

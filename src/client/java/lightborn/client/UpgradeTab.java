@@ -376,11 +376,28 @@ final class UpgradeTab extends ChestTab {
             g.fill(cx, cy, cx + 18, cy + 18, on ? UP_RED : hover ? 0xFF6A3A30 : inStone ? 0xFF4A3C5E : SLOT);
             g.fill(cx + 1, cy + 1, cx + 17, cy + 17, on ? UP_RED_DEEP : SLOT_IN);
             g.item(stack, cx + 1, cy + 1);
+            if (gear && stack.isDamageableItem()) {
+                int remaining = Math.max(0, stack.getMaxDamage() - stack.getDamageValue());
+                int bar = Math.round(14f * remaining / stack.getMaxDamage());
+                g.fill(cx + 2, cy + 15, cx + 16, cy + 17, 0xFF0D0A07);
+                g.fill(
+                        cx + 2,
+                        cy + 15,
+                        cx + 2 + Math.max(1, bar),
+                        cy + 16,
+                        remaining == 0 ? UP_RED : 0xFF000000 | stack.getBarColor());
+            }
             if (upgraded(stack)) g.fill(cx + 13, cy + 1, cx + 17, cy + 5, UP_RED);
             if (hover) hoverItem = stack;
         }
         int nameX = x + Math.min(perRow(), slots.size()) * UP_TOME + 6;
         // Gear shows no name or tier here (owner, 2026-11-17): the strip's icons and their tooltips say it.
+        if (gear && item.isDamageableItem()) {
+            String wear = Math.max(0, item.getMaxDamage() - item.getDamageValue()) + " / " + item.getMaxDamage()
+                    + " durability";
+            int right = s.gridX() + s.gridW() - 8;
+            g.text(font(), wear, right - font().width(wear), y, item.isBroken() ? UP_RED : DIM, false);
+        }
         if (!gear && nameX + 40 < s.gridX() + s.gridW() - 8)
             g.text(
                     font(),

@@ -143,7 +143,7 @@ public final class SpellUpgrades {
                 perk("Glacial Mana", "1 mana back for each creature it strikes."),
                 perk("Nova Dash", "Speed II for 3 seconds after."),
                 perk("Ice Prison", "What it hits stays frozen in its block of ice for 5 seconds."),
-                perk("Frost Armour", "Each monster it hits gives you 2 health of ice shield, up to 10."),
+                perk("Frost Armour", "Each monster it hits gives you 1 heart of ice shielding, up to 5 hearts."),
                 perk("Second Ring", "A second ring bursts from you a second later, for 60% of the damage."));
         spell(
                 Spell.CHAIN_LIGHTNING,
@@ -205,7 +205,7 @@ public final class SpellUpgrades {
                 u("Wider Area", "Reaches 12 blocks instead of 8.", AREA, .50),
                 perk(
                         "Beacon of Hope",
-                        "A pillar of light stays for 8 seconds, mending you and your friends within 8 blocks 1 health a second."),
+                        "A pillar of light stays for 8 seconds, mending you and your friends within 8 blocks half a heart per second."),
                 perk("Smite", "Monsters in the light take damage equal to half the heal."),
                 perk("Second Wind", "You also regain 25 mana and 3 food."));
         spell(
@@ -378,7 +378,7 @@ public final class SpellUpgrades {
                 u("More Threads", "Five threads latch on instead of three.", COUNT, 2),
                 perk("Wither Threads", "Struck monsters wither for 3 seconds."),
                 perk("Sapping Threads", "Struck monsters are weakened for 3 seconds."),
-                perk("Blood Shield", "Life drained past your full health becomes a shield, up to 8."),
+                perk("Blood Shield", "Life drained past your full health becomes a shield of up to 4 hearts."),
                 perk("Mana Drain", "Each pulse also gives you 2 mana."),
                 perk("Death Grip", "A creature that dies on a thread makes the tome ready again at once."));
         spell(
@@ -399,7 +399,7 @@ public final class SpellUpgrades {
                 u("Harder Bites", "Wolves bite 20% harder.", POWER, .20),
                 u("Less Mana", "Costs 30% less mana.", COST, -.30),
                 u("Shorter Cooldown", "25% shorter cooldown.", COOLDOWN, -.25),
-                u("Stronger Wolves", "Wolves bite half as hard again and mend 1 health a second.", SPECIAL, 1),
+                u("Stronger Wolves", "Wolves bite half as hard again and recover half a heart per second.", SPECIAL, 1),
                 perk("Pack Speed", "Speed I for 30 seconds as they come."),
                 perk("Howl", "Their howl sends monsters within 8 blocks running for 2 seconds."),
                 perk("Third Wolf", "A third wolf joins the pack."),
@@ -448,7 +448,7 @@ public final class SpellUpgrades {
                 Spell.SOULS,
                 u("Less Mana", "Costs 30% less mana.", COST, -.30),
                 u("Shorter Cooldown", "25% shorter cooldown.", COOLDOWN, -.25),
-                u("Healed Summons", "Summons rise healed whole, with 4 absorption health for 20 seconds.", SPECIAL, 1),
+                u("Healed Summons", "Summons rise healed whole, with 2 absorption hearts for 20 seconds.", SPECIAL, 1),
                 perk("Grave Speed", "Speed I for 20 seconds."),
                 perk("Soul Mend", "Calling them heals you two hearts."),
                 perk("Swift Dead", "Your spirits move 30% faster."),
@@ -526,7 +526,7 @@ public final class SpellUpgrades {
                         "Prism",
                         "The beam splits at the first creature it strikes into two side beams, each half as strong."),
                 perk("Kindling Light", "Creatures the beam strikes catch fire for 3 seconds."),
-                perk("Sun's Gift", "Each pulse that strikes heals you half a health."));
+                perk("Sun's Gift", "Each pulse that strikes heals you a quarter of a heart."));
         spell(
                 Spell.WISPS,
                 u("More Damage", "+20% damage.", POWER, .20),
@@ -757,7 +757,7 @@ public final class SpellUpgrades {
                 // The owner's own exception to "tier III is all perks" (2026-11-22: a cooldown cut in Haste's place).
                 u("Cool Embers", "50% shorter cooldown.", COOLDOWN, -.50),
                 perk("Smouldering Aura", "Monsters within 3 blocks of you catch fire."),
-                perk("Lava Heart", "Standing on the crust or in lava mends you 1 health every 2 seconds."));
+                perk("Lava Heart", "Standing on the crust or in lava restores half a heart every 2 seconds."));
         spell(
                 Spell.CRYSTAL_SHELL,
                 u("Lasts Longer", "Holds 50% longer.", DURATION, .50),

@@ -54,9 +54,9 @@ final class SelfTestOwnerTuning {
         var category = Collection.categoryOf("minecraft:dirt");
         SelfTest.check(
                 "collection_quarter_actual_reward",
-                Collection.rewardAmount(category, 1).getString().startsWith("+1 ")
-                        && Collection.rewardAmount(category, 2).getString().startsWith("+2 ")
-                        && Collection.rewardAmount(category, 3).getString().startsWith("+3 "),
+                Collection.rewardAmount(category, 1).getString().equals("+0.5 hearts")
+                        && Collection.rewardAmount(category, 2).getString().equals("+1 heart")
+                        && Collection.rewardAmount(category, 3).getString().equals("+1.5 hearts"),
                 Collection.rewardAmount(category, 1).getString());
         boolean naturalist = FabricLoader.getInstance().isModLoaded("naturalist");
         boolean watching = FabricLoader.getInstance().isModLoaded("watching");

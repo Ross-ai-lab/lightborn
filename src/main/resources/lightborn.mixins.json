@@ -48,6 +48,7 @@
     "SurfaceLightEditMixin",
     "SurfaceLightEditMixin$Placement",
     "WardMovementMixin",
+    "WitchHealingMixin",
     "WardProjectileMixin",
     "WebMovementMixin",
     "ZombieDoorMixin",

@@ -72,6 +72,23 @@ public final class ExpansionClientTest implements FabricClientGameTest {
         return cache;
     }
 
+    public static boolean recruitAndLendGear(ServerPlayer player, Refugee guide) {
+        guide.respond(player, Refugee.RECRUIT);
+        if (guide.state != Refugee.COMPANION) return false;
+        var held = player.getMainHandItem().copy();
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, new ItemStack(Items.IRON_HELMET));
+        player.setShiftKeyDown(true);
+        guide.mobInteract(player, net.minecraft.world.InteractionHand.MAIN_HAND);
+        player.setShiftKeyDown(false);
+        player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, held);
+        return guide.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.HEAD)
+                .is(Items.IRON_HELMET);
+    }
+
+    public static void waitHere(ServerPlayer player, Refugee guide) {
+        guide.respond(player, Refugee.WAIT);
+    }
+
     public static void callAtDawn(ServerPlayer player, Refugee refugee, int blocksAway) {
         player.teleportTo(
                 player.level(), refugee.getX() - blocksAway, refugee.getY(), refugee.getZ(), Set.of(), -90, 0, false);

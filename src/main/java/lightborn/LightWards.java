@@ -143,7 +143,11 @@ public final class LightWards {
         if (normal.lengthSqr() < 1e-8) return before;
         normal = normal.normalize();
         double in = rest.dot(normal);
-        if (in < 0) rest = rest.subtract(normal.scale(in));
+        if (in < 0) {
+            var sideways = normal.multiply(1, 0, 1);
+            if (sideways.lengthSqr() < .02) return before;
+            rest = rest.subtract(sideways.scale(in / sideways.lengthSqr()));
+        }
         var then = stop(l, shields, e, from.add(before), rest);
         return before.add(then == null ? rest : rest.scale(then.t));
     }
@@ -232,7 +236,9 @@ public final class LightWards {
     }
 
     public static Vec3 limitDestination(Entity e, Vec3 destination) {
-        return e.tickCount <= 0 || e.level() instanceof ServerLevel l && covers(l, e.blockPosition())
+        return e.tickCount <= 0
+                        || e.level() instanceof ServerLevel l
+                                && contains(l, e.getBoundingBox().getCenter())
                 ? destination
                 : e.position().add(limitMovement(e, destination.subtract(e.position())));
     }
@@ -267,7 +273,8 @@ public final class LightWards {
                             l.getEntitiesOfClass(Mob.class, new AABB(at).inflate(radius + 5), LightWards::blocked)) {
                         var center = Vec3.atCenterOf(at);
                         var body = mob.getBoundingBox().getCenter();
-                        if (body.distanceToSqr(center) > radius * radius) continue;
+                        double distance = body.distanceToSqr(center);
+                        if (distance > radius * radius && !trappedAtEdge(l, mob, radius, distance)) continue;
                         var direction = body.subtract(center).multiply(1, 0, 1).normalize();
                         if (direction.lengthSqr() < .01) direction = new Vec3(1, 0, 0);
                         for (int step = 2; step <= 18; step += 2) {
@@ -275,11 +282,17 @@ public final class LightWards {
                             var pos = BlockPos.containing(target);
                             if (!l.hasChunkAt(pos) || covers(l, pos)) continue;
                             int y = l.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos.getX(), pos.getZ());
-                            var exit = new Vec3(target.x, y, target.z);
-                            if (covers(l, BlockPos.containing(exit))
+                            var feet = new BlockPos(pos.getX(), y, pos.getZ());
+                            var floor = feet.below();
+                            var exit = Vec3.atBottomCenterOf(feet);
+                            if (contains(l, exit.add(0, mob.getBbHeight() * .5, 0))
+                                    || !l.getFluidState(feet).isEmpty()
+                                    || !l.getBlockState(floor).isFaceSturdy(l, floor, net.minecraft.core.Direction.UP)
                                     || !l.noCollision(mob, mob.getBoundingBox().move(exit.subtract(mob.position()))))
                                 continue;
-                            mob.setPos(exit);
+                            // This ejection has already checked the entire destination hitbox against terrain.
+                            // snapTo bypasses the ordinary position guard so a wedged mob can escape outward.
+                            mob.snapTo(exit.x, exit.y, exit.z, mob.getYRot(), mob.getXRot());
                             mob.setDeltaMovement(0, 0, 0);
                             mob.needsSync = true;
                             break;
@@ -287,6 +300,15 @@ public final class LightWards {
                     }
                 }
         }
+    }
+
+    private static boolean trappedAtEdge(ServerLevel level, Mob mob, int radius, double distance) {
+        if (distance > (radius + 3.0) * (radius + 3.0) || mob.tickCount < 35) return false;
+        int surface = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, mob.getBlockX(), mob.getBlockZ());
+        return Math.abs(surface - mob.getY()) <= 3
+                && level.getBlockCollisions(mob, mob.getBoundingBox().deflate(.03))
+                        .iterator()
+                        .hasNext();
     }
 
     static void clear() {

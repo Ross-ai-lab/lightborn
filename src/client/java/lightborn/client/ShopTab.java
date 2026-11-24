@@ -96,7 +96,10 @@ final class ShopTab extends ChestTab {
         }
         for (int i = 0; i < buy.size(); i++) {
             Button b = buy.get(i);
-            b.visible = on && shop != null && i < shop.offers().size();
+            b.visible = on
+                    && shop != null
+                    && i < shop.offers().size()
+                    && !shop.offers().get(i).stack().isEmpty();
             if (!b.visible) continue;
             var o = shop.offers().get(i);
             b.active = shop.sparks() >= o.price();
@@ -140,6 +143,7 @@ final class ShopTab extends ChestTab {
         drawWardCard(g);
         for (int i = 0; i < shop.offers().size(); i++) {
             var o = shop.offers().get(i);
+            if (o.stack().isEmpty()) continue;
             int cx = cardX(i), cy = cardY(i), cw = cardW(), ch = cardH();
             g.fill(cx, cy, cx + cw, cy + ch - 3, 0xFF3D3320);
             g.fill(cx + 1, cy + 1, cx + cw - 1, cy + ch - 4, SLOT_IN);

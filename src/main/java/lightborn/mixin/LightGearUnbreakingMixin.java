@@ -2,6 +2,7 @@ package lightborn.mixin;
 
 import java.util.function.Consumer;
 import lightborn.LightGear;
+import lightborn.LightGearTree;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,6 +21,16 @@ public abstract class LightGearUnbreakingMixin {
     @Inject(method = "applyDamage", at = @At("HEAD"), cancellable = true)
     private void lightborn$breakButStay(int damage, ServerPlayer player, Consumer<ItemStack> onBreak, CallbackInfo ci) {
         var self = (ItemStack) (Object) this;
+        if (player != null && LightGearTree.perk(self, "Tempered Edge") && damage > self.getDamageValue()) {
+            int saved = 0;
+            for (int point = self.getDamageValue(); point < damage; point++)
+                if (player.getRandom().nextInt(4) == 0) saved++;
+            if (saved != 0 && damage - saved < self.getMaxDamage()) {
+                ci.cancel();
+                self.setDamageValue(damage - saved);
+                return;
+            }
+        }
         if (!LightGear.keeps(self) || damage < self.getMaxDamage()) return;
         ci.cancel();
         if (self.isBroken()) return;

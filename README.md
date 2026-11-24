@@ -208,8 +208,8 @@ and Buy a slot. **A kind not yet slain shows as "???"** (owner, 2026-11-16: no s
 ### The ward
 
 Each Chest of Light wards **9 blocks** in its dimension (owner, 2026-11-16: half the old 18). It grows only when its
-owner pays: the Shop tab's ward card's **Upgrade ward** button buys the next of five sizes, 9 → 13 → 18 → 26 → 36 → 48, for 20, 40,
-80, 150 and 250 Sparks. Gifts no longer grow it. The step bought is the player's and survives death. Overlapping wards cooperate, so the largest covering a position
+owner pays: the Shop tab's ward card's **Upgrade ward** button buys the next of five sizes, 9 → 13 → 18 → 26 → 36 → 48, for 40, 80,
+160, 300 and 500 Sparks. Gifts no longer grow it. The step bought is the player's and survives death. Overlapping wards cooperate, so the largest covering a position
 protects it. Owner and radius save with the world, including when the owner is offline. The spawn hut's chest counts.
 Moving a home carries its ward and owner with it.
 
@@ -296,27 +296,12 @@ item opens it below the grid: Take 1, Take all (back into the inventory, dropped
 (shaped or any order), furnace / smoker / blast furnace / campfire, stonecutter, smithing, up to 8 ways with page
 arrows, tag ingredients cycling each second. Taking an item out, or breaking the chest, never un-gives it.
 
-**The catalogue must feel like collecting Minecraft, not collecting other mods.** It is curated from the original
-creative-tab ownership, so rejected block variants cannot slip back in through a second tab. **Never more than 999
-collectible items and exactly 10 collection sets, each named in one word**: check every addition, and get a new
-owner decision before exceeding either. Operator/technical items, spawn eggs and the Chest of Light itself are
-excluded. It has **999 items in ten sets** with the pinned companions (2026-11-24): Materials 64, Treasures 54,
-Home 68, Earth 97, Plants 142, Tools 171, Combat 73, Food 69, Ingredients 131 and Lightborn 130. Counts
-vary with the installed pack.
-
-**The ten sets**, in tab order: **Materials, Treasures, Home, Earth, Plants, Tools, Combat, Food, Ingredients,
-Lightborn.** Earth and Plants split the Natural Blocks creative tab: logs, leaves, saplings, flowers, crops, seeds,
-mushrooms, vines, coral, moss, cacti, bamboo, pumpkins, melons and other growing things are Plants; stone, ores,
-dirt, sand, gravel, ice, terrain and the rest are Earth (grass block and nylium count as Earth).
-
-**Retired groups.** Building Blocks, Colored Blocks, Redstone Blocks and Functional Blocks are not collection
-sets: their items are boring to collect, too niche, or merely variants of one item. Do not refill the catalogue with
-those decorative or technical families. Stairs, slabs, walls, waxed/oxidized copper variants, colour variants and
-damaged/chipped anvils stay out. The excluded items still exist in Minecraft; they are only not collectible. A few
-named survivors come back from them (owner's picks): **bricks, glass, quartz pillar, end stone / nether / red nether /
-mud / resin bricks and the 16 glazed terracottas** (Materials), **TNT** (Combat), **rail, lever, piston, sticky piston,
-slime block and honey block** (Tools), and **one red bed, one white banner, one plain shulker box, lantern, barrel,
-iron chain, iron bars, one oak shelf, armour stand and end crystal** (Home). Three hand-picked sets:
+**The catalogue covers survival items** (owner, 2026-11-24). It uses the enabled survival inventory and companion
+mod tabs, with technical and operator items, spawn eggs and the immovable Chest of Light excluded. Count and
+progress use the current pack's items. Waxes, colours, building variants and companion paxels all count.
+The ten sets stay in the same order: **Materials, Treasures, Home, Earth, Plants, Tools, Combat, Food, Ingredients,
+Lightborn.** Earth and Plants split natural blocks. Building and colour variants go to Materials, functional blocks
+to Home and redstone mechanisms to Tools.
 
 - **Materials**: mineral storage blocks (coal, iron/raw iron, copper/raw copper, gold/raw gold, redstone, lapis,
   emerald, diamond, netherite, amethyst and quartz), redstone dust, end stone, every plain plank type, full
@@ -342,19 +327,20 @@ deposits one of each new carried item that fits, through the same rules as singl
 window over the book listing everything just given (scrolling when long) until it is closed. Give all non-essential
 items stores every eligible copy that fits, including items already given to the Light (owner, 2026-11-24). It keeps
 equipment, tools, weapons, food and drinks, torches, loaded storage, Sparks, spell tomes, staffs, the Spellstone and
-progression items in the bag. Sea pickles and other eligible finds still count. Each first gift pays one Spark.
+progression items in the bag. Sea pickles, spider eyes, poisonous potatoes, pufferfish and
+other eligible drops still count. Each first gift pays one Spark.
 Repeat gifts go into storage. Donation feedback shows the affected subgroup's x/x and bulk gifts report each group
 they changed.
 
-**Set bonuses.** Stat-bearing sets pay at each 25%. Bonuses are whole numbers, except life regeneration at 0.2/s per
-quarter, shown with one decimal.
+**Set bonuses.** Stat-bearing sets pay at each 25%. Earth grants half a heart per milestone and Food adds
+0.2 health regeneration per second at each milestone.
 
 | Set | Each 25% | Full-set reward |
 |---|---|---|
 | Materials | Collection progress only | No stat bonus |
 | Treasures | +5% Cooldown Speed | +20% Cooldown Speed |
 | Home | Collection progress only | No stat bonus |
-| Earth | +1 Max Health | +4 Max Health |
+| Earth | +0.5 hearts | +2 hearts |
 | Plants | +5% Item Rarity | +20% Item Rarity |
 | Tools | +10% Mining Speed | +40% Mining Speed |
 | Combat | +10% Attack Damage | +40% Attack Damage |
@@ -364,6 +350,14 @@ quarter, shown with one decimal.
 
 The reward panel shows the next unearned quarter, its actual added bonus and the cumulative total after it, rather
 than merely the full-set prize. There is no generic footer help text.
+
+### Crafting
+
+The Crafting tab opens from the start. Search craftable recipes and select one to lay its ingredients on the plate.
+Craft once or use Craft all (up to 64 operations per click). Ordinary crafting pulls ingredients from the
+player's Chest of Light first and then carried inventory. The manual grid chooses exact stacks for recipes such
+as dyeing, maps or named materials. Grid slots are previews, and the server verifies the inputs and recipe again
+when the player crafts. Outputs and remainders such as milk buckets go into the player's inventory.
 
 ### The Light
 
@@ -420,12 +414,13 @@ The blue Shop tab sells six offers for Sparks in three rows, read left to right:
 drop (amethyst shards or Dark Shards), one exotic item, a map to a notable structure, then one exotic food** (owner,
 2026-11-16: the armour piece and the second exotic item are gone). The fourth row is the **ward card**: the ward's
 size, the next size and price, a pip per size bought, and the Upgrade ward button. The
-food is always raw, never cooked, unless it only exists cooked (golden foods). Each Buy button spans its card and carries the price ("Buy · 12 Sparks", "Take · Free"); the ward card's
-button reads "Upgrade ward · 40 Sparks", and its line reads "Next: 18 blocks" (owner, 2026-11-17: no step count). The Buy
+food is always raw, never cooked, unless it only exists cooked (golden foods). Each Buy button spans its card and carries the price ("Buy · 24 Sparks", "Take · Free"); the ward card's
+button reads "Upgrade ward · 40 Sparks", and its line reads "Next: 13 blocks" (owner, 2026-11-17: no step count). The Buy
 text is blue. The world seed and Minecraft day determine the roster. It refreshes at dawn; the tab's one line of text says
 "New wares every dawn" (owner, 2026-11-16: no title, week, countdown or Spark count). Every card prefixes its name with the bundle quantity. The price pays for
-that entire bundle, not one item from it. There are no stock limits or sold-out states; repeat purchases need payment
-and inventory room each time. **Nothing is level-gated** (owner, 2026-11-16): every ware sells to anyone with the
+that entire bundle, not one item from it. Repeat purchases of ordinary wares need payment and inventory room each time. The shop hides
+tomes the player owns, including inside carried or stored Spellstones, and staffs below the player's best
+owned staff rarity. All paid shop costs are twice the earlier prices. **Nothing is level-gated** (owner, 2026-11-16): every ware sells to anyone with the
 Sparks. The server validates the chest, distance, day, offer, price and capacity before
 transferring anything.
 
@@ -788,7 +783,7 @@ and after a restart they leave air. The Light Steed is never saved with the worl
 
 | Spell | I | II | III (perks) |
 |---|---|---|---|
-| Sunbeam | +20% damage · 30% less mana · reach 36 | Blinding Beam (struck monsters lose track of you) · the beam is 75% wider · Solar Mana (1 mana back for each monster struck) | Prism (splits at the first creature into two side beams at half) · Kindling Light (sets on fire 3 s) · Sun's Gift (a pulse that strikes heals half a health) |
+| Sunbeam | +20% damage · 30% less mana · reach 36 | Blinding Beam (struck monsters lose track of you) · the beam is 75% wider · Solar Mana (1 mana back for each monster struck) | Prism (splits at the first creature into two side beams at half) · Kindling Light (sets on fire 3 s) · Sun's Gift (a pulse that strikes heals a quarter of a heart) |
 | Wisps | +20% damage · 30% less mana · 25% shorter cooldown | seven wisps instead of five · wisps last 50% longer · Glowing Wisps (struck monsters glow for 5 seconds) | Bursting Wisps (bursts r 2 for half) · Leeching Motes (2 mana a strike) · Splitting Light (a killing wisp splits in two) |
 | Halo Disc | +20% damage · 30% less mana · 40% farther | 35% shorter cooldown · the blade is half as wide again · Dazzling Halo (struck monsters are slowed hard for 2 seconds) | Twin Halos · Ricochet (darts to the nearest monster within 8 first) · Bleeding Edge (a fifth of the hit a second for 4 s) |
 | Starfall | +20% damage · 30% less mana · 25% shorter cooldown | the stars fall over a place 40% wider · stars fall half as long again, and half as many more · Stardazed (struck monsters lose track of you) | Shooting Star (a great star at the end, triple) · Stardust (struck monsters slowed hard 2 s) · Guiding Stars (each star on a monster) |
@@ -878,7 +873,7 @@ Emberwalk, Crystal Shell, Quickening or Light Bore (a second would undo, refresh
 | Cyclone | +20% damage · 30% less mana · 25% shorter cooldown | blows 50% longer · the funnel is 40% wider · Dust Devil (monsters caught in the funnel are weakened, their blows softer) | Twin Cyclones · Firestorm (sets alight) · Steering Wind (follows your aim) |
 | Trap | +20% damage · 30% less mana · 25% shorter cooldown | bursts 40% wider · up to five traps wait at once instead of three · Frost Rune (the burst freezes monsters for 3 seconds: slowed hard and shaking with cold) | Binding Rune (held 3 s) · Searing Rune (alight) · Echo Rune (bursts twice) |
 | Dawnbreak | +20% damage · 30% less mana · 25% shorter cooldown | reaches 40% farther · Sun Ward (you get Absorption II for 10 seconds) · Purging Light (the dawn lifts every harmful effect and fire from you) | Blinding Dawn (survivors blinded, slowed and lose sight of you 5 s) · Morning Warmth (players in reach healed 3 hearts) · Lingering Sun (a small sun over the spot 6 s strikes monsters within 8 each second for a third, and burns them) |
-| Emberwalk | 50% longer · 30% less mana · 25% shorter cooldown | the crust spreads 60% wider · Ember Speed (speed I while you walk on your embers) · Cinder Shield (resistance I while it lasts) | Cool Embers (50% shorter cooldown: the owner's one exception to tier III's all-perk rule) · Smouldering Aura (monsters within 3 catch fire) · Lava Heart (1 health every 2 s on crust or in lava) |
+| Emberwalk | 50% longer · 30% less mana · 25% shorter cooldown | the crust spreads 60% wider · Ember Speed (speed I while you walk on your embers) · Cinder Shield (resistance I while it lasts) | Cool Embers (50% shorter cooldown: the owner's one exception to tier III's all-perk rule) · Smouldering Aura (monsters within 3 catch fire) · Lava Heart (half a heart every 2 s on crust or in lava) |
 | Crystal Shell | 50% longer · 30% less mana · 25% shorter cooldown | the shatter throws back monsters within 6 blocks instead of 4 · Healing Crystal (inside, you heal twice as fast) · Hidden Shell (monsters lose you while you are inside) | Blinding Shatter (thrown monsters blinded, slowed and lose you 5 s) · Shard Burst (the shatter strikes for 8) · Mana Crystal (5 mana a second) |
 | Transpose | 50% farther · 30% less mana · 25% shorter cooldown | Swap Ward (resistance II for 2 seconds after the swap) · Swift Swap (speed II for 3 seconds after the swap) · Mending Swap (the swap heals you a heart) | Dazing Swap (a monster slowed, weakened and loses you 3 s) · Shocking Swap (a monster struck for 6) · Return Swap (one more swap within 4 s, free) |
 | Moongate | far gate 50% farther · 30% less mana · 25% shorter cooldown | the gates stay 2 minutes instead of 1 · Warm Gate (passing through heals you 2 hearts) · Safe Passage (resistance I for 5 seconds after you pass through) | Homegate (the far gate opens by your Chest of Light, any dimension) · Swift Passage (Speed II 10 s) · Banishing Gate (a monster stepping in struck for 8 and thrown out) |
@@ -1319,8 +1314,8 @@ upgraded mana, cooldown and power and lists the branches in use, without tier or
   gold crescent round a red gem, a thorned branch with a bud, a skull, a forked rod with a spark.
 - Rarity applies to every rolled item, staffs included. **Rarity alone sets affix strength** (owner, 2026-11-16);
   every monster rolls rarity at the same odds.
-- **A staff's rarity adds Max Mana** outside the affix count (owner, 2026-11-16): Basic +0, Uncommon +25, Rare +50,
-  Legendary +100, Mythic +150 (`Balance.STAFF_RARITY_MANA`). It joins the staff's one Max Mana line (each stat shows once), on top
+- **A staff's rarity adds Max Mana** outside the affix count (owner, 2026-11-16): Basic +0, Uncommon +10, Rare +20,
+  Legendary +35, Mythic +55 (`Balance.STAFF_RARITY_MANA`). It joins the staff's one Max Mana line (each stat shows once), on top
   of the built-in Max Mana.
 - **An affix never lands on one of the item's own stats** (owner, 2026-11-18: "rare must always have 2, legendary
   always 3"): folded into the base line it would hide, so armour rolls no extra Armor, a sword no extra Attack Damage
@@ -1401,8 +1396,8 @@ melee weapons (swords, axes, spears, the mace, the trident, any item with base a
 crossbows, tools (pickaxes, shovels, hoes), and shields (not in the owner's list; added so every held piece has a tree). The
 Dragon's Light gear uses the helm, weapon, chestplate, leggings, boots, staff and wings trees. The same rules hold: buy as many branches of a tier as you like, one per tier in use, owned ones switch in free, a tier opens
 once a branch of the tier above is owned. **Gear upgrades cost ore, never Sparks** (owner, 2026-11-23: "sparks are rare and the fact that both spells and
-tools need it is too much"; Sparks are for spells): **tier I 3 copper ingots, tier II 3 lapis lazuli, tier III 3
-redstone dust**, the same for every piece (`LightGearTree.ore`, `upgrade_gear_prices_in_ore`). The ore's count and
+tools need it is too much"; Sparks are for spells): **tier I 3 copper ingots, tier II 3 lapis blocks, tier III 3
+redstone blocks**, the same for every piece (`LightGearTree.ore`, `upgrade_gear_prices_in_ore`). The ore's count and
 icon stand beside each tier's numeral, and it comes from the chest's store first, then the bag (`LightGearTree`). **A Light piece is as strong as its holder's best ore** (owner, 2026-11-20:
 the hidden upgrade level was dropped as unreadable): iron-strength before and after the first iron ore,
 diamond-strength after the first diamond ore, netherite-strength (10% knockback resistance on armour) after the first
@@ -1419,14 +1414,14 @@ of replacing each other:
 |---|---|
 | Helm | Sage's Crown (each kill gives back 5 mana) · Last Light (once a minute, falling below a third of your health throws back monsters within 5) · Clear Mind (no Nausea, Darkness or Mining Fatigue) |
 | Sword | Sunfire Edge (hits burn 4 s and deal 50% more to the undead) · Radiant Sweep (each hit sends half its damage into monsters within 3) · Executioner (hits deal 50% more to monsters under a third of their health) |
-| Chestplate | Bulwark (Resistance I below half health) · Thornlight (attackers in reach take 3 and burn) · Second Dawn (once every 10 minutes a killing blow leaves you on 4 health) |
-| Greaves | Swift by Night (Speed I at night) · Mender's Gait (sprinting mends 1 health every 3 s) · Steadfast (no knockback) |
+| Chestplate | Bulwark (Resistance I below half health) · Thornlight (attackers in reach take 3 and burn) · Second Dawn (once every 10 minutes a killing blow leaves you with 2 hearts) |
+| Greaves | Swift by Night (Speed I at night) · Mender's Gait (sprinting restores half a heart every 3 s) · Steadfast (no knockback) |
 | Boots | Featherfall (no fall damage) · Tide Runner (Dolphin's Grace in water) · Spring Step (Jump Boost II) |
 | Staff | Mana Font (one spell in five costs no mana) · Spellfire (spell hits set monsters alight for 2 s) · Echoing Staff (one spell in eight skips its cooldown) |
 | Wings | Tireless Wings (mend while gliding) · Star Glide (the wind keeps pushing you on) · Soft Landing (no fall or wall damage) |
 | Bow, crossbow | Twin Shot (each arrow flies with a twin that cannot be picked up) · Frost Arrow (Slowness II for 3 s and 34 frostbite, a bite in three arrows) · Quiver of Light (one arrow in three is not used up) |
 | Tool | Vein Miner (an ore breaks up to 8 more of it touching it) · Smelting Touch (drops come out smelted) · Miner's Fervour (each block broken gives Haste II for 3 s) |
-| Shield | Spiked Rim (a blocked attacker loses 4 health) · Repulse (blocking throws the attacker back) · Restoring Guard (each block mends 1 health) |
+| Shield | Spiked Rim (a blocked attacker loses 4 health) · Repulse (blocking throws the attacker back) · Restoring Guard (each block restores half a heart) |
 | Axe | Cleave (hits carry into monsters beside the target, in front, for 60%) · Tree Feller (one log fells the tree, up to 64) · Sunder (hits strip 4 armour for 5 s) |
 | Spear | Skewer (hits run through to the next monster behind, up to 3.5 blocks, for 75%) · Pinning Strike (Slowness III for 2 s) · Charging Thrust (sprinting hits deal 50% more) |
 | Mace | Concussion (Slowness IV and Weakness for 2 s) · Shockwave (monsters within 3 of the target thrown back for 2) · Meteor Fall (no fall damage while held) |
@@ -1447,19 +1442,19 @@ chance, which the weapon tree's More Crits takes to 10%.
 
 | Piece | Tier I | Tier II |
 |---|---|---|
-| Helm | More Armour (+1 armour) · More Mana (+10 mana) · Spell Crits (+3% spell crit chance) | More Toughness (+1 armour toughness) · More Health (+2 health) · Shorter Cooldowns (Spells ready 5% sooner) |
+| Helm | More Armour (+1 armour) · More Mana (+10 mana) · Spell Crits (+3% spell crit chance) | More Toughness (+1 armour toughness) · More Health (+1 heart) · Shorter Cooldowns (Spells ready 5% sooner) |
 | Sword | More Damage (+1 attack damage) · Faster Swings (Swings 10% faster) · Life Steal (Heals you 3% of the damage you deal) | Longer Reach (Reaches half a block farther) · More Crits (+5% crit chance (10% in all)) · Harder Crits (Crits hit 10% harder) |
-| Chestplate | More Armour (+1 armour) · More Health (+2 health) · More Toughness (+1 armour toughness) | More Mana (+10 mana) · Less Burning (Fire burns you 30% shorter) · Less Knockback (10% less knockback) |
-| Greaves | More Armour (+1 armour) · Faster Walking (You move 5% faster) · More Toughness (+1 armour toughness) | Higher Jumps (You jump 10% higher) · More Health (+2 health) · Less Knockback (10% less knockback) |
+| Chestplate | More Armour (+1 armour) · More Health (+1 heart) · More Toughness (+1 armour toughness) | More Mana (+10 mana) · Less Burning (Fire burns you 30% shorter) · Less Knockback (10% less knockback) |
+| Greaves | More Armour (+1 armour) · Faster Walking (You move 5% faster) · More Toughness (+1 armour toughness) | Higher Jumps (You jump 10% higher) · More Health (+1 heart) · Less Knockback (10% less knockback) |
 | Boots | More Armour (+1 armour) · Faster Walking (You move 4% faster) · More Toughness (+1 armour toughness) | Web Walker (You walk through cobwebs at full speed) · Safer Falls (Falls hurt you 25% less) · Step Up (You step up half a block higher without jumping) |
-| Staff | More Spell Damage (+5% spell power) · More Mana (+10 mana) · Spell Crits (+3% spell crit chance) | Faster Mana (Mana comes back 20% faster) · Shorter Cooldowns (Spells ready 5% sooner) · Harder Crits (Crits hit 10% harder) |
-| Wings | More Armour (+1 armour) · More Toughness (+1 armour toughness) · More Health (+2 health) | Faster Walking (You move 4% faster) · More Mana (+10 mana) · Less Knockback (10% less knockback) |
-| Bow, crossbow | Arrow Damage (Arrows hit 10% harder) · More Crits (+3% crit chance) · Faster Walking (You move 4% faster) | Harder Crits (Crits hit 10% harder) · More Mana (+10 mana) · More Health (+2 health) |
+| Staff | More Spell Damage (+10% spell power) · More Mana (+15 mana) · Spell Crits (+5% spell crit chance) | Faster Mana (Mana comes back 20% faster) · Shorter Cooldowns (Spells ready 5% sooner) · Harder Crits (Crits hit 10% harder) |
+| Wings | More Armour (+1 armour) · More Toughness (+1 armour toughness) · More Health (+1 heart) | Faster Walking (You move 4% faster) · More Mana (+10 mana) · Less Knockback (10% less knockback) |
+| Bow, crossbow | Arrow Damage (Arrows hit 10% harder) · More Crits (+3% crit chance) · Faster Walking (You move 4% faster) | Harder Crits (Crits hit 10% harder) · More Mana (+10 mana) · More Health (+1 heart) |
 | Tool | Faster Mining (Mines 15% faster) · Longer Reach (Reaches blocks half a block farther) · Longer Breath (You hold your breath longer underwater) | Safer Falls (Falls hurt you 25% less) · Faster Walking (You move 4% faster) · Underwater Mining (Mining underwater is barely slowed) |
-| Shield | More Armour (+1 armour) · More Health (+2 health) · Less Knockback (10% less knockback) | Less Burning (Fire burns you 30% shorter) · Blast Steady (Explosions throw you 30% less) · More Toughness (+1 armour toughness) |
-| Axe | More Damage (+1 attack damage) · Faster Chopping (Chops and mines 20% faster) · Less Knockback (10% less knockback) | More Crits (+5% crit chance) · Harder Crits (Crits hit 10% harder) · More Health (+2 health) |
+| Shield | More Armour (+1 armour) · More Health (+1 heart) · Less Knockback (10% less knockback) | Less Burning (Fire burns you 30% shorter) · Blast Steady (Explosions throw you 30% less) · More Toughness (+1 armour toughness) |
+| Axe | More Damage (+1 attack damage) · Faster Chopping (Chops and mines 20% faster) · Less Knockback (10% less knockback) | More Crits (+5% crit chance) · Harder Crits (Crits hit 10% harder) · More Health (+1 heart) |
 | Spear | Longer Reach (Reaches half a block farther) · More Damage (+1 attack damage) · Faster Walking (You move 4% faster) | Faster Thrusts (Thrusts 10% faster) · Harder Crits (Crits hit 10% harder) · More Crits (+5% crit chance) |
-| Mace | More Damage (+1 attack damage) · More Health (+2 health) · More Armour (+1 armour) | Harder Crits (Crits hit 10% harder) · Less Knockback (10% less knockback) · More Crits (+5% crit chance) |
+| Mace | More Damage (+1 attack damage) · More Health (+1 heart) · More Armour (+1 armour) | Harder Crits (Crits hit 10% harder) · Less Knockback (10% less knockback) · More Crits (+5% crit chance) |
 | Trident | More Damage (+1 attack damage) · Longer Breath (You hold your breath longer underwater) · Faster Swimming (You swim 20% faster) | Harder Crits (Crits hit 10% harder) · More Crits (+5% crit chance) · Faster Throws (Thrusts and throws 10% faster) |
 
 <a id="crits"></a>**Crits** (owner, 2026-11-17). Every melee hit, arrow and thrown trident of a player has a **5%
@@ -1510,6 +1505,12 @@ strength and the collection hint (owner, 2026-11-20; `LightGear.hideStatsWhileBr
 `light_gear_breaks_never_vanishes`). If a piece is destroyed (lava, void), the Dragon replaces it the next night he visits; after the fight ending, the Chest of Light's
 shop offers the replacement instead, free. Light gear belongs to the Lightborn collection set.
 
+Weapon and staff affixes skip attack and movement speed. Rolled mana affixes are half their previous size and
+critical damage affixes are 20% lower across rarities. These changes update existing rolls. Gear shows remaining
+durability, and paxels have a tree focused on breaking blocks, working reach, mining underwater and resisting wear.
+The staff's first branches grant +10% spell power, +15 mana or +5 percentage points of spell crit chance. The
+More Health gear upgrade grants one extra heart.
+
 ## 8. Monsters
 
 - **Monsters have no levels** (owner, 2026-11-16): each kind keeps its own natural health and damage, so a zombie is
@@ -1523,6 +1524,7 @@ shop offers the replacement instead, free. Light gear belongs to the Lightborn c
   earlier double), and every other companion-mod creature four times, so nights show mutants and exotics, not mostly
   zombies, skeletons and spiders. Day spawning keeps its original budget, and
   the ward stays safe.
+- **Witches cannot drink healing potions**, including Giant Witches. They still fight with their usual thrown potions.
 - **Zombies pound on doors but never break them.** A zombie that knows the player is behind a closed door pounds on
   it, with sound and arm movement, at one-third of vanilla's knocking volume, on Normal too.
 - **Your own minions look like yours** (owner, 2026-11-16: no names over heads, and Light, not violet). Every thrall,
@@ -1715,17 +1717,18 @@ material; anything else takes half a minute, obsidian slow (strength 6, pickaxe-
 from the core over 15 seconds, out to 56 blocks: growth, sculk veins and dead bushes go, sculk, mycelium and coarse
 dirt turn back to grass (mud too, soul sand and soil back to sand), blackstone and deepslate to stone, goo to water,
 wither roses to poppies and withered grass to green, and a little grass and a few poppies spring up; the ashen trees
-stay, a scar; nothing is said in chat. **It is guarded by day,
-never at night**: once a day, when any player comes within 16 blocks of the core, its guards wake round it and go for
-that player: **4 to 6 in the first week, two more each week after, up to 14**, and **exactly one of them is a
-mutant**, never more (a giant when no mutant mod is installed; owner, 2026-11-17), and a real one: tier 3 or more,
-the Spitter and up (owner, 2026-11-18). The rest come from the fountain's own pools (below), never a mutant:
-tier 3 comes at half weight on a stage-1 fountain and tier 4 at a third, both at full weight from stage 3. **Tier 4 kinds
-guard fountains only from the second week and tier 5 from the third** (owner, 2026-11-18), the mutant included. **Guards stay until slain** (owner, 2026-11-23: at one fountain none appeared): they never despawn for distance or idleness, carry Spawn Animations' `ts.sa.exclude` tag so they stand up at once instead of digging up, and when all of a fountain's guards are gone though not all were slain, the next approach wakes a fresh set (`DarkNests.vanished`; how many woke and how many were slain is saved with the world, `nest_guards`, owner 2026-11-23). **Dying near a fountain resets its fight** (owner, 2026-11-17): within 64 blocks of a player's
-death the fountain's guards crumble and its day turn is given back, so the full guard wakes again on the next approach. Guards carry the `lightborn_nest_guard` tag, so the sun
-never burns them (`NestGuardSunMixin`), and at nightfall any still standing crumble to spores. Breaking the core clears the fountain and its growth and pays
-**7 to 25 Sparks, rising with its stage** (owner, 2026-11-23: 7 to 11 at stage 1, 12 to 16, 17 to 21, 21 to 25;
-`DarkNests.nestSparks`), `2 x stage` Dark Shards, `stage` rolled items (one Legendary from stage 3).
+stay, a scar; nothing is said in chat. **Guard parties** start with two to three low-tier enemies in the Overworld and three to four in the Dark.
+Every cleared fountain increases the difficulty and rewards for later fights in that dimension. Each win adds a
+guard up to 14 and strengthens their health, damage and movement further. At two wins, a champion and
+tier 4 enemies can join, and at four wins tier 5 can join. Loot starts with 7–11 Sparks, Dark Shards and Uncommon
+gear. Later wins increase the payout and can award Rare, Legendary and Mythic gear. Local growth stage
+and victory progress both affect the reward. The Dark pays half again in Sparks and shards, with an extra
+gear drop after the first win. Existing worlds start fresh dimension counters and keep their total for chest unlocks.
+
+**Guards stay until slain.** They stand immediately (Spawn Animations excludes them) and are persistent.
+When all guards vanish without being defeated, the next approach wakes a fresh group. Dying within 64 blocks
+resets the fight. Overworld guards crumble at nightfall, while the Dark’s remain. The count which woke and
+the count defeated are saved with the fountain.
 
 **Each fountain fits its place** (owner, 2026-11-20). Where a kind may guard is its `guards` list in
 `lightborn/monsters.json`. An Overworld fountain draws on the 48 night kinds and the Overworld's own (Zombie Villager,
@@ -1738,7 +1741,7 @@ Corsair; **forest and plains** (and taiga, savanna) the raiders: Pillager, Vindi
 group has night kinds only. **Never a guard:** a Nether or End kind in the Overworld, a world boss (Wither, Ender
 Dragon, Warden, Elder Guardian, Orvane, the Last Scribe), a mount, a water-only kind, vanilla's mindless Giant, or a
 summon or trick (Vex, Endersoul Clone, Creaking). The champion is a mutant from the pool when one is in season, else a
-tier 3 or stronger kind, else the strongest in season. The tier-by-week gate holds everywhere.
+tier 3 or stronger kind, else the strongest in season. The dimension’s victory counter opens the higher tiers.
 
 **The Dark (the old Nether) has Dark Fountains too** (owner, 2026-11-20: "with their own respective enemies"; they
 are stronger, see [The Dark](#15-the-dark)); the Hollow (the old End) has none (owner, 2026-11-21, see
@@ -1997,6 +2000,12 @@ looked at, 20 health. They talk in the Dragon's dialogue box under their own nam
   once no player has looked at them for three seconds and nobody stands within 8 blocks. One never claimed by the
   next dusk leaves too.
 
+**Travel companions.** After reaching a guided destination, ask the refugee to come with you. One can travel
+with each player. Ask them to follow, wait, or return to the ward where you met. Sneak and interact with a weapon
+or armour piece to lend it and get any replaced gear back. They help fight nearby monsters, pull away when
+badly hurt and recover out of combat. They keep their instructions and gear through reloads. Parting ways returns
+their gear.
+
 ### Steady hunger and healing
 
 In survival and adventure, food decreases by one point (half a drumstick) every five minutes of active play.
@@ -2039,9 +2048,8 @@ load, so building a stone house does not turn its lights into cave lights. Dusk 
 in bounded batches, and roof edits invalidate only their source column. The rule covers the Overworld only. The Chest
 of Light, its golden ward and magical Light gear and spell radiance keep shining.
 
-**Nights last 1.5 times as long as days** (owner, 2026-11-24). The Overworld's clock slows from dusk to dawn,
-giving 16 minutes 15 seconds of night and 10 minutes 50 seconds of daylight at 20 ticks per second. The game syncs
-the clock's rate to every client so the sky moves smoothly (`LongNights`). A bed still skips the night.
+Day and night each take 12,000 ticks (10 minutes at 20 ticks per second), with the normal clock rate throughout.
+A bed still skips the night.
 
 - **The chained moon** (owner, 2026-11-15). Every moon phase is redrawn with iron chains across its face
   (`tools/make_chained_moon.py`, at 128 px). The chains stay on the moon's face with a short overhang, about four links
@@ -2117,8 +2125,8 @@ All of these guard the Dark's fountains too (`guards` "nether" in `monsters.json
 An iron pickaxe or better mines it for one Dark Shard (Fortune adds more, Silk Touch takes the ore); it glows
 faintly.
 
-**Stronger fountains** (owner's pick): the Dark's fountains root at stage 2, grow two stages a Dark Moon, and pay half
-again in Sparks and Dark Shards (rounded down) and one more rolled item.
+**Fountains in the Dark** root at growth stage 2, advance two growth stages each Dark Moon, and have their own
+clear count and guard pool. See [Dark Fountains](#dark-fountains) for rewards.
 
 **The Dragon's Tale:** chapter 6, The Dark Below, tells where the Dark comes from ([Chapters](#chapters)).
 
@@ -2173,8 +2181,8 @@ Lightborn's music mood for the Hollow is still named `end` in code, so its folde
 Other authors' mods, pinned in `tools/companion-mods.lock.json` (exact files and hashes) and restored by
 `py -3.14 -I tools/companion_mods.py fetch`; `resolve --keep-pins` adds required dependencies while keeping existing
 pins. Builds verify and restore the test cache only; deliberate deployment copies the pinned companions into the game.
-The True Paxels adds craftable mining and farming multitools (owner, 2026-11-24). Its items stay outside the Chest
-of Light catalogue, which is already at its 999-item limit. The launcher sets each paxel's durability to four times
+The True Paxels adds craftable mining and farming multitools (owner, 2026-11-24). Its items are included in the
+Chest of Light catalogue. The launcher sets each paxel's durability to four times
 the matching Minecraft tool's durability.
 
 ### Rules every mod must pass
@@ -2292,7 +2300,7 @@ targeting.
 **Compatibility notes.**
 
 - Xaero's World Map opens with M and records explored land; it never reveals unseen terrain.
-- Eligible companion items join the curated Light-chest groups; the retired decorative families stay filtered.
+- Survival items from companion mods join the Chest of Light catalogue.
   Crop and wood tags keep Trees, Reap and Felling working.
 - Lightborn supplies Dungeons and Taverns' missing `nova_structures:hamlet/jockey` template pool through its
   Dungeons and Taverns rules pack (loaded only beside that mod). It uses the existing Nether hoglin-jockey template also used by piglin camps,

@@ -114,7 +114,7 @@ public final class LootRoller {
             a("life_leech", "Life Leech", ModAttributes.LIFE_LEECH, 0.01, 0.025, Style.CHANCE);
     private static final Affix SPELL =
             a("spell_power", "Spell Power", ModAttributes.SPELL_POWER, 0.05, 0.12, Style.PCT);
-    private static final Affix MANA = a("max_mana", "Max Mana", ModAttributes.MAX_MANA, 6, 14, Style.FLAT);
+    private static final Affix MANA = a("max_mana", "Max Mana", ModAttributes.MAX_MANA, 3, 7, Style.FLAT);
     private static final Affix REGEN =
             a("mana_regen", "Mana Regeneration", ModAttributes.MANA_REGEN, 0.08, 0.18, Style.PCT);
     private static final Affix HASTE =
@@ -122,9 +122,7 @@ public final class LootRoller {
 
     static final List<Affix> MELEE_AFFIXES = List.of(
             a("damage", "Attack Damage", Attributes.ATTACK_DAMAGE, 1, 2.5, Style.FLAT),
-            a("attack_speed", "Attack Speed", Attributes.ATTACK_SPEED, 0.05, 0.12, Style.PCT),
             HEALTH,
-            SPEED,
             LUCK,
             FIND,
             LEECH,
@@ -137,12 +135,11 @@ public final class LootRoller {
             REGEN,
             HASTE,
             HEALTH,
-            SPEED,
             LEECH,
             a("spell_crit", "Spell Crit Chance", ModAttributes.SPELL_CRIT, 0.02, 0.05, Style.CHANCE),
             // Rolls scaled with the base multiplier (1.5 to 3.0, owner 2026-11-17); the bonus now counts for weapon
             // crits too.
-            a("crit_damage", "Crit Damage", ModAttributes.CRIT_DAMAGE, 0.20, 0.50, Style.CHANCE));
+            a("crit_damage", "Crit Damage", ModAttributes.CRIT_DAMAGE, 0.16, 0.40, Style.CHANCE));
 
     static final List<Affix> ARMOR_AFFIXES = List.of(
             HEALTH,
@@ -295,14 +292,89 @@ public final class LootRoller {
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
 
         stack.set(DataComponents.CUSTOM_NAME, name(rarity, stack));
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putString("lightborn_rarity", rarity.saveId));
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
+            tag.putString("lightborn_rarity", rarity.saveId);
+            tag.putBoolean("affixes_rebalanced", true);
+        });
         if (rarity.top()) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         return stack;
     }
 
-    /** Max Mana a staff's rarity adds on top of its affixes (Basic 0, Uncommon 25, Rare 50, Legendary 100, Mythic 150). */
+    /** Max Mana a staff's rarity adds on top of its affixes (Basic 0, Uncommon 10, Rare 20, Legendary 35, Mythic 55). */
     public static int rarityMana(Kind kind, Rarity rarity) {
         return kind == Kind.STAFF ? Balance.STAFF_RARITY_MANA[rarity.ordinal()] : 0;
+    }
+
+    private static final int[] OLD_STAFF_MANA = {0, 25, 50, 100, 150};
+
+    static Rarity rarity(ItemStack stack) {
+        var rarity = Rarity.bySaveId(stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+                .copyTag()
+                .getStringOr("lightborn_rarity", ""));
+        return rarity == null ? Rarity.PLAIN : rarity;
+    }
+
+    static boolean refresh(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        boolean changed = relabel(stack);
+        var tag =
+                stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        boolean starter = stack.is(ModItems.STARTER_STAFF);
+        var rarity = Rarity.bySaveId(tag.getStringOr("lightborn_rarity", ""));
+        if (starter || rarity != null && !tag.getBooleanOr("affixes_rebalanced", false)) {
+            var original = stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
+            var builder = ItemAttributeModifiers.builder();
+            boolean staff = ModItems.isStaff(stack);
+            int kind = LightGearTree.kind(stack);
+            boolean weapon = staff
+                    || kind == LightGearTree.WEAPON
+                    || kind == LightGearTree.AXE
+                    || kind == LightGearTree.SPEAR
+                    || kind == LightGearTree.TRIDENT
+                    || kind == LightGearTree.MACE
+                    || kind == LightGearTree.RANGED;
+            boolean manaTrimmed = false;
+            for (var entry : original.modifiers()) {
+                var modifier = entry.modifier();
+                var display = entry.display();
+                String path = modifier.id().getPath();
+                boolean ours = modifier.id().getNamespace().equals(Lightborn.MOD_ID);
+                if (starter && entry.attribute().equals(ModAttributes.MAX_MANA) && !path.startsWith("light_tree_"))
+                    continue;
+                if (rarity != null && ours) {
+                    if (weapon && (path.startsWith("affix_move_speed_") || path.startsWith("affix_attack_speed_")))
+                        continue;
+                    double amount = modifier.amount();
+                    if (entry.attribute().equals(ModAttributes.MAX_MANA) && !path.startsWith("light_tree_")) {
+                        int oldBonus = staff && !manaTrimmed ? OLD_STAFF_MANA[rarity.ordinal()] : 0;
+                        int newBonus = staff && !manaTrimmed ? rarityMana(Kind.STAFF, rarity) : 0;
+                        amount = path.startsWith("affix_max_mana_")
+                                ? Math.round((amount - oldBonus)) * .5 + newBonus
+                                : amount - oldBonus + newBonus;
+                        manaTrimmed = true;
+                    } else if (path.startsWith("affix_crit_damage_")) {
+                        amount = Math.round(amount * 800) / 1000.0;
+                        display = ItemAttributeModifiers.Display.override(
+                                Component.literal("+" + trim(amount * 100) + "% Crit Damage")
+                                        .withStyle(ChatFormatting.BLUE));
+                    }
+                    modifier = new AttributeModifier(modifier.id(), amount, modifier.operation());
+                }
+                if (display == null) builder.add(entry.attribute(), modifier, entry.slot());
+                else builder.add(entry.attribute(), modifier, entry.slot(), display);
+            }
+            var next = builder.build();
+            if (!original.equals(next)) {
+                stack.set(DataComponents.ATTRIBUTE_MODIFIERS, next);
+                changed = true;
+            }
+            if (!starter) {
+                CustomData.update(
+                        DataComponents.CUSTOM_DATA, stack, data -> data.putBoolean("affixes_rebalanced", true));
+                changed = true;
+            }
+        }
+        return LightGearTree.refresh(stack) || changed;
     }
 
     static String trim(double v) {

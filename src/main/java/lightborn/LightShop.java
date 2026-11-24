@@ -39,7 +39,7 @@ public final class LightShop {
     /** One ware and its price. Nothing is level-gated (owner, 2026-11-16: there are no levels). */
     public record Offer(ItemStack stack, int price) {
         static final StreamCodec<RegistryFriendlyByteBuf, Offer> CODEC = StreamCodec.composite(
-                ItemStack.STREAM_CODEC, Offer::stack, ByteBufCodecs.VAR_INT, Offer::price, Offer::new);
+                ItemStack.OPTIONAL_STREAM_CODEC, Offer::stack, ByteBufCodecs.VAR_INT, Offer::price, Offer::new);
     }
 
     public record Ask(BlockPos chest) implements CustomPacketPayload {
@@ -200,7 +200,9 @@ public final class LightShop {
         }
         boolean golden = food.endsWith("golden_apple");
         all.add(new Offer(new ItemStack(item, golden ? 1 : 4), golden ? 12 : 6));
-        return List.copyOf(all);
+        return all.stream()
+                .map(offer -> new Offer(offer.stack(), offer.price() * 2))
+                .toList();
     }
 
     /** A map the shop sells: which notable structure, how its marker looks, and what it costs. */
@@ -353,7 +355,27 @@ public final class LightShop {
             int i = Integer.numberOfTrailingZeros(LightGear.lost(p));
             list.set(3, new Offer(LightGear.gift(i, LightGear.lostStep(p, i)), 0));
         }
+        var owned = new ArrayList<ItemStack>();
+        p.getInventory().forEach(stack -> addOwned(owned, stack, 0));
+        p.getEnderChestInventory().forEach(stack -> addOwned(owned, stack, 0));
+        Collection.storage(p).forEach(stack -> addOwned(owned, stack, 0));
+        Spell offered = TomeItem.spellOf(list.getFirst().stack());
+        if (owned.stream().anyMatch(s -> TomeItem.spellOf(s) == offered)) list.set(0, new Offer(ItemStack.EMPTY, 0));
+        int rank = LootRoller.rarity(list.get(1).stack()).ordinal();
+        if (owned.stream()
+                .anyMatch(s -> ModItems.isStaff(s) && LootRoller.rarity(s).ordinal() > rank))
+            list.set(1, new Offer(ItemStack.EMPTY, 0));
         return List.copyOf(list);
+    }
+
+    private static void addOwned(List<ItemStack> owned, ItemStack stack, int depth) {
+        if (stack.isEmpty()) return;
+        if (ModItems.isStaff(stack) || TomeItem.spellOf(stack) != null) owned.add(stack);
+        if (depth >= 8) return;
+        var box = stack.get(DataComponents.CONTAINER);
+        if (box != null) box.nonEmptyItemCopyStream().forEach(item -> addOwned(owned, item, depth + 1));
+        var bundle = stack.get(DataComponents.BUNDLE_CONTENTS);
+        if (bundle != null) bundle.itemCopies().forEach(item -> addOwned(owned, item, depth + 1));
     }
 
     static Show snapshot(ServerPlayer p, BlockPos chest, String message) {
@@ -391,6 +413,7 @@ public final class LightShop {
         var offers = waresFor(p, day);
         if (index < 0 || index >= offers.size()) return "Choose a current offer.";
         Offer o = offers.get(index);
+        if (o.stack().isEmpty()) return "That offer is no longer available.";
         if (sparks(p) < o.price) return "You need " + o.price + " sparks.";
         if (!fitsAfterPayment(p, o.stack, o.price)) return "Make room in your inventory.";
         MapTarget map = mapOf(o.stack);

@@ -88,7 +88,7 @@ public final class Collection {
                     CuratedCollection.EARTH,
                     "Earth",
                     Items.GRASS_BLOCK,
-                    "+4 Max Health (2 hearts)",
+                    "+2 hearts",
                     fx(Attributes.MAX_HEALTH, 4, Operation.ADD_VALUE)),
             set(
                     CuratedCollection.PLANTS,
@@ -182,6 +182,7 @@ public final class Collection {
 
     private static List<Category> categories = List.of();
     private static List<String> all = List.of();
+    private static Map<String, Category> itemSets = Map.of();
 
     /** A set: its key, its one-word name, its icon (null = its creative tab's own icon) and its reward. */
     private static Object[] set(String key, String name, Item icon, String text, PlayerBonuses.Effect... effects) {
@@ -206,13 +207,16 @@ public final class Collection {
         }
         var groups = new LinkedHashMap<String, List<String>>();
         for (Object[] spec : SETS) groups.put((String) spec[0], new ArrayList<>());
-        // Preserve the original first-tab ownership before filtering. A removed slab must not return via another tab.
+        // Keep each item in its first matching set even if other tabs also display it.
         Set<String> visited = new LinkedHashSet<>();
         BiConsumer<String, ItemStack> accept = (original, stack) -> {
             String id = idOf(stack.getItem());
-            if (UNOBTAINABLE.contains(id) || stack.getItem() instanceof SpawnEggItem || !visited.add(id)) return;
+            if (UNOBTAINABLE.contains(id) || stack.getItem() instanceof SpawnEggItem || visited.contains(id)) return;
             String chosen = CuratedCollection.group(id, stack, original);
-            if (chosen != null && groups.containsKey(chosen)) groups.get(chosen).add(id);
+            if (groups.containsKey(chosen)) {
+                groups.get(chosen).add(id);
+                visited.add(id);
+            }
         };
         for (String original : ORIGINAL_ORDER) {
             var tab = tabs.get(original);
@@ -222,6 +226,12 @@ public final class Collection {
             String namespace = BuiltInRegistries.CREATIVE_MODE_TAB.getKey(tab).getNamespace();
             if (namespace.equals("minecraft") || namespace.equals(Lightborn.MOD_ID)) continue;
             for (var stack : tab.getDisplayItems()) accept.accept(companionItemGroup(stack), stack);
+        }
+        // These survival items are generated dynamically rather than through an ordinary creative tab entry.
+        for (Item item : List.of(
+                Items.FILLED_MAP, Items.WRITTEN_BOOK, Items.ENCHANTED_BOOK, Items.FIREWORK_STAR, Items.TIPPED_ARROW)) {
+            var stack = new ItemStack(item);
+            accept.accept(companionItemGroup(stack), stack);
         }
         var out = new ArrayList<Category>();
         for (Object[] spec : SETS) {
@@ -234,6 +244,9 @@ public final class Collection {
         }
         categories = List.copyOf(out);
         all = out.stream().flatMap(c -> c.items().stream()).toList();
+        var lookup = new HashMap<String, Category>();
+        for (Category category : out) for (String id : category.items()) lookup.put(id, category);
+        itemSets = Map.copyOf(lookup);
     }
 
     static String companionItemGroup(ItemStack stack) {
@@ -335,8 +348,7 @@ public final class Collection {
     }
 
     public static Category categoryOf(String id) {
-        for (Category c : categories) if (c.items().contains(id)) return c;
-        return null;
+        return itemSets.get(id);
     }
 
     /** What this player has given. Works on both sides (the client reads its synced copy). */
@@ -379,6 +391,11 @@ public final class Collection {
             if (i++ > 0) line.append(Component.literal(", "));
             boolean percent = effect.op() != Operation.ADD_VALUE;
             double amount = effect.perRank() * quarters / Balance.COLLECTION_QUARTERS * (percent ? 100 : 1);
+            if (effect.attribute().equals(Attributes.MAX_HEALTH)) {
+                double hearts = amount / 2.0;
+                line.append(Component.literal("+" + LootRoller.trim(hearts) + (hearts == 1 ? " heart" : " hearts")));
+                continue;
+            }
             String number = BigDecimal.valueOf(amount)
                     .setScale(3, RoundingMode.HALF_UP)
                     .stripTrailingZeros()
@@ -407,14 +424,9 @@ public final class Collection {
     private static boolean nonEssentialGift(ItemStack stack) {
         if (stack.isEmpty()) return false;
         Item item = stack.getItem();
-        Category category = categoryOf(idOf(item));
-        if (category == null
-                || switch (category.key()) {
-                    case "tools_and_utilities" ->
-                        !(item instanceof BlockItem) && !stack.has(DataComponents.JUKEBOX_PLAYABLE);
-                    case "combat", "food_and_drinks" -> true;
-                    default -> false;
-                }) return false;
+        if (categoryOf(idOf(item)) == null) return false;
+        // Spider eyes are brewing loot even though vanilla permits eating them.
+        if (stack.is(Items.SPIDER_EYE) || stack.is(Items.POISONOUS_POTATO) || stack.is(Items.PUFFERFISH)) return true;
         return !stack.isDamageableItem()
                 && !stack.has(DataComponents.TOOL)
                 && !stack.has(DataComponents.WEAPON)
@@ -433,7 +445,20 @@ public final class Collection {
                 && !stack.is(ModItems.DARK_SHARD)
                 && !stack.is(DragonStory.LIGHT_KEY)
                 && !stack.is(DragonStory.SCRIBE_SEAL)
-                && !stack.is(Items.ARROW)
+                && !stack.is(net.minecraft.tags.ItemTags.ARROWS)
+                && !stack.is(Items.COMPASS)
+                && !stack.is(Items.RECOVERY_COMPASS)
+                && !stack.is(Items.CLOCK)
+                && !stack.is(Items.MAP)
+                && !stack.is(Items.FILLED_MAP)
+                && !stack.is(Items.BUCKET)
+                && !stack.is(Items.WATER_BUCKET)
+                && !stack.is(Items.LAVA_BUCKET)
+                && !stack.is(Items.MILK_BUCKET)
+                && !stack.is(Items.POWDER_SNOW_BUCKET)
+                && !stack.is(Items.FIREWORK_ROCKET)
+                && !stack.is(Items.TNT)
+                && !stack.is(Items.END_CRYSTAL)
                 && !stack.is(Items.ENDER_PEARL)
                 && !stack.is(Items.ENDER_EYE)
                 && !stack.is(Items.TOTEM_OF_UNDYING)

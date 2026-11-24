@@ -83,7 +83,7 @@ final class SelfTestStory {
             // Upgrade Light Gear (owner, 2026-11-17): a tree like the spells'; each tier opened raises the level.
             p.getInventory().clearContent();
             p.getInventory().setItem(0, LightGear.gift(1, 1));
-            // Prices (owner, 2026-11-23): ore only, never Sparks. Tier I 3 copper ingots, II 3 lapis, III 3 redstone.
+            // Tier I takes 3 copper ingots, tier II 3 lapis blocks and tier III 3 redstone blocks.
             p.getInventory().setItem(1, new ItemStack(ModItems.SPARK, 5));
             p.getInventory().setItem(2, new ItemStack(Items.COPPER_INGOT, 3));
             boolean first = LightGearTree.choose(p, 0, 0, 0) == null
@@ -91,26 +91,35 @@ final class SelfTestStory {
                     && Enchanting.count(p, Items.COPPER_INGOT) == 0;
             boolean refused = LightGearTree.choose(p, 0, 1, 1) != null
                     && LightGearTree.level(p.getInventory().getItem(0)) == 2;
-            p.getInventory().setItem(2, new ItemStack(Items.LAPIS_LAZULI, 3));
+            p.getInventory().setItem(2, new ItemStack(Items.LAPIS_BLOCK, 3));
             var sword = p.getInventory().getItem(0);
             boolean bought = LightGearTree.choose(p, 0, 1, 1) == null
                     && LightGearTree.level(sword) == 3
                     && LightGear.step(sword) == 3
-                    && Enchanting.count(p, Items.LAPIS_LAZULI) == 0
+                    && Enchanting.count(p, Items.LAPIS_BLOCK) == 0
                     && sword.get(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS).modifiers().stream()
                             .anyMatch(e -> e.attribute().equals(ModAttributes.WEAPON_CRIT));
             p.getInventory().setItem(2, new ItemStack(Items.REDSTONE, 2));
             boolean noIron = LightGearTree.choose(p, 0, 2, 0) != null;
-            p.getInventory().setItem(2, new ItemStack(Items.REDSTONE, 3));
+            p.getInventory().setItem(2, new ItemStack(Items.REDSTONE_BLOCK, 3));
             boolean third = LightGearTree.choose(p, 0, 2, 0) == null
-                    && Enchanting.count(p, Items.REDSTONE) == 0
+                    && Enchanting.count(p, Items.REDSTONE_BLOCK) == 0
                     && Enchanting.count(p, ModItems.SPARK) == 5;
             Item[][] ores = {
                 {LightGearTree.ore(0), Items.COPPER_INGOT},
-                {LightGearTree.ore(1), Items.LAPIS_LAZULI},
-                {LightGearTree.ore(2), Items.REDSTONE}
+                {LightGearTree.ore(1), Items.LAPIS_BLOCK},
+                {LightGearTree.ore(2), Items.REDSTONE_BLOCK}
             };
             boolean oresOk = java.util.Arrays.stream(ores).allMatch(o -> o[0] == o[1]);
+            var helm = LightGear.gift(LightGearTree.HELM, 1);
+            LightGearTree.write(helm, new int[] {1, 1, -1}, new int[] {2, 2, 0});
+            LootRoller.refresh(helm);
+            double healthGain =
+                    helm.get(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS).modifiers().stream()
+                            .filter(entry -> entry.attribute().equals(Attributes.MAX_HEALTH))
+                            .mapToDouble(entry -> entry.modifier().amount())
+                            .sum();
+            check("light_helm_upgrade_adds_one_heart", healthGain == 2, healthGain);
             // Light gear grows with the best ore mined and only that (owner, 2026-11-20): iron 5, diamond 6, netherite
             // 7
             // damage on the sword, whatever its upgrades; a node's own bonus rides on top.

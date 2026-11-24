@@ -58,8 +58,11 @@ final class SelfTestLightUpdate {
             boolean rounded = true;
             for (var c : Collection.categories()) {
                 String text = Collection.rewardAmount(c, 1).getString();
-                rounded &=
-                        c.key().equals("food_and_drinks") ? text.startsWith("+0.2 ") : !text.matches(".*\\d\\.\\d.*");
+                rounded &= switch (c.key()) {
+                    case "food_and_drinks" -> text.startsWith("+0.2 ");
+                    case "earth" -> text.equals("+0.5 hearts");
+                    default -> !text.matches(".*\\d\\.\\d.*");
+                };
             }
             SelfTest.check("collection_rounded_quarter_bonuses", rounded, null);
             var offers = LightShop.wares(level, 0);
@@ -154,9 +157,29 @@ final class SelfTestLightUpdate {
                     bought);
             int after = LightShop.sparks(p);
             SelfTest.check(
-                    "shop_repeat_purchase_has_no_stock_limit",
-                    LightShop.purchase(p, at, 0, 0).startsWith("Bought")
-                            && LightShop.sparks(p) == after - offers.getFirst().price(),
+                    "shop_hides_owned_tome_and_lesser_staff",
+                    LightShop.purchase(p, at, 0, 0).startsWith("That offer") && LightShop.sparks(p) == after,
+                    null);
+            var stone = new ItemStack(Spellstone.ITEM);
+            Spellstone.store(
+                    stone, List.of(offers.getFirst().stack(), ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY));
+            p.getInventory().clearContent();
+            p.getInventory().setItem(0, stone);
+            p.getInventory()
+                    .setItem(
+                            1,
+                            LootRoller.roll(
+                                    net.minecraft.util.RandomSource.create(4),
+                                    LootRoller.Rarity.RARE,
+                                    ModItems.Tier.IRON,
+                                    ModItems.Kind.STAFF));
+            SelfTest.check(
+                    "shop_hides_spellstone_tomes_and_lower_rarity",
+                    LightShop.waresFor(p, 0).subList(0, 2).stream()
+                                    .allMatch(o -> o.stack().isEmpty())
+                            && offers.getFirst().price() == 28
+                            && offers.get(1).price() == 24
+                            && Balance.WARD_PRICES[0] == 40,
                     null);
             SelfTest.check(
                     "shop_rejects_stale_and_forged_offers",
@@ -191,11 +214,13 @@ final class SelfTestLightUpdate {
             // Nothing in the shop is gated (owner, 2026-11-16): a later week's staff sells to anyone with the Sparks.
             level.clockManager().setTotalTicks(clock, 7 * 24000 + 6000);
             p.getInventory().setItem(0, new ItemStack(ModItems.SPARK, 64));
+            p.getInventory().setItem(1, new ItemStack(ModItems.SPARK, 64));
             String laterStaff = LightShop.purchase(p, at, 7, 1);
             SelfTest.check("shop_later_week_open_to_all", laterStaff.startsWith("Bought"), laterStaff);
             p.getInventory().clearContent();
             level.clockManager().setTotalTicks(clock, 6000);
             p.getInventory().setItem(0, new ItemStack(ModItems.SPARK, 64));
+            p.getInventory().setItem(1, new ItemStack(ModItems.SPARK, 64));
             boolean repeat = true;
             // The raw-food card (the sixth): a cheap bundle, bought four times over.
             for (int i = 0; i < 4; i++)

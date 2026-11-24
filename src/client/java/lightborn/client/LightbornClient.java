@@ -140,6 +140,9 @@ public class LightbornClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(lightborn.Cleanse.Show.TYPE, (payload, ctx) -> {
             if (ctx.client().gui.screen() instanceof CollectionScreen screen) screen.receiveCleanse(payload);
         });
+        ClientPlayNetworking.registerGlobalReceiver(lightborn.ChestCrafting.Show.TYPE, (payload, ctx) -> {
+            if (ctx.client().gui.screen() instanceof CollectionScreen screen) screen.receiveCrafting(payload);
+        });
         ClientPlayNetworking.registerGlobalReceiver(LightShop.Show.TYPE, (payload, ctx) -> {
             if (ctx.client().gui.screen() instanceof CollectionScreen screen) screen.receiveShop(payload);
         });

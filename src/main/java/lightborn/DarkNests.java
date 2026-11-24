@@ -64,6 +64,18 @@ public final class DarkNests {
     private DarkNests() {}
 
     static final int MAX_STAGE = 4, MOON_DAYS = 8;
+
+    // ServerLevel attachments are saved per dimension. Older saves have no dimension split to migrate.
+    static final AttachmentType<Integer> VICTORIES =
+            AttachmentRegistry.create(ModData.id("fountain_victories"), builder -> builder.persistent(Codec.INT));
+
+    static int victories(ServerLevel level) {
+        return level.getAttachedOrElse(VICTORIES, 0);
+    }
+
+    private static boolean dark(ServerLevel level) {
+        return level.dimension().equals(Level.NETHER);
+    }
     /**
      * Where a nest roots: at least this far past the ward's edge, at most this far from the chest, this far from any
      * other nest; and how close a player comes before its day guards wake.
@@ -717,10 +729,34 @@ public final class DarkNests {
         if (changed) save(level, nests);
     }
 
-    /** How many guards wake: 4 to 6 in the first week, two more each week after, up to 14 (owner, 2026-11-17). */
+    /** The first guard party is small. Later wins add guards before health and damage take over. */
     static int guardCount(ServerLevel level, RandomSource random) {
-        int week = LightShop.week(LightShop.day(level));
-        return Math.min(MAX_GUARDS, 4 + random.nextInt(3) + 2 * (week - 1));
+        return (int) Math.min(MAX_GUARDS, (dark(level) ? 3L : 2L) + random.nextInt(2) + victories(level));
+    }
+
+    static int fightRank(ServerLevel level, int stage) {
+        return Math.min(stage, 1 + Math.min(3, victories(level) / 2));
+    }
+
+    private static void scaleGuard(Mob mob, int victories) {
+        double progress = Math.log1p(victories * .2);
+        scaleGuardStat(mob, net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, .32 * progress);
+        scaleGuardStat(mob, net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE, .22 * progress);
+        // Ranged guards often use fixed projectile values instead of their attack attribute.
+        scaleGuardStat(mob, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, .06 * progress);
+        mob.setHealth(mob.getMaxHealth());
+    }
+
+    private static void scaleGuardStat(
+            Mob mob,
+            net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> stat,
+            double amount) {
+        var attribute = mob.getAttribute(stat);
+        if (attribute != null && amount > 0)
+            attribute.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
+                    ModItems.id("fountain_veteran"),
+                    amount,
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
 
     static final int MAX_GUARDS = 14;
@@ -766,7 +802,9 @@ public final class DarkNests {
      */
     static void guards(ServerLevel level, ServerPlayer p, Nest nest, int stage) {
         var random = level.getRandom();
-        int want = guardCount(level, random), woke = 0, week = LightShop.week(LightShop.day(level));
+        int wins = victories(level);
+        int want = guardCount(level, random), woke = 0, week = Math.min(3, 1 + wins / 2);
+        int rank = fightRank(level, stage);
         String tag = guardOf(nest.core);
         for (var old : level.getEntities(
                 net.minecraft.world.level.entity.EntityTypeTest.forClass(Mob.class),
@@ -777,7 +815,22 @@ public final class DarkNests {
         all.addAll(themed);
         boolean overworld = level.dimension() == Level.OVERWORLD;
         for (int i = 0; i < want * 3 && woke < want; i++) {
-            var type = woke == 0 ? championKind(random, week, all) : guardKind(random, stage, week, base, themed);
+            var type = woke == 0 && wins >= 2
+                    ? championKind(random, week, all)
+                    : guardKind(
+                            random,
+                            rank,
+                            week,
+                            wins < 2
+                                    ? base.stream()
+                                            .filter(page -> page.weight() <= 2)
+                                            .toList()
+                                    : base,
+                            wins < 2
+                                    ? themed.stream()
+                                            .filter(page -> page.weight() <= 2)
+                                            .toList()
+                                    : themed);
             Mob mob = VariantCompat.keepKind(type.create(level, EntitySpawnReason.MOB_SUMMONED));
             if (mob == null) continue;
             double a = random.nextDouble() * Math.PI * 2, r = 3 + random.nextDouble() * 4;
@@ -796,6 +849,7 @@ public final class DarkNests {
                 continue;
             }
             Monsters.setRank(mob, MonsterInfo.NORMAL);
+            scaleGuard(mob, wins);
             mob.addTag(GUARD_TAG);
             mob.addTag(guardOf(nest.core));
             // A guard stays until slain: never despawned for distance or idleness, and shown at once rather than
@@ -838,11 +892,13 @@ public final class DarkNests {
         var nests = new ArrayList<>(nests(level));
         Nest gone = null;
         for (var n : nests) if (n.core.equals(core)) gone = n;
-        if (gone != null) {
-            nests.remove(gone);
-            save(level, nests);
-        }
         uncrystal(level, core);
+        if (gone == null) return;
+        nests.remove(gone);
+        save(level, nests);
+        int wins = victories(level);
+        int rank = fightRank(level, stage);
+        level.setAttached(VICTORIES, wins == Integer.MAX_VALUE ? wins : wins + 1);
         ChestTabs.fountainBeaten(p);
         // The land heals in a wave rolling out from the core over 15 seconds (owner, 2026-11-17).
         for (int step = 0; step < DarkLand.HEAL_STEPS; step++) {
@@ -852,8 +908,10 @@ public final class DarkNests {
         var random = level.getRandom();
         var at = Vec3.atCenterOf(core);
         // The Dark's own pay half again in Sparks and shards and one more item (owner, 2026-11-20).
-        boolean dark = level.dimension() == Level.NETHER;
-        int sparks = nestSparks(random, stage), shards = 2 * stage, items = stage + (dark ? 1 : 0);
+        boolean dark = dark(level);
+        int bonus = (int) Math.floor(6 * Math.log1p(wins / 2.0));
+        int sparks = nestSparks(random, rank) + bonus;
+        int shards = 2 * rank + bonus / 4, items = rank + (dark && wins > 0 ? 1 : 0);
         if (dark) {
             sparks = sparks * 3 / 2;
             shards = shards * 3 / 2;
@@ -861,8 +919,12 @@ public final class DarkNests {
         drop(level, at, new ItemStack(ModItems.SPARK, sparks));
         drop(level, at, new ItemStack(ModItems.DARK_SHARD, shards));
         for (int i = 0; i < items; i++) {
-            var rarity = i == 0 && stage >= 3 ? LootRoller.Rarity.LEGENDARY : LootRoller.Rarity.RARE;
-            var tier = OreTiers.pick(random, p, stage >= 3 ? OreTiers.BOSS : stage + 1); // stage 1 pays as tier 2
+            var rarity = i == 0 && wins >= 12
+                    ? LootRoller.Rarity.MYTHIC
+                    : i == 0 && wins >= 4
+                            ? LootRoller.Rarity.LEGENDARY
+                            : wins >= 2 ? LootRoller.Rarity.RARE : LootRoller.Rarity.UNCOMMON;
+            var tier = OreTiers.pick(random, p, rank >= 3 ? OreTiers.BOSS : rank + 1);
             if (tier != null) LootBeams.onDrop(drop(level, at, LootRoller.roll(random, tier, rarity)), rarity);
         }
         level.sendParticles(ParticleTypes.SCULK_SOUL, at.x, at.y, at.z, 30, 1, .6, 1, .05);

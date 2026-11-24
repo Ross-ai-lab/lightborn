@@ -160,6 +160,7 @@ public final class Net {
 
     static void init() {
         LightShop.init();
+        ChestCrafting.init();
         DragonTalk.init();
         TomeCycle.init();
         Souls.init();

@@ -20,10 +20,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.TicketType;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -39,6 +41,8 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.Pose;
@@ -50,11 +54,13 @@ import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
 import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.portal.TeleportTransition;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -74,6 +80,19 @@ public final class Refugee extends PathfinderMob {
     static final int RUNNING = 0, SHELTERED = 1, GUIDING = 2, ARRIVED = 3, LEAVING = 4, HOSTILE = 5;
     /** Answer actions: 0 opens, 1 lets them stay, 2 sends them away, 3 and 4 claim a gift, 10..12 pick a place. */
     static final int STAY = 1, SEND_AWAY = 2, TAKE_SPARKS = 3, TAKE_TOME = 4, PICK = 10;
+
+    static final int RECRUIT = 20, FOLLOW = 21, WAIT = 22, GO_HOME = 23, PART_WAYS = 24;
+    static final int COMPANION = 6;
+    private static final TicketType COMPANION_TICKET = Registry.register(
+            BuiltInRegistries.TICKET_TYPE,
+            ModItems.id("travel_companion"),
+            new TicketType(
+                    50, TicketType.FLAG_LOADING | TicketType.FLAG_SIMULATION | TicketType.FLAG_KEEP_DIMENSION_ACTIVE));
+    private static final AttachmentType<List<UUID>> FALLEN_COMPANIONS = AttachmentRegistry.create(
+            ModData.id("fallen_travel_companions"), b -> b.persistent(UUIDUtil.CODEC.listOf()));
+
+    private static final AttachmentType<UUID> COMPANION_ID = AttachmentRegistry.<UUID>create(
+            ModData.id("travel_companion"), b -> b.persistent(UUIDUtil.CODEC).copyOnDeath());
 
     static final int SKINS = 9;
     private static final EntityDataAccessor<Integer> SKIN =
@@ -143,6 +162,9 @@ public final class Refugee extends PathfinderMob {
     boolean announced, waiting;
     private boolean dawnApproached;
     private boolean treasureRevealed;
+    private ResourceKey<Level> companionHome = Level.OVERWORLD;
+    private int companionOrder = FOLLOW;
+    private boolean retreating;
     int dayTicks, unseen, callCooldown, stuck, detour, pleaded, lost, beaconCooldown;
     private Vec3 lastPos;
     private double detourX, detourZ;
@@ -189,7 +211,8 @@ public final class Refugee extends PathfinderMob {
         goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.25, false) {
             @Override
             public boolean canUse() {
-                return state == HOSTILE && super.canUse();
+                return (state == HOSTILE || state == COMPANION && !retreating && companionOrder == FOLLOW)
+                        && super.canUse();
             }
         });
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8));
@@ -293,6 +316,7 @@ public final class Refugee extends PathfinderMob {
                 revealTreasure(level);
                 lingerStep(level, level.players());
             }
+            case COMPANION -> travelWithOwner(level);
             case LEAVING -> lingerStep(level, level.players());
             case HOSTILE -> {
                 if (getTarget() == null || !getTarget().isAlive()) {
@@ -616,12 +640,214 @@ public final class Refugee extends PathfinderMob {
         if (unseen >= Balance.REFUGEE_UNSEEN_TICKS && nearest > 8 || nearest > 128) discard();
     }
 
+    // ------------------------------------------------------------------ travel companions
+
+    private void travelWithOwner(ServerLevel level) {
+        if (tickCount % 10 != 0) return;
+        var player = level.getServer().getPlayerList().getPlayer(guided);
+        if (getHealth() < getMaxHealth() * .30f) retreating = true;
+        if (retreating && getHealth() >= getMaxHealth() * .65f) retreating = false;
+        if (tickCount % 40 == 0 && getTarget() == null && tickCount - getLastHurtByMobTimestamp() > 100) heal(1);
+        if (companionOrder == GO_HOME) {
+            setTarget(null);
+            var home = level.getServer().getLevel(companionHome);
+            if (home == null) return;
+            home.getChunkAt(chest);
+            var safe = companionFooting(home, chest, 4);
+            if (safe == null) return;
+            if (home == level
+                    && distanceToSqr(safe) > 4
+                    && distanceToSqr(safe) <= 24 * 24
+                    && getNavigation().moveTo(safe.x, safe.y, safe.z, 1.15)) return;
+            companionOrder = WAIT;
+            if (home != level || distanceToSqr(safe) > 4) crossTo(home, safe);
+            else getNavigation().stop();
+            return;
+        }
+        if (companionOrder == WAIT || player == null || !player.isAlive() || player.isSpectator()) {
+            setTarget(null);
+            getNavigation().stop();
+            return;
+        }
+        var chunk = blockPosition();
+        level.getChunkSource()
+                .addTicketWithRadius(COMPANION_TICKET, new ChunkPos(chunk.getX() >> 4, chunk.getZ() >> 4), 2);
+        if (player.level() != level) {
+            var safe = companionFooting(player.level(), player.blockPosition(), 4);
+            if (safe != null) crossTo(player.level(), safe);
+            return;
+        }
+        double distance = distanceToSqr(player);
+        if (distance > 20 * 20 && (distance > 40 * 40 || !watched(List.of(player)))) {
+            var safe = companionFooting(level, player.blockPosition(), 4);
+            if (safe != null) {
+                crossTo(level, safe);
+                return;
+            }
+        }
+        if (retreating) {
+            var danger = getLastHurtByMob();
+            setTarget(null);
+            if (distance > 10 * 10 || danger == null || !danger.isAlive() || danger.level() != level) {
+                getNavigation().moveTo(player, 1.25);
+            } else if (distanceToSqr(danger) < 8 * 8) {
+                var away =
+                        position().subtract(danger.position()).multiply(1, 0, 1).normalize();
+                walkTo(level, getX() + away.x * 6, getZ() + away.z * 6, 1.35);
+            }
+            return;
+        }
+        var threat = player.tickCount - player.getLastHurtByMobTimestamp() <= 120 ? player.getLastHurtByMob() : null;
+        if (!companionThreat(level, threat))
+            threat = player.tickCount - player.getLastHurtMobTimestamp() <= 120 ? player.getLastHurtMob() : null;
+        if (!companionThreat(level, threat) || distance > 12 * 12) threat = null;
+        setTarget(threat);
+        if (threat == null && distance > 3 * 3) {
+            getNavigation().moveTo(player, 1.2);
+            if (horizontalCollision && tickCount % 20 == 0) getJumpControl().jump();
+            if (isInWater()) swimToward(player.position());
+        } else if (threat == null) getNavigation().stop();
+    }
+
+    private boolean companionThreat(ServerLevel level, LivingEntity candidate) {
+        return candidate instanceof Mob mob
+                && mob.isAlive()
+                && mob.level() == level
+                && distanceToSqr(mob) < 14 * 14
+                && LightWards.blocked(mob)
+                && !LightWards.contains(level, mob.getBoundingBox().getCenter());
+    }
+
+    private void swimToward(Vec3 goal) {
+        var direction = goal.subtract(position()).multiply(1, 0, 1).normalize();
+        if (direction.lengthSqr() > .01) {
+            getLookControl().setLookAt(goal.x, goal.y + 1, goal.z);
+            setDeltaMovement(direction.x * .16, getDeltaMovement().y, direction.z * .16);
+        }
+    }
+
+    private Vec3 companionFooting(ServerLevel level, BlockPos around, int radius) {
+        for (BlockPos feet : BlockPos.withinManhattan(around, radius)) {
+            if (Math.abs(feet.getY() - around.getY()) > 2
+                    || feet.getX() == around.getX() && feet.getZ() == around.getZ()) continue;
+            var floor = feet.below();
+            var at = Vec3.atBottomCenterOf(feet);
+            if (level.hasChunkAt(feet)
+                    && level.getWorldBorder().isWithinBounds(feet)
+                    && level.getBlockState(floor).isFaceSturdy(level, floor, net.minecraft.core.Direction.UP)
+                    && level.getFluidState(feet).isEmpty()
+                    && level.noCollision(this, getBoundingBox().move(at.subtract(position())))) return at;
+        }
+        return null;
+    }
+
+    private void crossTo(ServerLevel level, Vec3 at) {
+        setTarget(null);
+        getNavigation().stop();
+        teleport(new TeleportTransition(
+                level, at, Vec3.ZERO, getYRot(), getXRot(), TeleportTransition.PLACE_PORTAL_TICKET));
+    }
+
+    private DragonTalk.Reply companionReply(ServerPlayer p, int action) {
+        if (!p.getUUID().equals(guided)) return page("I'm traveling with someone already.");
+        if (action == PART_WAYS) {
+            releaseCompanion(p);
+            state = LEAVING;
+            getNavigation().stop();
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                var stack = getItemBySlot(slot);
+                if (!stack.isEmpty()) {
+                    setItemSlot(slot, ItemStack.EMPTY);
+                    DragonTalk.give(p, stack);
+                }
+            }
+            return page("Safe travels. Here's the gear you lent me.");
+        }
+        if (action == FOLLOW || action == WAIT || action == GO_HOME) {
+            companionOrder = action;
+            getNavigation().stop();
+            setTarget(null);
+        }
+        String line = retreating
+                ? "I need a moment to catch my breath."
+                : switch (companionOrder) {
+                    case GO_HOME -> "I'll meet you at the ward where we first met.";
+                    case WAIT -> "I'll wait right here.";
+                    default -> "I'll stay with you. Sneak and right-click with gear to lend it to me.";
+                };
+        return page(
+                line,
+                c("Follow me.", FOLLOW),
+                c("Wait here.", WAIT),
+                c("Go home.", GO_HOME),
+                c("Let's part ways.", PART_WAYS));
+    }
+
+    private void releaseCompanion(ServerPlayer p) {
+        if (getUUID().equals(p.getAttached(COMPANION_ID))) p.removeAttached(COMPANION_ID);
+    }
+
+    private boolean lendGear(ServerPlayer p, ItemStack stack) {
+        int kind = LightGearTree.kind(stack);
+        if (stack.isEmpty()
+                || kind < 0
+                || LightGear.broken(stack)
+                || ModItems.isStaff(stack)
+                || kind == LightGearTree.RANGED
+                || kind == LightGearTree.WINGS
+                || kind == LightGearTree.TOOL) return false;
+        var slot = getEquipmentSlotForItem(stack);
+        var old = getItemBySlot(slot);
+        setItemSlot(slot, stack.copyWithCount(1));
+        setGuaranteedDrop(slot);
+        if (!p.hasInfiniteMaterials()) stack.shrink(1);
+        if (!old.isEmpty()) DragonTalk.give(p, old);
+        say(p, "Thanks. I'll put it to use.");
+        return true;
+    }
+
+    private static boolean hasCompanion(ServerPlayer player) {
+        var id = player.getAttached(COMPANION_ID);
+        if (id == null) return false;
+        var world = player.level().getServer().overworld();
+        var gone = world.getAttachedOrElse(FALLEN_COMPANIONS, List.of());
+        if (!gone.contains(id)) return true;
+        world.setAttached(
+                FALLEN_COMPANIONS,
+                gone.stream().filter(dead -> !dead.equals(id)).toList());
+        player.removeAttached(COMPANION_ID);
+        return false;
+    }
+
+    @Override
+    public void die(DamageSource source) {
+        if (state == COMPANION && level() instanceof ServerLevel level) {
+            var p = level.getServer().getPlayerList().getPlayer(guided);
+            if (p != null) {
+                releaseCompanion(p);
+                say(p, "I can't go any farther...");
+            } else {
+                var world = level.getServer().overworld();
+                var gone = new ArrayList<>(world.getAttachedOrElse(FALLEN_COMPANIONS, List.of()));
+                gone.add(getUUID());
+                world.setAttached(FALLEN_COMPANIONS, List.copyOf(gone));
+            }
+        }
+        super.die(source);
+    }
+
     // ------------------------------------------------------------------ talk
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (state == HOSTILE || state == LEAVING || hand != InteractionHand.MAIN_HAND) return InteractionResult.PASS;
-        if (player instanceof ServerPlayer sp) DragonTalk.send(sp, respond(sp, 0));
+        if (player instanceof ServerPlayer sp) {
+            if (state == COMPANION
+                    && sp.getUUID().equals(guided)
+                    && sp.isShiftKeyDown()
+                    && lendGear(sp, sp.getItemInHand(hand))) return InteractionResult.SUCCESS;
+            DragonTalk.send(sp, respond(sp, 0));
+        }
         return InteractionResult.SUCCESS;
     }
 
@@ -640,6 +866,7 @@ public final class Refugee extends PathfinderMob {
     DragonTalk.Reply respond(ServerPlayer p, int action) {
         ServerLevel level = (ServerLevel) level();
         boolean night = LightDragons.night(level);
+        if (state == COMPANION) return companionReply(p, action);
         if (action == SEND_AWAY) {
             state = LEAVING;
             getNavigation().stop();
@@ -660,7 +887,17 @@ public final class Refugee extends PathfinderMob {
                                         c("Get out of my home.", SEND_AWAY))
                         : dawn(p, action);
             case GUIDING -> page("It's not far now: " + targetName + ". Stay close.", c("Go your own way.", SEND_AWAY));
-            case ARRIVED -> page("This is it. I'll be fine here. Go on, it's yours to explore.");
+            case ARRIVED -> {
+                if (!p.getUUID().equals(guided)) yield page("This is the place.");
+                if (hasCompanion(p)) yield page("You've already got someone traveling with you.");
+                if (action == RECRUIT) {
+                    state = COMPANION;
+                    companionHome = level.dimension();
+                    p.setAttached(COMPANION_ID, getUUID());
+                    yield companionReply(p, FOLLOW);
+                }
+                yield page("This is it. I'll be fine here. Go on, it's yours to explore.", c("Come with me.", RECRUIT));
+            }
             default -> page("...");
         };
     }
@@ -741,8 +978,15 @@ public final class Refugee extends PathfinderMob {
 
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+        if (state == COMPANION
+                && source.getEntity() != null
+                && source.getEntity().getUUID().equals(guided)) return false;
         boolean hurt = super.hurtServer(level, source, amount);
-        if (hurt && isAlive() && source.getEntity() instanceof Player attacker && state != HOSTILE) {
+        if (hurt
+                && isAlive()
+                && source.getEntity() instanceof Player attacker
+                && state != HOSTILE
+                && state != COMPANION) {
             state = HOSTILE;
             getNavigation().stop();
             setTarget(attacker);
@@ -781,6 +1025,10 @@ public final class Refugee extends PathfinderMob {
         out.putInt("refugee_treasure_revealed", treasureRevealed ? 1 : 0);
         if (guided != null) out.store("refugee_guided", UUIDUtil.CODEC, guided);
         if (target != null) out.putLong("refugee_target", target.asLong());
+        if (state == COMPANION) {
+            out.putString("companion_home", companionHome.identifier().toString());
+            out.putInt("companion_order", companionOrder);
+        }
         out.putString("refugee_target_name", targetName);
     }
 
@@ -799,6 +1047,9 @@ public final class Refugee extends PathfinderMob {
         long t = in.getLongOr("refugee_target", Long.MIN_VALUE);
         target = t == Long.MIN_VALUE ? null : BlockPos.of(t);
         targetName = in.getStringOr("refugee_target_name", "");
+        companionOrder = in.getIntOr("companion_order", FOLLOW);
+        var home = Identifier.tryParse(in.getStringOr("companion_home", "minecraft:overworld"));
+        if (home != null) companionHome = ResourceKey.create(Registries.DIMENSION, home);
         if (state == HOSTILE) state = LEAVING;
     }
 }

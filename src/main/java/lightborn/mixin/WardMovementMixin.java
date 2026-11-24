@@ -6,7 +6,6 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -17,12 +16,8 @@ abstract class WardMovementMixin {
         return LightWards.limitMovement((Entity) (Object) this, movement);
     }
 
-    @Unique
-    private boolean lightborn$positionGuard;
-
     @Inject(method = "setPos(DDD)V", at = @At("HEAD"), cancellable = true)
     private void lightborn$teleport(double x, double y, double z, CallbackInfo ci) {
-        if (lightborn$positionGuard) return;
         var e = (Entity) (Object) this;
         if (e.tickCount <= 0) return;
         if (e instanceof Projectile projectile) {
@@ -32,14 +27,8 @@ abstract class WardMovementMixin {
         if (!(e instanceof Mob) || !LightWards.blocked(e)) return;
         var target = new Vec3(x, y, z);
         var safe = LightWards.limitDestination(e, target);
-        if (safe.distanceToSqr(target) > 1e-10) {
-            lightborn$positionGuard = true;
-            try {
-                e.setPos(safe);
-            } finally {
-                lightborn$positionGuard = false;
-            }
-            ci.cancel();
-        }
+        // This position is already the result of vanilla's terrain collision. Rewriting it here could
+        // bypass that collision and put the mob inside blocks on a hill.
+        if (safe.distanceToSqr(target) > 1e-10) ci.cancel();
     }
 }

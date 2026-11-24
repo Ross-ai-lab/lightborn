@@ -57,14 +57,14 @@ public final class LightGearTree {
     public static final int[] ORE = {3, 3, 3};
 
     /**
-     * The ore a tier asks for, the same for every piece (owner, 2026-11-23): tier I copper ingots, tier II lapis
-     * lazuli, tier III redstone dust.
+     * The ore a tier asks for, the same for every piece (owner, 2026-11-23): tier I copper ingots, tier II lapis blocks,
+     * tier III redstone blocks.
      */
     public static Item ore(int tier) {
         return switch (tier) {
             case 0 -> Items.COPPER_INGOT;
-            case 1 -> Items.LAPIS_LAZULI;
-            default -> Items.REDSTONE;
+            case 1 -> Items.LAPIS_BLOCK;
+            default -> Items.REDSTONE_BLOCK;
         };
     }
 
@@ -84,11 +84,12 @@ public final class LightGearTree {
             AXE = 10,
             SPEAR = 11,
             MACE = 12,
-            TRIDENT = 13;
+            TRIDENT = 13,
+            PAXEL = 14;
     /** Kind names in modifier ids: a piece's nodes never share an id with another worn or held piece's. */
     private static final String[] KEYS = {
         "helm", "weapon", "chest", "legs", "boots", "staff", "wings", "ranged", "tool", "shield", "axe", "spear",
-        "mace", "trident"
+        "mace", "trident", "paxel"
     };
 
     /** Which tree a piece of gear grows, or -1 for anything that is not gear. */
@@ -119,6 +120,9 @@ public final class LightGearTree {
         }
         if (s.getItem() instanceof net.minecraft.world.item.ProjectileWeaponItem) return RANGED;
         if (s.has(DataComponents.BLOCKS_ATTACKS)) return SHIELD;
+        var id = BuiltInRegistries.ITEM.getKey(s.getItem());
+        if (s.has(DataComponents.TOOL)
+                && (id.getNamespace().equals("thetruepaxels") || id.getPath().endsWith("_paxel"))) return PAXEL;
         if (s.is(ItemTags.PICKAXES) || s.is(ItemTags.SHOVELS) || s.is(ItemTags.HOES)) return TOOL;
         // Each weapon kind grows its own tree (owner, 2026-11-17); a modded weapon of no known kind takes the sword's.
         if (s.is(ItemTags.AXES)) return AXE;
@@ -168,7 +172,7 @@ public final class LightGearTree {
                     add("More Mana", "+10 mana.", ModAttributes.MAX_MANA, 10),
                     add("Spell Crits", "+3% spell crit chance.", ModAttributes.SPELL_CRIT, .03),
                     add("More Toughness", "+1 armour toughness.", Attributes.ARMOR_TOUGHNESS, 1),
-                    add("More Health", "+2 health.", Attributes.MAX_HEALTH, 2),
+                    add("More Health", "+1 heart.", Attributes.MAX_HEALTH, 2),
                     add("Shorter Cooldowns", "Spells ready 5% sooner.", ModAttributes.COOLDOWN_SPEED, .05),
                     // Nothing may light the night for you (owner, 2026-11-17: the dark is the game), so no Night
                     // Vision and no monsters seen through walls.
@@ -194,7 +198,7 @@ public final class LightGearTree {
                     perk("Executioner", "Hits deal 50% more damage to monsters below a third of their health.")),
             tree(
                     add("More Armour", "+1 armour.", Attributes.ARMOR, 1),
-                    add("More Health", "+2 health.", Attributes.MAX_HEALTH, 2),
+                    add("More Health", "+1 heart.", Attributes.MAX_HEALTH, 2),
                     add("More Toughness", "+1 armour toughness.", Attributes.ARMOR_TOUGHNESS, 1),
                     add("More Mana", "+10 mana.", ModAttributes.MAX_MANA, 10),
                     mult("Less Burning", "Fire burns you 30% shorter.", Attributes.BURNING_TIME, -.30),
@@ -203,16 +207,16 @@ public final class LightGearTree {
                     perk("Thornlight", "Monsters that strike you in reach take 3 damage and catch fire."),
                     perk(
                             "Second Dawn",
-                            "Once every 10 minutes, a killing blow leaves you on 4 health in a burst of light.")),
+                            "Once every 10 minutes, a killing blow leaves you with 2 hearts in a burst of light.")),
             tree(
                     add("More Armour", "+1 armour.", Attributes.ARMOR, 1),
                     mult("Faster Walking", "You move 5% faster.", Attributes.MOVEMENT_SPEED, .05),
                     add("More Toughness", "+1 armour toughness.", Attributes.ARMOR_TOUGHNESS, 1),
                     mult("Higher Jumps", "You jump 10% higher.", Attributes.JUMP_STRENGTH, .10),
-                    add("More Health", "+2 health.", Attributes.MAX_HEALTH, 2),
+                    add("More Health", "+1 heart.", Attributes.MAX_HEALTH, 2),
                     add("Less Knockback", "10% less knockback.", Attributes.KNOCKBACK_RESISTANCE, .1),
                     perk("Swift by Night", "At night you run fast: Speed I."),
-                    perk("Mender's Gait", "While you sprint, you mend 1 health every 3 seconds."),
+                    perk("Mender's Gait", "While you sprint, you recover half a heart every 3 seconds."),
                     perk("Steadfast", "Nothing can knock you back.")),
             tree(
                     add("More Armour", "+1 armour.", Attributes.ARMOR, 1),
@@ -226,9 +230,9 @@ public final class LightGearTree {
                     perk("Tide Runner", "You swim like a dolphin: Dolphin's Grace in water."),
                     perk("Spring Step", "You jump higher: Jump Boost II.")),
             tree(
-                    mult("More Spell Damage", "+5% spell power.", ModAttributes.SPELL_POWER, .05),
-                    add("More Mana", "+10 mana.", ModAttributes.MAX_MANA, 10),
-                    add("Spell Crits", "+3% spell crit chance.", ModAttributes.SPELL_CRIT, .03),
+                    mult("More Spell Damage", "+10% spell power.", ModAttributes.SPELL_POWER, .10),
+                    add("More Mana", "+15 mana.", ModAttributes.MAX_MANA, 15),
+                    add("Spell Crits", "+5% spell crit chance.", ModAttributes.SPELL_CRIT, .05),
                     mult("Faster Mana", "Mana comes back 20% faster.", ModAttributes.MANA_REGEN, .20),
                     add("Shorter Cooldowns", "Spells ready 5% sooner.", ModAttributes.COOLDOWN_SPEED, .05),
                     add("Harder Crits", "Crits hit 10% harder.", ModAttributes.CRIT_DAMAGE, .30),
@@ -238,7 +242,7 @@ public final class LightGearTree {
             tree(
                     add("More Armour", "+1 armour.", Attributes.ARMOR, 1),
                     add("More Toughness", "+1 armour toughness.", Attributes.ARMOR_TOUGHNESS, 1),
-                    add("More Health", "+2 health.", Attributes.MAX_HEALTH, 2),
+                    add("More Health", "+1 heart.", Attributes.MAX_HEALTH, 2),
                     mult("Faster Walking", "You move 4% faster.", Attributes.MOVEMENT_SPEED, .04),
                     add("More Mana", "+10 mana.", ModAttributes.MAX_MANA, 10),
                     add("Less Knockback", "10% less knockback.", Attributes.KNOCKBACK_RESISTANCE, .1),
@@ -251,7 +255,7 @@ public final class LightGearTree {
                     mult("Faster Walking", "You move 4% faster.", Attributes.MOVEMENT_SPEED, .04),
                     add("Harder Crits", "Crits hit 10% harder.", ModAttributes.CRIT_DAMAGE, .30),
                     add("More Mana", "+10 mana.", ModAttributes.MAX_MANA, 10),
-                    add("More Health", "+2 health.", Attributes.MAX_HEALTH, 2),
+                    add("More Health", "+1 heart.", Attributes.MAX_HEALTH, 2),
                     perk("Twin Shot", "Every arrow flies with a twin beside it (the twin cannot be picked up)."),
                     perk("Frost Arrow", "Arrows slow what they hit: Slowness II for 3 seconds, and the cold bites."),
                     perk("Quiver of Light", "One arrow in three is not used up.")),
@@ -271,7 +275,7 @@ public final class LightGearTree {
                     perk("Miner's Fervour", "Each block you break gives you Haste II for 3 seconds.")),
             tree(
                     add("More Armour", "+1 armour.", Attributes.ARMOR, 1),
-                    add("More Health", "+2 health.", Attributes.MAX_HEALTH, 2),
+                    add("More Health", "+1 heart.", Attributes.MAX_HEALTH, 2),
                     add("Less Knockback", "10% less knockback.", Attributes.KNOCKBACK_RESISTANCE, .1),
                     mult("Less Burning", "Fire burns you 30% shorter.", Attributes.BURNING_TIME, -.30),
                     add(
@@ -282,14 +286,14 @@ public final class LightGearTree {
                     add("More Toughness", "+1 armour toughness.", Attributes.ARMOR_TOUGHNESS, 1),
                     perk("Spiked Rim", "Blows you block cost the attacker 4 health."),
                     perk("Repulse", "Blocking a blow throws the attacker back."),
-                    perk("Restoring Guard", "Each blow you block mends 1 health.")),
+                    perk("Restoring Guard", "Each blow you block restores half a heart.")),
             tree(
                     add("More Damage", "+1 attack damage.", Attributes.ATTACK_DAMAGE, 1),
                     mult("Faster Chopping", "Chops and mines 20% faster.", Attributes.BLOCK_BREAK_SPEED, .20),
                     add("Less Knockback", "10% less knockback.", Attributes.KNOCKBACK_RESISTANCE, .1),
                     add("More Crits", "+5% crit chance.", ModAttributes.WEAPON_CRIT, .05),
                     add("Harder Crits", "Crits hit 10% harder.", ModAttributes.CRIT_DAMAGE, .30),
-                    add("More Health", "+2 health.", Attributes.MAX_HEALTH, 2),
+                    add("More Health", "+1 heart.", Attributes.MAX_HEALTH, 2),
                     perk("Cleave", "Every hit carries on into monsters beside the target for 60%."),
                     perk("Tree Feller", "Chopping one log of a tree fells it, up to 64 logs."),
                     perk("Sunder", "Hits strip 4 armour from the target for 5 seconds.")),
@@ -305,7 +309,7 @@ public final class LightGearTree {
                     perk("Charging Thrust", "Hits while sprinting deal 50% more damage.")),
             tree(
                     add("More Damage", "+1 attack damage.", Attributes.ATTACK_DAMAGE, 1),
-                    add("More Health", "+2 health.", Attributes.MAX_HEALTH, 2),
+                    add("More Health", "+1 heart.", Attributes.MAX_HEALTH, 2),
                     add("More Armour", "+1 armour.", Attributes.ARMOR, 1),
                     add("Harder Crits", "Crits hit 10% harder.", ModAttributes.CRIT_DAMAGE, .30),
                     add("Less Knockback", "10% less knockback.", Attributes.KNOCKBACK_RESISTANCE, .1),
@@ -322,7 +326,21 @@ public final class LightGearTree {
                     add("Faster Throws", "Thrusts and throws 10% faster.", Attributes.ATTACK_SPEED, .24),
                     perk("Storm Caller", "A thrown trident calls down lightning on what it hits for 5 more damage."),
                     perk("Harpoon", "A thrown trident drags what it hits back to you."),
-                    perk("Tidecaller", "In water or rain, its hits deal 50% more damage.")));
+                    perk("Tidecaller", "In water or rain, its hits deal 50% more damage.")),
+            tree(
+                    mult("Sure Cut", "Break blocks 15% faster.", Attributes.BLOCK_BREAK_SPEED, .15),
+                    add(
+                            "Long Handle",
+                            "Reach half a block farther when working.",
+                            Attributes.BLOCK_INTERACTION_RANGE,
+                            .5),
+                    add("Heavy Head", "+1 attack damage.", Attributes.ATTACK_DAMAGE, 1),
+                    add("Steady Hands", "+1 mining efficiency with the right tool.", Attributes.MINING_EFFICIENCY, 1),
+                    mult("River Work", "Work 50% faster underwater.", Attributes.SUBMERGED_MINING_SPEED, .5),
+                    add("Braced Grip", "Take 15% less knockback.", Attributes.KNOCKBACK_RESISTANCE, .15),
+                    mult("Masterwork", "Break blocks 30% faster.", Attributes.BLOCK_BREAK_SPEED, .3),
+                    add("Long Arm", "Reach one block farther when working.", Attributes.BLOCK_INTERACTION_RANGE, 1),
+                    perk("Tempered Edge", "Negates one in four points of wear.")));
 
     private static List<List<Node>> tree(Node... nine) {
         var out = new ArrayList<List<Node>>();
@@ -421,7 +439,11 @@ public final class LightGearTree {
                 : s.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY);
         int[] chosen = chosen(s);
         var b = ItemAttributeModifiers.builder();
-        for (var e : base.modifiers()) if (light || !ours(e.modifier())) b.add(e.attribute(), e.modifier(), e.slot());
+        for (var e : base.modifiers()) {
+            if (!light && ours(e.modifier())) continue;
+            if (e.display() == null) b.add(e.attribute(), e.modifier(), e.slot());
+            else b.add(e.attribute(), e.modifier(), e.slot(), e.display());
+        }
         var slot = light && kind != SHIELD ? EquipmentSlotGroup.bySlot(LightGear.SLOTS[index]) : slots(kind);
         for (int t = 0; t < TIERS; t++) {
             if (chosen[t] < 0) continue;
@@ -434,12 +456,26 @@ public final class LightGearTree {
                                 ModItems.id("light_tree_steadfast"), 1, AttributeModifier.Operation.ADD_VALUE),
                         slot);
             if (n.perk()) continue;
-            b.add(
-                    n.attr(),
-                    new AttributeModifier(ModItems.id("light_tree_" + KEYS[kind] + "_" + t), n.amount(), n.op()),
-                    slot);
+            var modifier = new AttributeModifier(ModItems.id("light_tree_" + KEYS[kind] + "_" + t), n.amount(), n.op());
+            if (n.attr().equals(Attributes.MAX_HEALTH))
+                b.add(
+                        n.attr(),
+                        modifier,
+                        slot,
+                        ItemAttributeModifiers.Display.override(
+                                Component.literal("+1 heart").withStyle(ChatFormatting.BLUE)));
+            else b.add(n.attr(), modifier, slot);
         }
         return b.build();
+    }
+
+    static boolean refresh(ItemStack stack) {
+        int kind = kind(stack);
+        if (kind < 0 || java.util.Arrays.stream(owned(stack)).allMatch(mask -> mask == 0)) return false;
+        var next = stats(kind, stack);
+        if (next.equals(stack.get(DataComponents.ATTRIBUTE_MODIFIERS))) return false;
+        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, next);
+        return true;
     }
 
     private static boolean ours(AttributeModifier m) {

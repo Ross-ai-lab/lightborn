@@ -58,6 +58,7 @@ public final class PlayerBonuses {
         if (mana != null) {
             // Levels are gone (owner, 2026-11-16): older saves still carry the per-level mana modifier.
             mana.removeModifier(Identifier.fromNamespaceAndPath(Lightborn.MOD_ID, "level_mana"));
+            mana.setBaseValue(Balance.BASE_MANA);
         }
         Collection.applyRewards(player);
         if (player.getHealth() > player.getMaxHealth()) player.setHealth(player.getMaxHealth());

@@ -127,6 +127,27 @@ final class SelfTestRefugee {
             guest.guideStep(l, owner);
             check("stays_on_arrival", guest.state == Refugee.ARRIVED, guest.state);
             testHiddenLoot(l, chest.offset(10, -8, 4), owner);
+            var recruit = make(l, chest, Refugee.ARRIVED);
+            made.add(recruit);
+            recruit.guided = owner.getUUID();
+            var recruited = recruit.respond(owner, Refugee.RECRUIT);
+            var other = make(l, chest, Refugee.ARRIVED);
+            made.add(other);
+            other.guided = owner.getUUID();
+            other.respond(owner, Refugee.RECRUIT);
+            check(
+                    "only_one_travel_companion",
+                    recruit.state == Refugee.COMPANION
+                            && other.state == Refugee.ARRIVED
+                            && recruited.choices().stream().anyMatch(choice -> choice.action() == Refugee.WAIT),
+                    recruited.text());
+            recruit.respond(owner, Refugee.PART_WAYS);
+            other.respond(owner, Refugee.RECRUIT);
+            check(
+                    "travel_companion_can_part_ways",
+                    recruit.state == Refugee.LEAVING && other.state == Refugee.COMPANION,
+                    null);
+            other.respond(owner, Refugee.PART_WAYS);
 
             // Watched, they stay; once nobody looks for three seconds (and nobody stands close), they are gone.
             owner.setPos(guest.getX() + 20, guest.getY(), guest.getZ());

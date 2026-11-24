@@ -7,6 +7,7 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
@@ -25,6 +26,10 @@ public final class RefugeeRenderer
 
     public RefugeeRenderer(EntityRendererProvider.Context ctx) {
         super(ctx, new HumanoidModel<>(ctx.bakeLayer(ModelLayers.PLAYER)), .5f);
+        addLayer(new HumanoidArmorLayer<>(
+                this,
+                ModelLayers.PLAYER_ARMOR.map(layer -> new HumanoidModel<State>(ctx.bakeLayer(layer))),
+                ctx.getEquipmentRenderer()));
     }
 
     @Override

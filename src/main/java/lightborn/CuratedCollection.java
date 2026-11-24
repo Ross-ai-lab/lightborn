@@ -193,7 +193,7 @@ final class CuratedCollection {
 
     static String group(String id, ItemStack stack, String original) {
         if (id.equals("lightborn:light_chest")) return null; // The unique hub must never have to be donated to itself.
-        if (id.startsWith("thetruepaxels:")) return null; // Playable tools, outside the full 999-item catalogue.
+
         if (id.startsWith("lightborn:")) return "lightborn:items";
         String namespace = id.substring(0, id.indexOf(':')), path = id.substring(id.indexOf(':') + 1);
         boolean vanilla = namespace.equals("minecraft");
@@ -216,7 +216,12 @@ final class CuratedCollection {
                                 || path.endsWith("_glazed_terracotta"))
                 || block != null && block.defaultBlockState().is(BlockTags.PLANKS)) return MATERIALS;
         if (original.equals("natural_blocks")) return growing(block, path) ? PLANTS : EARTH;
-        return RETIRED.contains(original) ? null : original;
+        return switch (original) {
+            case "building_blocks", "colored_blocks" -> MATERIALS;
+            case "functional_blocks" -> HOME;
+            case "redstone_blocks" -> "tools_and_utilities";
+            default -> original;
+        };
     }
 
     /** Logs, leaves, saplings, flowers, crops and other growing things (seeds included) are Plants. */
