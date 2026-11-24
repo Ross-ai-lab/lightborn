@@ -495,10 +495,13 @@ public class CollectionScreen extends Screen {
     /** Every visible button whose label runs past its edges (owner, 2026-11-18: "Upgrade ward · 20 Sparks"). */
     public List<String> cutLabels() {
         List<String> out = new ArrayList<>();
-        for (var child : children())
-            if (child instanceof AbstractWidget b && b.visible && font.width(b.getMessage()) > b.getWidth() - 6)
-                out.add("'" + b.getMessage().getString() + "' (" + font.width(b.getMessage()) + " px of text in "
-                        + b.getWidth() + ")");
+        for (var child : children()) {
+            if (!(child instanceof AbstractWidget b) || !b.visible) continue;
+            int labelWidth =
+                    b instanceof CollectionTab.DonationButton small ? small.labelWidth() : font.width(b.getMessage());
+            if (labelWidth > b.getWidth() - 6)
+                out.add("'" + b.getMessage().getString() + "' (" + labelWidth + " px of text in " + b.getWidth() + ")");
+        }
         return out;
     }
 }

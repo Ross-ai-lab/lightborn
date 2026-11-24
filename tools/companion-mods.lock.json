@@ -271,6 +271,16 @@
   "size": 2954218
  },
  {
+  "slug": "thetruepaxels",
+  "title": "The True Paxels",
+  "version": "v1.1.2",
+  "wanted": true,
+  "file": "thetruepaxels-fabric-26.3-1.1.2.jar",
+  "url": "https://cdn.modrinth.com/data/FaWKtDEL/versions/WQV4kIUj/thetruepaxels-fabric-26.3-1.1.2.jar",
+  "sha512": "694e67af2c7a700ea921ee7569cacf4f842576ea0f793ff09fda38c8cdf4991202bc25810fb20ed12395598e03a8eb0f63c5c5bf8ab397bc1a15b03ce46b0599",
+  "size": 550277
+ },
+ {
   "slug": "variants-and-ventures",
   "title": "Variants&Ventures",
   "version": "fabric-1.0.29+mc26.3",

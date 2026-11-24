@@ -165,8 +165,8 @@ completion never asks the player to give away the only hub.
 
 **Opening and giving.** A plain right-click opens its book. **Ctrl + right-click** with an item gives one of it (the
 client reads Ctrl and asks the server); an ordinary click never donates by accident. Both live in the Collection
-tab's footer (owner, 2026-11-17: moved out of the tab column, smaller): a small Give all new button at its right and,
-beside it, one dim line scaled to fit: Ctrl + right-click the chest: give the held item.
+tab's footer (owner, 2026-11-17: moved out of the tab column, smaller). **Give all non-essential items** sits next to
+**Give all new** (owner, 2026-11-24). Both are 9 px high with 75% labels, beside the Ctrl + right-click hint.
 
 **One Sparks count** (owner, 2026-11-16): the chest's title bar shows the player's Sparks (carried plus stored) once,
 beside "Chest of Light", for every tab. No tab shows its own count.
@@ -269,9 +269,10 @@ apparent width at any range, and by day it burns 1.6 times brighter so it reads 
 - **The threshold** (owner, 2026-11-15; 2026-11-16: five times longer, both ways, day and night): crossing the dome
   is never seamless. Walking out, its light holds you like warm syrup for **5 seconds** (sprinting tears it twice as
   fast, owner 2026-11-16) (you barely advance while gold
-  creeps in from the screen's edges), then it tears and you break free. Walking in meets the same membrane for the
-  same time. **Walking in, the ward pulls you in** (owner, 2026-11-23: from a mine shaft below, its wall held you
-  off the stairs): touching the membrane from outside flashes gold and draws you toward its centre. At night,
+  creeps in from the screen's edges), then it tears and you break free. **Walking in, the ward pulls you in**
+  (owner, 2026-11-23: from a mine shaft below, its wall held you
+  off the stairs): touching the membrane from outside flashes gold and draws you toward its centre. The inward pull
+  pauses for three seconds after you break out so it cannot immediately drag you back (owner, 2026-11-24). At night,
   outside, a slow heartbeat sounds (no darkened screen and no red pulse: owner, 2026-11-23), and
   dark rain runs down the screen (owner, 2026-11-17: dark raindrops, not small dots): near-black beads that streak
   downward, a new one about every two thirds of a second, at most seven (owner, 2026-11-23: half). Coming home at
@@ -299,7 +300,8 @@ arrows, tag ingredients cycling each second. Taking an item out, or breaking the
 creative-tab ownership, so rejected block variants cannot slip back in through a second tab. **Never more than 999
 collectible items and exactly 10 collection sets, each named in one word**: check every addition, and get a new
 owner decision before exceeding either. Operator/technical items, spawn eggs and the Chest of Light itself are
-excluded. It has **937 items in ten sets** (measured by the self-test after the restore): Materials 43, Treasures 54, Home 61, Earth 99, Plants 142, Tools 166, Combat 73, Food 69, Ingredients 131 and Lightborn 99. Counts
+excluded. It has **999 items in ten sets** with the pinned companions (2026-11-24): Materials 64, Treasures 54,
+Home 68, Earth 97, Plants 142, Tools 171, Combat 73, Food 69, Ingredients 131 and Lightborn 130. Counts
 vary with the installed pack.
 
 **The ten sets**, in tab order: **Materials, Treasures, Home, Earth, Plants, Tools, Combat, Food, Ingredients,
@@ -337,7 +339,10 @@ Ordinary food and equipment keep their useful subject groups.
 
 **Gifts.** A new gift's tooltip says "New for the Light" in gold, in inventories and other item views. Give all new
 deposits one of each new carried item that fits, through the same rules as single gifts, then opens an **Unlocked**
-window over the book listing everything just given (scrolling when long) until it is closed. Donation feedback shows the
+window over the book listing everything just given (scrolling when long) until it is closed. Give all non-essential
+items uses that same first-gift rule and keeps equipment, tools, weapons, food and drinks, torches, loaded storage,
+Sparks, spell tomes, staffs, the Spellstone and progression items in the bag. Sea pickles and other eligible finds
+still count. Donation feedback shows the
 affected subgroup's x/x rather than the global total; bulk gifts report each group they changed. Every first gift pays one Spark. Repeated deposits and withdrawals never pay again.
 
 **Set bonuses.** Stat-bearing sets pay at each 25%. Bonuses are whole numbers, except life regeneration at 0.2/s per
@@ -2159,6 +2164,9 @@ Lightborn's music mood for the Hollow is still named `end` in code, so its folde
 Other authors' mods, pinned in `tools/companion-mods.lock.json` (exact files and hashes) and restored by
 `py -3.14 -I tools/companion_mods.py fetch`; `resolve --keep-pins` adds required dependencies while keeping existing
 pins. Builds verify and restore the test cache only; deliberate deployment copies the pinned companions into the game.
+The True Paxels adds craftable mining and farming multitools (owner, 2026-11-24). Its items stay outside the Chest
+of Light catalogue, which is already at its 999-item limit. The launcher sets each paxel's durability to three times
+the matching Minecraft tool's durability.
 
 ### Rules every mod must pass
 

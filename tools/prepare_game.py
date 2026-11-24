@@ -1,4 +1,4 @@
-"""Prepare the owner's whole music tracks and default resource packs before the game starts."""
+"""Prepare Lightborn's music, packs and companion settings before the game starts."""
 from pathlib import Path
 import argparse, hashlib, json, os, shutil, subprocess, zipfile, re, tomllib
 
@@ -73,6 +73,9 @@ def prepare(game,music):
   'custom_structures':True,'fog_tweaks':True,'intro_message':False,'recipe_changes':False,'skylands':True,'terrain_slabs':True,'vanilla_stone_gen':False}}
  terra.setdefault('config_version',1);terra.setdefault('modules',{})['intro_message']=False;write_json(terra_path,terra)
  lock=json.loads((ROOT/'tools/companion-mods.lock.json').read_text(encoding='utf-8'))
+ if any(pin['slug']=='thetruepaxels' for pin in lock):
+  vanilla_durability={'wooden':59,'stone':131,'copper':190,'golden':32,'iron':250,'diamond':1561,'netherite':2031}
+  toml_settings(game/'config/thetruepaxels.toml','durability',{tier:str(3*base) for tier,base in vanilla_durability.items()})
  for pin in lock:
   if not pin.get('resource_pack'):continue
   source=ROOT/'companion-mods'/pin['file'];target=packs/pin['file']

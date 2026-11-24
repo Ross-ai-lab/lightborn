@@ -35,7 +35,7 @@ public final class Net {
 
     /** Client -> server, from the chest's book: take one or all of an item out, or put in every one carried. */
     public record ChestMove(BlockPos chest, String item, int action) implements CustomPacketPayload {
-        public static final int TAKE_ONE = 0, TAKE_ALL = 1, PUT_IN = 2, GIVE_NEW = 3;
+        public static final int TAKE_ONE = 0, TAKE_ALL = 1, PUT_IN = 2, GIVE_NEW = 3, GIVE_NON_ESSENTIAL = 4;
         public static final Type<ChestMove> TYPE = new Type<>(ModItems.id("chest_move"));
         public static final StreamCodec<ByteBuf, ChestMove> CODEC = StreamCodec.composite(
                 BlockPos.STREAM_CODEC,
@@ -181,6 +181,7 @@ public final class Net {
             if (!atChest(ctx.player(), p.chest())) return;
             if (p.action() == ChestMove.PUT_IN) Collection.deposit(ctx.player(), p.item(), p.chest());
             else if (p.action() == ChestMove.GIVE_NEW) Collection.giveAllNew(ctx.player(), p.chest());
+            else if (p.action() == ChestMove.GIVE_NON_ESSENTIAL) Collection.giveAllNew(ctx.player(), p.chest(), true);
             else if (p.action() == ChestMove.TAKE_ONE || p.action() == ChestMove.TAKE_ALL) {
                 Collection.withdraw(ctx.player(), p.item(), p.action() == ChestMove.TAKE_ALL, p.chest());
             }

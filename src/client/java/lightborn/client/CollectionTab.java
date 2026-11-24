@@ -13,8 +13,10 @@ import lightborn.Collection.Category;
 import lightborn.Net;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.context.ContextMap;
@@ -51,7 +53,7 @@ final class CollectionTab extends ChestTab {
     private int scroll;
     private String picked;
     private int recipeIndex;
-    private Button takeOne, takeAll, putIn, giveNew;
+    private Button takeOne, takeAll, putIn, giveNew, giveNonEssential;
 
     CollectionTab(CollectionScreen s) {
         super(s);
@@ -77,11 +79,57 @@ final class CollectionTab extends ChestTab {
         putIn = s.add(Button.builder(Component.literal("Put in"), b -> move(Net.ChestMove.PUT_IN))
                 .bounds(bx + 2 * (bw + 3), by, bw, ITEM_BTN_H)
                 .build());
-        giveNew = s.add(Button.builder(
-                        Component.literal("Give all new"),
-                        b -> ClientPlayNetworking.send(new Net.ChestMove(s.chest, "", Net.ChestMove.GIVE_NEW)))
-                .bounds(s.gridX() + s.gridW() - 84, s.top() + s.h() - HELP + 1, 80, 12)
-                .build());
+        int footerRight = s.gridX() + s.gridW() - 4, footerY = s.top() + s.h() - HELP + 3;
+        giveNew = s.add(new DonationButton(
+                font(),
+                "Give all new",
+                footerRight,
+                footerY,
+                b -> ClientPlayNetworking.send(new Net.ChestMove(s.chest, "", Net.ChestMove.GIVE_NEW))));
+        giveNonEssential = s.add(new DonationButton(
+                font(),
+                "Give all non-essential items",
+                giveNew.getX() - 4,
+                footerY,
+                b -> ClientPlayNetworking.send(new Net.ChestMove(s.chest, "", Net.ChestMove.GIVE_NON_ESSENTIAL))));
+        giveNonEssential.setTooltip(Tooltip.create(
+                Component.literal("Give one of each new collectible. Keeps your gear, spells, food and Sparks.")));
+    }
+
+    /** A compact vanilla button for the footer, with a scaled label. */
+    static final class DonationButton extends Button {
+        private static final float LABEL_SCALE = .75f;
+        private final Font font;
+
+        DonationButton(Font font, String label, int right, int y, OnPress onPress) {
+            super(
+                    0,
+                    y,
+                    (int) Math.ceil(font.width(label) * LABEL_SCALE) + 8,
+                    9,
+                    Component.literal(label),
+                    onPress,
+                    DEFAULT_NARRATION);
+            this.font = font;
+            setX(right - getWidth());
+        }
+
+        int labelWidth() {
+            return (int) Math.ceil(font.width(getMessage()) * LABEL_SCALE);
+        }
+
+        @Override
+        protected void extractContents(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+            extractDefaultSprite(g);
+            g.pose().pushMatrix();
+            g.pose()
+                    .translate(
+                            getX() + (getWidth() - font.width(getMessage()) * LABEL_SCALE) / 2,
+                            getY() + (getHeight() - font.lineHeight * LABEL_SCALE) / 2);
+            g.pose().scale(LABEL_SCALE, LABEL_SCALE);
+            g.text(font, getMessage(), 0, 0, active ? 0xFFFFFFFF : 0xFFA0A0A0, true);
+            g.pose().popMatrix();
+        }
     }
 
     private void move(int action) {
@@ -198,17 +246,21 @@ final class CollectionTab extends ChestTab {
             b.visible = show;
             b.setY(s.detailY() + 26); // under the name and count, inside the short panel
         }
-        giveNew.visible = on;
+        giveNew.visible = giveNonEssential.visible = on;
         takeOne.active = takeAll.active = kept > 0;
         putIn.active = carried > 0 && picked != null && kept < new ItemStack(Collection.item(picked)).getMaxStackSize();
-        giveNew.active = false;
-        if (mc().player != null) {
+        giveNew.active = giveNonEssential.active = false;
+        if (on && mc().player != null) {
             var inventory = mc().player.getInventory();
-            for (int i = 0; i < inventory.getContainerSize(); i++)
-                if (Collection.newForLight(mc().player, inventory.getItem(i))) {
-                    giveNew.active = true;
+            for (int i = 0; i < inventory.getContainerSize(); i++) {
+                ItemStack stack = inventory.getItem(i);
+                if (!Collection.newForLight(mc().player, stack)) continue;
+                giveNew.active = true;
+                if (Collection.nonEssentialGift(stack)) {
+                    giveNonEssential.active = true;
                     break;
                 }
+            }
         }
     }
 
@@ -251,15 +303,16 @@ final class CollectionTab extends ChestTab {
         Set<String> got = Collection.collected(mc().player);
         Category c = category();
         drawChips(g, mouseX, mouseY);
-        // The footer: how to give one held item, beside the Give all new button (owner, 2026-11-17: both moved here
-        // from the tab column, smaller).
-        String hint = "Ctrl + right-click the chest: give the held item";
-        float hintScale = Math.min(.75f, (s.gridW() - 96) / (float) font().width(hint));
-        g.pose().pushMatrix();
-        g.pose().translate(s.gridX() + 1, s.top() + s.h() - HELP + 4);
-        g.pose().scale(hintScale, hintScale);
-        g.text(font(), hint, 0, 0, DIM, false);
-        g.pose().popMatrix();
+        String hint = "Ctrl + right-click to give one";
+        int hintX = Math.clamp(giveNonEssential.getX() - 110, s.left() + 8, s.gridX() + 1);
+        float hintScale = Math.min(.75f, (giveNonEssential.getX() - hintX - 5) / (float) font().width(hint));
+        if (hintScale > 0) {
+            g.pose().pushMatrix();
+            g.pose().translate(hintX, s.top() + s.h() - HELP + 4);
+            g.pose().scale(hintScale, hintScale);
+            g.text(font(), hint, 0, 0, DIM, false);
+            g.pose().popMatrix();
+        }
 
         // The open set's items, scrolled, each with the count the chest keeps.
         int gx = s.gridX(), gy = gridTop(), cols = cols(), rows = visibleRows();

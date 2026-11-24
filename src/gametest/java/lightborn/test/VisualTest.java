@@ -26,6 +26,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.CameraType;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.BookViewScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.BlockPos;
@@ -237,6 +238,7 @@ public class VisualTest implements FabricClientGameTest {
                 sp.getServer().runOnServer(server -> {
                     look(server, -1, 1, -0.5, 2, 1.2, 1);
                     player(server).setGameMode(GameType.SURVIVAL); // a spectator gets no shop snapshot
+                    player(server).getInventory().setItem(9, new ItemStack(Items.SEA_PICKLE, 3));
                 });
                 ctx.getInput().resizeWindow(1920, 1080);
                 ctx.runOnClient(mc -> {
@@ -267,6 +269,31 @@ public class VisualTest implements FabricClientGameTest {
                     cut.addAll(ctx.computeOnClient(mc -> ((CollectionScreen) mc.gui.screen()).cutLabels()).stream()
                             .map(s -> "tab " + tab + ": " + s)
                             .toList());
+                    if (tab == 2) {
+                        double[] point = ctx.computeOnClient(mc -> {
+                            var button = mc.gui.screen().children().stream()
+                                    .filter(Button.class::isInstance)
+                                    .map(Button.class::cast)
+                                    .filter(b -> b.visible
+                                            && b.getMessage().getString().equals("Give all non-essential items"))
+                                    .findFirst()
+                                    .orElseThrow();
+                            double scale = mc.getWindow().getGuiScale();
+                            return new double[] {
+                                (button.getX() + button.getWidth() / 2.0) * scale,
+                                (button.getY() + button.getHeight() / 2.0) * scale
+                            };
+                        });
+                        ctx.getInput().setCursorPos(point[0], point[1]);
+                        ctx.waitTicks(2);
+                        ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+                        ctx.waitTicks(8);
+                        Soft.require(
+                                sp.getServer()
+                                        .computeOnServer(server ->
+                                                player(server).getInventory().countItem(Items.SEA_PICKLE) == 2),
+                                "The compact non-essential donation button did not give one sea pickle");
+                    }
                 }
                 ctx.setScreen(() -> null);
                 ctx.runOnClient(mc -> {

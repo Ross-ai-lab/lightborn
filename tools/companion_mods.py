@@ -23,7 +23,7 @@ WANTED = ["mutant-monsters", "variants-and-ventures", "friends-and-foes", "natur
           # EntityCulling skips drawing mobs hidden behind walls, which night hearing gathers in crowds. Left out on
           # purpose: C2ME (alpha only for 26.3, risks the save), ImmediatelyFast (26.x already batches its GUI),
           # FerriteCore (saves RAM, which is plentiful) and ModernFix (no 26.3 build).
-          "lithium", "entityculling"]
+          "lithium", "entityculling", "thetruepaxels"]
 PACKS = ["fresh-animations"]
 EXTRA_REQUIRED = []
 # Tectonic is deliberately excluded: its continents felt too large and empty to the owner.

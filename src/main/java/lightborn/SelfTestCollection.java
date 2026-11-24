@@ -183,6 +183,35 @@ final class SelfTestCollection {
                         && p.totalExperience == 0
                         && newTooltip,
                 bulk + " gifts, experience " + p.totalExperience);
+        p.getInventory().clearContent();
+        p.getInventory().setItem(0, new ItemStack(Items.SEA_PICKLE, 3));
+        var protectedItems = List.of(
+                new ItemStack(Items.IRON_PICKAXE),
+                new ItemStack(Items.IRON_SWORD),
+                new ItemStack(Items.APPLE),
+                new ItemStack(Items.ROTTEN_FLESH),
+                new ItemStack(Items.TORCH),
+                new ItemStack(ModItems.SPARK),
+                new ItemStack(ModItems.STARTER_STAFF),
+                new ItemStack(ModItems.TOMES.get(Spell.HOMEWARD)),
+                SpawnHut.starterStone(),
+                new ItemStack(DragonStory.LIGHT_KEY));
+        for (int i = 0; i < protectedItems.size(); i++)
+            p.getInventory().setItem(i + 1, protectedItems.get(i).copy());
+        int selective = Collection.giveAllNew(p, chest, true);
+        boolean protectedInPlace = true;
+        for (int i = 0; i < protectedItems.size(); i++)
+            protectedInPlace &=
+                    p.getInventory().getItem(i + 1).is(protectedItems.get(i).getItem());
+        check(
+                "collection_give_non_essential_only",
+                selective == 1
+                        && protectedInPlace
+                        && p.getInventory().getItem(0).getCount() == 2
+                        && Collection.stored(p, "minecraft:sea_pickle").getCount() == 1
+                        && Collection.giveAllNew(p, chest, true) == 0
+                        && Collection.giveAllNew(p, chest) > 0,
+                selective + " selective gifts");
         p.setAttached(ModData.COLLECTION, List.of());
         p.setAttached(ModData.STORAGE, List.of());
         // The ward grows only when bought with Sparks (owner, 2026-11-16), never from gifts.

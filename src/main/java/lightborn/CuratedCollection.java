@@ -193,6 +193,7 @@ final class CuratedCollection {
 
     static String group(String id, ItemStack stack, String original) {
         if (id.equals("lightborn:light_chest")) return null; // The unique hub must never have to be donated to itself.
+        if (id.startsWith("thetruepaxels:")) return null; // Playable tools, outside the full 999-item catalogue.
         if (id.startsWith("lightborn:")) return "lightborn:items";
         String namespace = id.substring(0, id.indexOf(':')), path = id.substring(id.indexOf(':') + 1);
         boolean vanilla = namespace.equals("minecraft");

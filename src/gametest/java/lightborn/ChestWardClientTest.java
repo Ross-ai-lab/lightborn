@@ -7,10 +7,13 @@ import lightborn.test.Soft;
 import net.fabricmc.fabric.api.client.gametest.v1.*;
 import net.fabricmc.fabric.api.client.gametest.v1.context.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.*;
@@ -93,6 +96,7 @@ public final class ChestWardClientTest implements FabricClientGameTest {
                 var counts = new TreeMap<String, Integer>();
                 for (String id : Collection.all()) counts.merge(id.substring(0, id.indexOf(':')), 1, Integer::sum);
                 System.out.println("CHEST CATALOGUE " + Collection.all().size() + " " + counts);
+                if (FabricLoader.getInstance().isModLoaded("thetruepaxels")) checkPaxelDurability();
             });
             teleport(sp, Vec3.atBottomCenterOf(chest).add(0, 0, 3));
             ctx.waitTicks(15);
@@ -102,7 +106,9 @@ public final class ChestWardClientTest implements FabricClientGameTest {
                 mc.gui.setScreen(new CollectionScreen(chest));
             });
             ctx.waitTicks(8);
-            ctx.runOnClient(mc -> check((int) field(mc.gui.screen(), "selected") == -2, "Shop is not the default"));
+            ctx.runOnClient(mc -> check(
+                    (int) field(mc.gui.screen(), "selected") >= 0,
+                    "A fresh player with the shop locked did not open on the Collection"));
             click(ctx, ctx.computeOnClient(mc -> {
                 var screen = mc.gui.screen();
                 double scale = mc.getWindow().getGuiScale();
@@ -142,6 +148,8 @@ public final class ChestWardClientTest implements FabricClientGameTest {
                                             .getItem(3))[1]
                                     == -1,
                             "Remote upgrade accepted"));
+
+            checkWardReentry(ctx, sp, chest);
 
             BlockPos surface = chest.offset(60, 0, 0),
                     cave =
@@ -278,5 +286,52 @@ public final class ChestWardClientTest implements FabricClientGameTest {
             System.out.println(
                     "LIGHTBORN CHEST WARD CLIENT PASS: native skill allocation, remote rejection, bestiary/Farmer removal, surface+cave+magical night lighting, dawn recovery, walk/teleport/top barrier, first-person dialogue");
         }
+    }
+
+    private static void checkPaxelDurability() {
+        Map.of(
+                        "wooden", ToolMaterial.WOOD,
+                        "stone", ToolMaterial.STONE,
+                        "copper", ToolMaterial.COPPER,
+                        "golden", ToolMaterial.GOLD,
+                        "iron", ToolMaterial.IRON,
+                        "diamond", ToolMaterial.DIAMOND,
+                        "netherite", ToolMaterial.NETHERITE)
+                .forEach((tier, material) -> {
+                    var id = Identifier.fromNamespaceAndPath("thetruepaxels", tier + "_paxel");
+                    int actual = new ItemStack(BuiltInRegistries.ITEM.getValue(id)).getMaxDamage();
+                    check(actual == 3 * material.durability(), tier + " paxel has durability " + actual);
+                });
+    }
+
+    private static void checkWardReentry(ClientGameTestContext ctx, TestSingleplayerContext sp, BlockPos chest) {
+        Soft.step("ward reentry");
+        Vec3 center = Vec3.atBottomCenterOf(chest);
+        double radius = Balance.LIGHT_WARD_RADIUS;
+        teleport(sp, center.add(radius - 2, 0, 0));
+        ctx.waitTicks(10);
+        ctx.getInput().lookAt(chest.offset(18, 0, 0));
+        ctx.getInput().holdKey(o -> o.keyUp);
+        ctx.getInput().holdKey(o -> o.keySprint);
+        boolean escaped = false;
+        for (int tick = 0; tick < 100 && !escaped; tick++) {
+            ctx.waitTicks(1);
+            escaped = ctx.computeOnClient(mc -> mc.player.getX() > center.x + radius + .2);
+        }
+        ctx.getInput().releaseKey(o -> o.keyUp);
+        ctx.getInput().releaseKey(o -> o.keySprint);
+        check(escaped, "Sprinting outward never broke through the ward");
+        if (!escaped) return;
+
+        // Touch the outside edge without movement input, first during grace and then after it runs out.
+        teleport(sp, center.add(radius + .4, 0, 0));
+        ctx.waitTicks(12);
+        check(
+                ctx.computeOnClient(mc -> mc.player.getX() > center.x + radius + .25),
+                "The ward pulled inward immediately after breaking out");
+        ctx.waitTicks(60);
+        check(
+                ctx.computeOnClient(mc -> mc.player.getX() < center.x + radius - .3),
+                "The inward pull did not return after the exit grace period");
     }
 }

@@ -45,6 +45,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.component.BundleContents;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.crafting.display.FurnaceRecipeDisplay;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.display.ShapedCraftingRecipeDisplay;
@@ -53,6 +55,7 @@ import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.minecraft.world.item.crafting.display.SmithingRecipeDisplay;
 import net.minecraft.world.item.crafting.display.StonecutterRecipeDisplay;
+import net.minecraft.world.level.block.BaseTorchBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BonemealableBlock;
 import net.minecraft.world.level.block.EntityBlock;
@@ -396,6 +399,43 @@ public final class Collection {
         return !stack.isEmpty() && categoryOf(id) != null && !collected(player).contains(id);
     }
 
+    /** Keep the player's working kit and progression items in their inventory during the selective bulk gift. */
+    public static boolean nonEssentialGift(ItemStack stack) {
+        Item item = stack.getItem();
+        Category category = categoryOf(idOf(item));
+        if (category != null
+                && switch (category.key()) {
+                    case "tools_and_utilities" ->
+                        !(item instanceof BlockItem) && !stack.has(DataComponents.JUKEBOX_PLAYABLE);
+                    case "combat", "food_and_drinks" -> true;
+                    default -> false;
+                }) return false;
+        return !stack.isDamageableItem()
+                && !stack.has(DataComponents.TOOL)
+                && !stack.has(DataComponents.WEAPON)
+                && !stack.has(DataComponents.FOOD)
+                && !stack.has(DataComponents.CONSUMABLE)
+                && !(stack.has(DataComponents.EQUIPPABLE) && !(item instanceof BlockItem))
+                && !(item instanceof BlockItem block && block.getBlock() instanceof BaseTorchBlock)
+                && stack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
+                        .equals(ItemContainerContents.EMPTY)
+                && stack.getOrDefault(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY)
+                        .isEmpty()
+                && !(item instanceof TomeItem)
+                && !ModItems.isStaff(stack)
+                && !stack.is(Spellstone.ITEM)
+                && !stack.is(ModItems.SPARK)
+                && !stack.is(ModItems.DARK_SHARD)
+                && !stack.is(DragonStory.LIGHT_KEY)
+                && !stack.is(DragonStory.SCRIBE_SEAL)
+                && !stack.is(Items.ARROW)
+                && !stack.is(Items.ENDER_PEARL)
+                && !stack.is(Items.ENDER_EYE)
+                && !stack.is(Items.TOTEM_OF_UNDYING)
+                && !stack.is(Items.TRIAL_KEY)
+                && !stack.is(Items.OMINOUS_TRIAL_KEY);
+    }
+
     public static void ensure(ServerPlayer player) {
         var server = player.level().getServer();
         build(server.getWorldData().enabledFeatures(), server.registryAccess());
@@ -530,6 +570,10 @@ public final class Collection {
 
     /** Donate one of each new carried type through the same storage and reward path as single gifts. */
     public static int giveAllNew(ServerPlayer player, BlockPos chest) {
+        return giveAllNew(player, chest, false);
+    }
+
+    public static int giveAllNew(ServerPlayer player, BlockPos chest, boolean nonEssentialOnly) {
         ensure(player);
         LightWards.claim(player.level(), chest, player);
         Set<String> seen = new LinkedHashSet<>(collected(player));
@@ -540,6 +584,7 @@ public final class Collection {
             if (stack.isEmpty()) continue;
             String id = idOf(stack.getItem());
             if (seen.contains(id) || categoryOf(id) == null) continue;
+            if (nonEssentialOnly && !nonEssentialGift(stack)) continue;
             ItemStack stored = stored(player, id);
             if (room(stored, stack) == 0) continue;
             ItemStack one = stack.copyWithCount(1);
@@ -553,8 +598,11 @@ public final class Collection {
             ServerPlayNetworking.send(
                     player, new Net.Unlocked(chest, List.copyOf(given), Balance.COLLECTION_GIFT_SPARKS * given.size()));
         } else
-            player.sendOverlayMessage(
-                    Component.literal("You carry no new things that fit").withStyle(ChatFormatting.GRAY));
+            player.sendOverlayMessage(Component.literal(
+                            nonEssentialOnly
+                                    ? "You carry no new non-essential items"
+                                    : "You carry no new things that fit")
+                    .withStyle(ChatFormatting.GRAY));
         return given.size();
     }
 

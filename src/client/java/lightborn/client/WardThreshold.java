@@ -33,6 +33,8 @@ final class WardThreshold {
             Identifier.fromNamespaceAndPath("lightborn", "textures/gui/ward_membrane.png");
     /** Ticks of pressing through before the ward lets go: five seconds, either way. */
     private static final float HOLD_TICKS = 100;
+
+    private static final int REENTRY_DELAY = 60;
     /**
      * The membrane is a band SKIN either side of the ward's radius: you are held from the side you came from, and sink
      * at most SINK into it (just past the radius) before it tears.
@@ -47,6 +49,8 @@ final class WardThreshold {
     private static int flash;
     /** Which side of the membrane you were last clear of: 1 inside, -1 outside, 0 not yet known. */
     private static int side;
+
+    private static int reentryDelay;
 
     private static int heartbeat, sinceFree = 1000;
     private static boolean wasOutside;
@@ -82,9 +86,11 @@ final class WardThreshold {
                 || p.isSleeping()
                 || mc.level.dimension() != Level.OVERWORLD) {
             side = 0;
+            reentryDelay = 0;
             ease();
             return;
         }
+        if (reentryDelay > 0) reentryDelay--;
         boolean night = SurfaceLights.night(mc.level);
         Vec3 body = p.position().add(0, p.getBbHeight() / 2, 0);
         WardAura ward =
@@ -102,11 +108,14 @@ final class WardThreshold {
                 d = ward == null ? 1e9 : ward.position().distanceTo(body);
         boolean inside = d <= r - SKIN, beyond = d >= r + SKIN;
         if (inside) side = 1;
-        else if (beyond) side = -1;
+        else if (beyond) {
+            if (side > 0 && ward != null) reentryDelay = REENTRY_DELAY;
+            side = -1;
+        }
 
         // Coming home, the ward pulls you in (owner, 2026-11-23): from a mine shaft below, its wall held you off the
         // stairs. Each tick in the membrane draws you toward its centre, with the tear's flash on first touch.
-        if (ward != null && side < 0 && !inside && !beyond) {
+        if (ward != null && side < 0 && reentryDelay == 0 && !inside && !beyond) {
             Vec3 in = ward.position().subtract(body).normalize();
             if (pressure == 0) {
                 flash = 8;
@@ -186,6 +195,7 @@ final class WardThreshold {
     private static void breakThrough(Minecraft mc, Vec3 through, boolean night) {
         var p = mc.player;
         boolean leaving = side > 0;
+        if (leaving) reentryDelay = REENTRY_DELAY;
         side = -side;
         pressure = 0;
         lastPressure = 0;
