@@ -1537,8 +1537,8 @@ More Health gear upgrade grants one extra heart.
   skin's own `_eyes` texture when it ships one, otherwise its pupils or dark sockets found in the face, otherwise the
   vanilla eye spots. Bodies keep normal lighting; eyes light no blocks and draw no outline. They shine the same
   inside and outside a ward, so a zombie at the dome's wall in black night shows only its eyes.
-- **Sparks**: **every player kill of a monster pays Sparks by its tier** (owner, 2026-11-20;
-  [the five tiers](#the-five-tiers)): tier 1 one, tier 2 two or three, tier 3 five, tier 4 ten, tier 5 twenty-five; a
+- **Sparks**: **every player kill of a monster pays Sparks by its tier** (owner, 2026-11-24;
+  [the five tiers](#the-five-tiers)): Basic 1 to 2, Uncommon 3 to 6, Rare 7 to 10, Legendary 11 to 19, Mythic 20 to 35. A
   kind the Book of Souls does not list counts as tier 1, an unlisted giant as tier 3 (`Lightborn.killSparks`,
   `Balance.KILL_SPARKS_MIN/MAX`). Bosses pay their boss Sparks on top. A tier 3 kind and up also drops at least one
   rolled item every time (owner, 2026-11-17); before any ore is mined that item is the first tier. Spawner monsters

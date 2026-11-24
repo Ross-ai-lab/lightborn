@@ -225,9 +225,9 @@ public final class Balance {
     public static final int COLLECTION_GIFT_SPARKS = 1;
     /**
      * Sparks every monster kill pays by its power tier ({@link Souls#tierOf}, 1 to 5), lowest and highest (owner,
-     * 2026-11-20): tier 1 one, tier 2 two or three, tier 3 five, tier 4 ten, tier 5 twenty-five. Index 0 is unused.
+     * 2026-11-24): Basic 1 to 2, Uncommon 3 to 6, Rare 7 to 10, Legendary 11 to 19, Mythic 20 to 35. Index 0 is unused.
      */
-    public static final int[] KILL_SPARKS_MIN = {0, 1, 2, 5, 10, 25}, KILL_SPARKS_MAX = {0, 1, 3, 5, 10, 25};
+    public static final int[] KILL_SPARKS_MIN = {0, 1, 3, 7, 11, 20}, KILL_SPARKS_MAX = {0, 2, 6, 10, 19, 35};
 
     /**
      * Chance a tier 5 monster that is not a boss drops a Relic, times Item Find (owner, 2026-11-20: one in five): a
