@@ -12,6 +12,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 
 /**
@@ -102,13 +103,18 @@ public final class Net {
         }
     }
 
-    /** Server -> client: what one Give all new just unlocked, for the chest's "Unlocked" window. */
-    public record Unlocked(BlockPos chest, List<String> items, int sparks) implements CustomPacketPayload {
+    public record Gift(ItemStack stack, boolean first) {
+        static final StreamCodec<RegistryFriendlyByteBuf, Gift> CODEC =
+                StreamCodec.composite(ItemStack.STREAM_CODEC, Gift::stack, ByteBufCodecs.BOOL, Gift::first, Gift::new);
+    }
+
+    /** Server -> client: everything stored by one bulk donation, with first gifts marked. */
+    public record Unlocked(BlockPos chest, List<Gift> items, int sparks) implements CustomPacketPayload {
         public static final Type<Unlocked> TYPE = new Type<>(ModItems.id("unlocked"));
-        public static final StreamCodec<ByteBuf, Unlocked> CODEC = StreamCodec.composite(
+        public static final StreamCodec<RegistryFriendlyByteBuf, Unlocked> CODEC = StreamCodec.composite(
                 BlockPos.STREAM_CODEC,
                 Unlocked::chest,
-                ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()),
+                Gift.CODEC.apply(ByteBufCodecs.list()),
                 Unlocked::items,
                 ByteBufCodecs.VAR_INT,
                 Unlocked::sparks,

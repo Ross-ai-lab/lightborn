@@ -313,7 +313,7 @@ public class CollectionScreen extends Screen {
         drawTab(
                 g,
                 "Collection",
-                given == total && total > 0 ? "✔" : given + "/" + total,
+                "",
                 selected >= 0 ? selected : Integer.MAX_VALUE,
                 ty + shown.size() * tabHeight(),
                 mouseX,

@@ -425,8 +425,12 @@ public final class Collection {
         if (stack.isEmpty()) return false;
         Item item = stack.getItem();
         if (categoryOf(idOf(item)) == null) return false;
-        // Spider eyes are brewing loot even though vanilla permits eating them.
-        if (stack.is(Items.SPIDER_EYE) || stack.is(Items.POISONOUS_POTATO) || stack.is(Items.PUFFERFISH)) return true;
+        // These items are bulk donations even though vanilla permits eating or using them.
+        if (stack.is(Items.SPIDER_EYE)
+                || stack.is(Items.POISONOUS_POTATO)
+                || stack.is(Items.PUFFERFISH)
+                || stack.is(Items.ROTTEN_FLESH)
+                || stack.is(Items.ENDER_PEARL)) return true;
         return !stack.isDamageableItem()
                 && !stack.has(DataComponents.TOOL)
                 && !stack.has(DataComponents.WEAPON)
@@ -459,7 +463,6 @@ public final class Collection {
                 && !stack.is(Items.FIREWORK_ROCKET)
                 && !stack.is(Items.TNT)
                 && !stack.is(Items.END_CRYSTAL)
-                && !stack.is(Items.ENDER_PEARL)
                 && !stack.is(Items.ENDER_EYE)
                 && !stack.is(Items.TOTEM_OF_UNDYING)
                 && !stack.is(Items.TRIAL_KEY)
@@ -598,77 +601,60 @@ public final class Collection {
         return moved;
     }
 
-    /** Donate one of each new carried type through the same storage and reward path as single gifts. */
+    /** Donate one of each new carried type that fits. */
     public static int giveAllNew(ServerPlayer player, BlockPos chest) {
-        ensure(player);
-        LightWards.claim(player.level(), chest, player);
-        Set<String> seen = new LinkedHashSet<>(collected(player));
-        List<String> given = new ArrayList<>();
-        var inventory = player.getInventory();
-        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
-            ItemStack stack = inventory.getItem(slot);
-            if (stack.isEmpty()) continue;
-            String id = idOf(stack.getItem());
-            if (seen.contains(id) || categoryOf(id) == null) continue;
-            ItemStack stored = stored(player, id);
-            if (room(stored, stack) == 0) continue;
-            ItemStack one = stack.copyWithCount(1);
-            setStored(player, id, stored.isEmpty() ? one : stored.copyWithCount(stored.getCount() + 1));
-            stack.shrink(1);
-            seen.add(id);
-            given.add(id);
-        }
-        if (!given.isEmpty()) {
-            unlockGifts(player, chest, given);
-        } else {
-            player.sendOverlayMessage(
-                    Component.literal("You carry no new things that fit").withStyle(ChatFormatting.GRAY));
-        }
-        return given.size();
+        return giveBulk(player, chest, true);
     }
 
     /** Store every eligible copy that fits, with collection rewards only for the first gift of each type. */
     public static int giveNonEssential(ServerPlayer player, BlockPos chest) {
+        return giveBulk(player, chest, false);
+    }
+
+    private static int giveBulk(ServerPlayer player, BlockPos chest, boolean newOnly) {
         ensure(player);
         LightWards.claim(player.level(), chest, player);
         var contents = new LinkedHashMap<String, ItemStack>();
         for (ItemStack kept : storage(player)) contents.putIfAbsent(idOf(kept.getItem()), kept);
-        Set<String> seen = new LinkedHashSet<>(collected(player));
-        List<String> given = new ArrayList<>();
+        var seen = new LinkedHashSet<>(collected(player));
+        var newTypes = new LinkedHashSet<String>();
+        var donations = new LinkedHashMap<String, ItemStack>();
         var inventory = player.getInventory();
         int moved = 0;
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             ItemStack stack = inventory.getItem(slot);
-            if (!nonEssentialGift(stack)) continue;
+            if (stack.isEmpty()) continue;
             String id = idOf(stack.getItem());
+            if (newOnly ? seen.contains(id) || categoryOf(id) == null : !nonEssentialGift(stack)) continue;
             ItemStack kept = contents.getOrDefault(id, ItemStack.EMPTY);
-            int count = Math.min(stack.getCount(), room(kept, stack));
+            int count = Math.min(newOnly ? 1 : stack.getCount(), room(kept, stack));
             if (count <= 0) continue;
             contents.put(id, stack.copyWithCount(kept.getCount() + count));
+            donations.merge(
+                    id,
+                    stack.copyWithCount(count),
+                    (first, next) -> first.copyWithCount(first.getCount() + next.getCount()));
             stack.shrink(count);
             moved += count;
-            if (seen.add(id)) given.add(id);
+            if (seen.add(id)) newTypes.add(id);
         }
         if (moved == 0) {
-            player.sendOverlayMessage(Component.literal("You carry no non-essential items that fit")
-                    .withStyle(ChatFormatting.GRAY));
+            String message = newOnly ? "You carry no new things that fit" : "You carry no non-essential items that fit";
+            player.sendOverlayMessage(Component.literal(message).withStyle(ChatFormatting.GRAY));
             return 0;
         }
         player.setAttached(ModData.STORAGE, List.copyOf(contents.values()));
-        if (given.isEmpty()) {
-            player.sendOverlayMessage(Component.literal("Stored " + moved + (moved == 1 ? " item" : " items"))
-                    .withStyle(ChatFormatting.YELLOW));
+        if (newTypes.isEmpty()) {
             player.level().playSound(null, chest, SoundEvents.AMETHYST_BLOCK_STEP, SoundSource.BLOCKS, 0.8f, 1.4f);
         } else {
-            unlockGifts(player, chest, given);
+            take(player, List.copyOf(newTypes), chest);
         }
-        return moved;
-    }
-
-    private static void unlockGifts(ServerPlayer player, BlockPos chest, List<String> given) {
-        take(player, given, chest);
+        var gifts = donations.entrySet().stream()
+                .map(entry -> new Net.Gift(entry.getValue(), newTypes.contains(entry.getKey())))
+                .toList();
         ServerPlayNetworking.send(
-                player, new Net.Unlocked(chest, List.copyOf(given), Balance.COLLECTION_GIFT_SPARKS * given.size()));
+                player, new Net.Unlocked(chest, gifts, Balance.COLLECTION_GIFT_SPARKS * newTypes.size()));
+        return moved;
     }
 
     /**

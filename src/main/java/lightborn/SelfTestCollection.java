@@ -247,7 +247,7 @@ final class SelfTestCollection {
                 new ItemStack(Items.IRON_PICKAXE),
                 new ItemStack(Items.IRON_SWORD),
                 new ItemStack(Items.APPLE),
-                new ItemStack(Items.ROTTEN_FLESH),
+                new ItemStack(Items.RECOVERY_COMPASS),
                 new ItemStack(Items.TORCH),
                 new ItemStack(ModItems.SPARK),
                 new ItemStack(ModItems.STARTER_STAFF),
@@ -261,6 +261,8 @@ final class SelfTestCollection {
         namedPickle.set(DataComponents.CUSTOM_NAME, Component.literal("Keepsake"));
         p.getInventory().setItem(12, namedPickle);
         p.getInventory().setItem(13, new ItemStack(Items.SPIDER_EYE, 2));
+        p.getInventory().setItem(14, new ItemStack(Items.ROTTEN_FLESH, 3));
+        p.getInventory().setItem(15, new ItemStack(Items.ENDER_PEARL, 4));
         int sparksBefore = p.getInventory().countItem(ModItems.SPARK);
         int selective = Collection.giveNonEssential(p, chest);
         boolean protectedInPlace = true;
@@ -269,7 +271,7 @@ final class SelfTestCollection {
                     p.getInventory().getItem(i + 1).is(protectedItems.get(i).getItem());
         check(
                 "collection_give_non_essential_only",
-                selective == 68
+                selective == 75
                         && protectedInPlace
                         && p.getInventory().getItem(0).isEmpty()
                         && p.getInventory().getItem(11).getCount() == 1
@@ -277,8 +279,10 @@ final class SelfTestCollection {
                         && Collection.stored(p, "minecraft:dirt").getCount() == 64
                         && Collection.stored(p, "minecraft:sea_pickle").getCount() == 3
                         && Collection.stored(p, "minecraft:spider_eye").getCount() == 2
+                        && Collection.stored(p, "minecraft:rotten_flesh").getCount() == 3
+                        && Collection.stored(p, "minecraft:ender_pearl").getCount() == 4
                         && p.getInventory().countItem(ModItems.SPARK)
-                                == sparksBefore + 2 * Balance.COLLECTION_GIFT_SPARKS,
+                                == sparksBefore + 4 * Balance.COLLECTION_GIFT_SPARKS,
                 selective + " items moved");
         p.getInventory().setItem(0, new ItemStack(Items.SEA_PICKLE, 2));
         int repeats = Collection.giveNonEssential(p, chest);
@@ -287,7 +291,7 @@ final class SelfTestCollection {
                 repeats == 2
                         && Collection.stored(p, "minecraft:sea_pickle").getCount() == 5
                         && p.getInventory().countItem(ModItems.SPARK)
-                                == sparksBefore + 2 * Balance.COLLECTION_GIFT_SPARKS
+                                == sparksBefore + 4 * Balance.COLLECTION_GIFT_SPARKS
                         && Collection.giveNonEssential(p, chest) == 0
                         && Collection.giveAllNew(p, chest) > 0,
                 repeats + " repeat items moved");

@@ -2,18 +2,15 @@ package lightborn.client;
 
 import static lightborn.client.ChestStyle.*;
 
-import lightborn.Collection;
 import lightborn.Net;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.ItemStack;
 
 /**
- * The "Unlocked" window after Give all new: a gilt frame over the whole chest with every newly given item (icon and
- * name, two per row, scrolling past eight rows) and the Sparks earned, shown until closed.
+ * The bulk donation receipt shows each deposited stack, its collection status, and the Sparks it earned.
  */
 final class UnlockedWindow {
     private static final int W = 260, ROWS = 8, ROW_H = 18;
@@ -33,7 +30,7 @@ final class UnlockedWindow {
     void show(Net.Unlocked u) {
         unlocked = u;
         scroll = 0;
-        if (s.mc() != null)
+        if (s.mc() != null && u.sparks() > 0)
             s.mc().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.PLAYER_LEVELUP, 1.4f, .5f));
     }
 
@@ -76,7 +73,8 @@ final class UnlockedWindow {
         g.fill(x - 1, y - 1, x + W + 1, y + hh + 1, GOLD);
         g.fill(x, y, x + W, y + hh, 0xF8141008);
         int n = unlocked.items().size();
-        String title = n == 1 ? "Unlocked!" : "Unlocked " + n + " new items!";
+        String title = "Given to the Light";
+        long newTypes = unlocked.items().stream().filter(Net.Gift::first).count();
         g.text(
                 font,
                 Component.literal(title).withStyle(ChatFormatting.BOLD),
@@ -84,7 +82,7 @@ final class UnlockedWindow {
                 y + 9,
                 GOLD,
                 true);
-        String sub = "Given to the Light";
+        String sub = newTypes + " new · " + (n - newTypes) + " already collected";
         g.text(font, sub, x + (W - font.width(sub)) / 2, y + 22, IVORY, false);
         g.fill(x + 10, y + 34, x + W - 10, y + 35, 0xFF3A3020);
         int rows = Math.min(ROWS, rows());
@@ -94,19 +92,29 @@ final class UnlockedWindow {
             for (int c = 0; c < 2; c++) {
                 int i = (r + scroll) * 2 + c;
                 if (i >= n) continue;
-                var item = Collection.item(unlocked.items().get(i));
+                var gift = unlocked.items().get(i);
+                var stack = gift.stack();
                 int ix = x + 10 + c * (W - 20) / 2, iy = y + 40 + r * ROW_H;
                 g.fill(ix, iy, ix + 18, iy + 18, SLOT);
-                g.item(new ItemStack(item), ix + 1, iy + 1);
-                String name = font.plainSubstrByWidth(
-                        Component.translatable(item.getDescriptionId()).getString(), (W - 20) / 2 - 24);
-                g.text(font, name, ix + 22, iy + 5, IVORY, false);
+                g.item(stack, ix + 1, iy + 1);
+                int nameWidth = (W - 20) / 2 - 24;
+                String name = font.plainSubstrByWidth(stack.getHoverName().getString(), nameWidth);
+                g.text(font, name, ix + 22, iy + 1, IVORY, false);
+                String detail = "×" + stack.getCount() + " · " + (gift.first() ? "New" : "Collected");
+                g.text(font, detail, ix + 22, iy + 10, gift.first() ? GOLD : DIM, false);
+                if (mouseX >= ix
+                        && mouseX < ix + (W - 20) / 2
+                        && mouseY >= iy
+                        && mouseY < iy + ROW_H
+                        && font.width(stack.getHoverName()) > nameWidth)
+                    g.setTooltipForNextFrame(font, stack, mouseX, mouseY);
             }
         if (maxScroll > 0) {
             String more = "Scroll for more (" + (scroll + 1) + " / " + (maxScroll + 1) + ")";
             g.text(font, more, x + (W - font.width(more)) / 2, y + 40 + rows * ROW_H + 1, DIM, false);
         }
-        g.text(font, "+" + unlocked.sparks() + " Sparks", x + 10, okY() + 4, GOLD, false);
+        String sparks = unlocked.sparks() > 0 ? "+" + unlocked.sparks() + " Sparks" : "0 Sparks earned";
+        g.text(font, sparks, x + 10, okY() + 4, unlocked.sparks() > 0 ? GOLD : DIM, false);
         boolean hover = mouseX >= okX() && mouseX < okX() + 60 && mouseY >= okY() && mouseY < okY() + 16;
         g.fill(okX(), okY(), okX() + 60, okY() + 16, hover ? 0xFF6A5420 : 0xFF3A2E14);
         g.fill(okX(), okY(), okX() + 60, okY() + 1, GOLD);

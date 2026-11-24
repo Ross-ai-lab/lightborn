@@ -323,14 +323,12 @@ to Home and redstone mechanisms to Tools.
 Ordinary food and equipment keep their useful subject groups.
 
 **Gifts.** A new gift's tooltip says "New for the Light" in gold, in inventories and other item views. Give all new
-deposits one of each new carried item that fits, through the same rules as single gifts, then opens an **Unlocked**
-window over the book listing everything just given (scrolling when long) until it is closed. Give all non-essential
-items stores every eligible copy that fits, including items already given to the Light (owner, 2026-11-24). It keeps
-equipment, tools, weapons, food and drinks, torches, loaded storage, Sparks, spell tomes, staffs, the Spellstone and
-progression items in the bag. Sea pickles, spider eyes, poisonous potatoes, pufferfish and
-other eligible drops still count. Each first gift pays one Spark.
-Repeat gifts go into storage. Donation feedback shows the affected subgroup's x/x and bulk gifts report each group
-they changed.
+deposits one of each new carried item that fits. Give all non-essential items stores every eligible copy that fits,
+including previously collected items. Both buttons show a receipt with each deposited item, its quantity, its
+collection status and the Sparks earned. The non-essential button keeps equipment, working tools, food and drinks,
+torches, loaded storage, Sparks, spells and progression items in the bag. Ender pearls, rotten flesh, sea pickles,
+spider eyes, poisonous potatoes and pufferfish are eligible. Each first gift pays one Spark. The overall collection
+total is shown in the chest header.
 
 **Set bonuses.** Stat-bearing sets pay at each 25%. Earth grants half a heart per milestone and Food adds
 0.2 health regeneration per second at each milestone.

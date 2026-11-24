@@ -286,6 +286,8 @@ public class VisualTest implements FabricClientGameTest {
                     player.setAttached(ModData.COLLECTION, List.of("minecraft:sea_pickle"));
                     player.setAttached(ModData.STORAGE, List.of(new ItemStack(Items.SEA_PICKLE, 60)));
                     player.getInventory().setItem(9, new ItemStack(Items.SEA_PICKLE, 3));
+                    player.getInventory().setItem(10, new ItemStack(Items.ENDER_PEARL, 8));
+                    player.getInventory().setItem(11, new ItemStack(Items.ROTTEN_FLESH, 12));
                 });
                 ctx.getInput().resizeWindow(1920, 1080);
                 ctx.runOnClient(mc -> {
@@ -335,14 +337,22 @@ public class VisualTest implements FabricClientGameTest {
                         ctx.waitTicks(2);
                         ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
                         ctx.waitTicks(8);
+                        ctx.getInput().setCursorPos(15, 15);
+                        ctx.takeScreenshot("lightborn_collection_bulk_receipt");
                         Soft.require(
-                                sp.getServer()
-                                        .computeOnServer(server ->
-                                                player(server).getInventory().countItem(Items.SEA_PICKLE) == 0
-                                                        && Collection.stored(player(server), "minecraft:sea_pickle")
-                                                                        .getCount()
-                                                                == 63),
-                                "The non-essential donation button did not store all three previously collected sea pickles");
+                                sp.getServer().computeOnServer(server -> {
+                                    var p = player(server);
+                                    return Collection.stored(p, "minecraft:sea_pickle")
+                                                            .getCount()
+                                                    == 63
+                                            && Collection.stored(p, "minecraft:ender_pearl")
+                                                            .getCount()
+                                                    == 8
+                                            && Collection.stored(p, "minecraft:rotten_flesh")
+                                                            .getCount()
+                                                    == 12;
+                                }),
+                                "The non-essential donation did not store the repeat sea pickles and the two new drops");
                     }
                 }
                 ctx.setScreen(() -> null);
