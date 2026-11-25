@@ -8,7 +8,7 @@ import java.util.List;
 public final class Scheduler {
     private Scheduler() {}
 
-    private record Task(long at, Runnable action) {}
+    private record Task(long at, Runnable action, CastContext.Cast cast) {}
 
     private static final List<Task> TASKS = new ArrayList<>();
     private static long tick;
@@ -18,7 +18,7 @@ public final class Scheduler {
     }
 
     public static void later(int ticks, Runnable action) {
-        TASKS.add(new Task(tick + Math.max(1, ticks), action));
+        TASKS.add(new Task(tick + Math.max(1, ticks), action, CastContext.elemental()));
     }
 
     /** Called once per server tick. */
@@ -34,7 +34,8 @@ public final class Scheduler {
         }
         for (Task t : due) {
             try {
-                t.action().run();
+                if (t.cast() == null) t.action().run();
+                else CastContext.resume(t.cast(), t.action());
             } catch (RuntimeException e) {
                 Lightborn.LOG.error("Scheduled task failed", e);
             }

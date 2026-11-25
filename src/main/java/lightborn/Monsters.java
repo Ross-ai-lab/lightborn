@@ -73,6 +73,8 @@ public final class Monsters {
         if (info == null) {
             RandomSource random = level.getRandom();
             if (!fromSpawner(mob)
+                    && mob.getAttached(ModData.THRALL_MASTER) == null
+                    && !Souls.summoned(mob)
                     && !isHeavy(mob)
                     && random.nextDouble() < Balance.WILD_BOSS_CHANCE
                     && Bosses.canSpawnWild(level, mob.blockPosition())

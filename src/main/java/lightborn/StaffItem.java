@@ -66,8 +66,8 @@ public class StaffItem extends Item {
             }
             return stone ? InteractionResult.FAIL : InteractionResult.PASS;
         }
-        if (player.getCooldowns().isOnCooldown(tome)) return InteractionResult.FAIL;
         if (TomeItem.spellOf(tome) == Spell.UPDRAFT) {
+            if (player.getCooldowns().isOnCooldown(tome)) return InteractionResult.FAIL;
             player.startUsingItem(hand);
             return InteractionResult.CONSUME;
         }

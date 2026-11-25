@@ -251,7 +251,9 @@ final class SelfTestFavours {
                 "fountain_victories_raise_guards_only_in_their_dimension",
                 DarkNests.victories(level) == beforeWins + 1
                         && DarkNests.victories(nether) == beforeNetherWins
-                        && DarkNests.guardCount(level, net.minecraft.util.RandomSource.create(1)) >= 3,
+                        && DarkNests.guardRoster(false, DarkNests.victories(level))
+                                        .size()
+                                >= 4,
                 DarkNests.victories(level));
         level.setAttached(DarkNests.NESTS, beforeNests);
         level.setAttached(DarkNests.VICTORIES, beforeWins);
@@ -312,10 +314,9 @@ final class SelfTestFavours {
         var random = RandomSource.create(7);
         boolean inPool = true;
         for (int i = 0; i < 60; i++) {
-            var kind = DarkNests.guardKind(random, 4, 4, netherPool, List.of());
-            var champion = DarkNests.championKind(random, 4, netherPool);
-            inPool &= netherPool.stream().anyMatch(pg -> pg.type().get() == kind)
-                    && netherPool.stream().anyMatch(pg -> pg.type().get() == champion && pg.weight() >= 3);
+            int tier = i % 5 + 1;
+            var kind = DarkNests.guardKind(random, tier, netherPool, List.of());
+            inPool &= netherPool.stream().anyMatch(pg -> pg.type().get() == kind && pg.weight() == tier);
         }
         var snowy = Souls.PAGES.stream()
                 .filter(pg -> Souls.monster(pg.id()).guards().contains("snowy")
@@ -323,9 +324,19 @@ final class SelfTestFavours {
                 .toList();
         int themed = 0;
         for (int i = 0; i < 400; i++) {
-            var kind = DarkNests.guardKind(random, 1, 1, base, snowy);
+            var kind = DarkNests.guardKind(random, 1, base, snowy);
             if (snowy.stream().anyMatch(pg -> pg.type().get() == kind)) themed++;
         }
+        var endRoster = List.of(5, 5, 4, 4, 4, 4, 3, 3);
+        check(
+                "fountain_roster_promotes_adds_then_caps",
+                DarkNests.guardRoster(false, 0).equals(List.of(3, 2, 1, 1))
+                        && DarkNests.guardRoster(true, 0).equals(List.of(4, 3, 2, 1))
+                        && DarkNests.guardRoster(false, 1).equals(List.of(3, 2, 1, 1, 1))
+                        && DarkNests.guardRoster(false, 2).equals(List.of(3, 2, 2, 1, 1))
+                        && DarkNests.guardRoster(false, 999).equals(endRoster)
+                        && DarkNests.guardRoster(true, 999).equals(endRoster),
+                null);
         check(
                 "fountain_guards_fit_their_place",
                 own && noneOdd && inPool && themed > 140 && themed < 260 && has.test(snowy, "minecraft:stray"),

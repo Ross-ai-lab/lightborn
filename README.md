@@ -171,13 +171,13 @@ tab's footer (owner, 2026-11-17: moved out of the tab column, smaller). **Give a
 **One Sparks count** (owner, 2026-11-16): the chest's title bar shows the player's Sparks (carried plus stored) once,
 beside "Chest of Light", for every tab. No tab shows its own count.
 
-**Tabs.** Up to seven tabs in a column 90 px wide (owner, 2026-11-17: 40% slimmer), in this order: **Upgrade Spells (red), Upgrade Gear (pale gold, [Light gear](#light-gear-the-dragons-gifts)),
-Cleanse (violet), Shop (blue), Travel (green), Spirits (purple), Collection (gold)**. **Four appear only as the game
+**Tabs.** Up to eight tabs in a column 90 px wide (owner, 2026-11-17: 40% slimmer), in this order: **Upgrade Spells (red), Upgrade Gear (pale gold, [Light gear](#light-gear-the-dragons-gifts)),
+Crafting (teal), Cleanse (violet), Shop (blue), Travel (green), Spirits (purple), Collection (gold)**. **Four appear only as the game
 reaches them** (owner, 2026-11-18; `ChestTabs`, counts saved on the player and synced to them): the **Shop** after
 surviving one night (in the Overworld at nightfall and alive at dawn; joining mid-night or dying starts the watch
-over), the **Cleanse** after beating one Dark Fountain, **Travel** after beating eight, **Spirits** once the Book of
+over), the **Cleanse** after beating one Dark Fountain, **Travel** after seven Minecraft days of recorded playtime (2 hours 20 minutes), **Spirits** once the Book of
 Souls has been carried (loose or in a Spellstone). The server refuses a hidden tab's actions too. Creative players see
-all seven. A chest opens on the Shop once it is there, else on the Collection. Each tab is its own class
+all eight. A chest opens on the Shop once it is there, else on the Collection. Each tab is its own class
 (`CollectionScreen` keeps the frame, column and scrollbar; `UpgradeTab`, `CleanseTab`, `ShopTab`, `TravelTab`,
 `SpiritsTab`, `CollectionTab`, `UnlockedWindow`).
 **The tome and gear selectors use 20-pixel item icons.** **Upgrade Spells sees the tomes inside a carried Spellstone** (owner, 2026-11-18), each in its stone's place in the
@@ -353,7 +353,8 @@ than merely the full-set prize. There is no generic footer help text.
 ### Crafting
 
 The Crafting tab opens from the start. Search craftable recipes and select one to lay its ingredients on the plate. The result shows how many you
-already own across your inventory and the Chest of Light.
+already own across your inventory and the Chest of Light. Successful crafts send a brief burst of gold sparks
+around the result.
 Craft once or use Craft all (up to 64 operations per click). Ordinary crafting pulls ingredients from the
 player's Chest of Light first and then carried inventory. The manual grid chooses exact stacks for recipes such
 as dyeing, maps or named materials. Grid slots are previews, and the server verifies the inputs and recipe again
@@ -972,7 +973,7 @@ crash, logout or death still returns you; the body is a vanilla mannequin wearin
 | Bear Form | attack | 6 a roar | 100 | 3 min | Legendary | 30 s as a polar bear: +10 hearts (healed in), Resistance I, no knockback, melee twice as hard; right-click roars, striking and throwing back every monster within 5 (4 s between) |
 | Spider Form | utility | - | 100 | 2 min | Legendary | 45 s as a spider: climbs any wall it walks into, Night Vision, no fall damage, melee poisons (Poison I 3 s); right-click webs the monster you look at (24): Slowness VI and Weakness II under a cobweb for as long as you stay a spider (owner, 2026-11-23), all lifted when the form ends (3 s between) |
 | Blaze Form | attack | 5 a fireball | 100 | 3 min | Legendary | 30 s as a blaze: no fire or fall damage, Slow Falling in the air and Levitation while jump is held; right-click throws three fireballs where you look (1.5 s between). Fireballs never set blocks alight |
-| Spirit Walk | utility | - | 100 | 1 min | Basic (owner, 2026-11-23) | 30 s of spectator flight and Night Vision while your body waits where you stood. Right-click returns early |
+| Spirit Walk | utility | - | 100 | 1 min | Basic (owner, 2026-11-23) | 30 s of spectator flight and Night Vision while your body waits where you stood. Hold right-click to zoom like a spyglass and press Control to return early |
 | Shrinking | utility | - | 100 | 60 s | Basic | 30 s at a sixth of your size (`scale` 1/6; owner, 2026-11-23, was a fifth); it ends only once a full-size body fits where you are |
 | Gills | utility | - | 10 | 2.5 min | Basic | 2 min of Conduit Power and Dolphin's Grace |
 | Purify | defence | - | 15 | 30 s | Basic | every harmful effect, fire and freezing gone, and no harmful effect takes hold for 8 s (owner, 2026-11-23; was 5). Its tome is the Tome of Purify (was "of Purity") |
@@ -1118,11 +1119,11 @@ the Sparks it pays, the gear and tomes it may drop, and when it may guard a Dark
 
 | Tier | Kinds | Kills for its spirit | Book slots | Pays | Dark Fountains |
 |---|---|---|---|---|---|
-| 1 | Zombie, Husk, Drowned, Skeleton, Stray, Bogged, Parched, Spider, Cave Spider, Creeper, Crawler, Darkness Zombie, Vampire Zombie, Frostbitten Zombie, Mire Zombie, Ember Skeleton, Dune Skeleton, Weaver Spider, Hunter Spider, Canopy Spider, Deep Stalker, Zombie Villager, Pillager, Slime, Sulfur Cube, Silverfish, Endermite, Zombie Horse, Camel Husk, Zombie Nautilus, Bat Zombie, Endersoul Clone, Explorer, Bloated Corpse, Soul Stealer, Tropical Spider, Cave Creeper, Toxic Slime, Lava Slime, Nightmare, Gelid, Thicket, Verdant, Murk, Venomous Zombie, Snowy Zombie, Frozen Zombie (Nemo's), Venomous Skeleton, Snowy Skeleton, Frozen Skeleton, Crimson Skeleton, Warped Skeleton, Venomous Spider, Snowy Spider, Frozen Spider, Snow Spider, Ice Spider, Sand Spider, Venomous Creeper, Snowy Creeper, Frozen Creeper, Scorched Creeper (62) | 40 | 1 | 1 Spark | from the first day |
-| 2 | Deadeye Skeleton, Enderman, Witch, Drowned Captain, Dark Phantom, Blister Zombie, Split Head Zombie, Rotten Mutant, Giant Bogged, Giant Parched, Giant Spider, Giant Cave Spider, Piglin, Corsair, Frozen Zombie (Mob Variants), Armored Spider, Infected Piglin, Zombified Piglin, Wither Skeleton, Vindicator, Vex, Phantom, Blaze, Ghast, Breeze, Magma Cube, Guardian, Shulker, Hoglin, Zoglin, Creaking, Forgotten, Undead Warrior, Illusioner (Friends & Foes), Iceologer, Barnacle, Orvane, the Last Scribe, Giant (38) | 30 | 2 | 2 or 3 Sparks | from the first day |
-| 3 | Giant Zombie, Giant Skeleton, Giant Stray, Giant Husk, Giant Drowned, Giant Creeper, Giant Witch, Spitter, Illusioner, Evoker, Piglin Brute, Executioner, Infected Piglin Brute, Zombified Piglin Brute, Elder Guardian (15) | 20 | 3 | 5 Sparks and an item, every kill | from the first day (half weight on a stage-1 fountain) |
-| 4 | Giant Enderman, Ravager, Wildfire (3) | 10 | 4 | 10 Sparks and an item | **from the second week** (a third weight on a stage-1 fountain) |
-| 5 | Zombie Brute, Mutant Brute, Mutant Zombie, Mutant Skeleton, Mutant Creeper, Mutant Enderman, Warden, Wither, Dark Dragon (9) | 3 | 5 (a whole bought-out book) | 20–35 Sparks and an item, with a 20% chance of an additional Legendary piece | **from the third week** |
+| 1 | Zombie, Husk, Drowned, Skeleton, Stray, Bogged, Parched, Spider, Cave Spider, Creeper, Crawler, Darkness Zombie, Vampire Zombie, Frostbitten Zombie, Mire Zombie, Ember Skeleton, Dune Skeleton, Weaver Spider, Hunter Spider, Canopy Spider, Deep Stalker, Zombie Villager, Pillager, Slime, Sulfur Cube, Silverfish, Endermite, Zombie Horse, Camel Husk, Zombie Nautilus, Bat Zombie, Endersoul Clone, Explorer, Bloated Corpse, Soul Stealer, Tropical Spider, Cave Creeper, Toxic Slime, Lava Slime, Nightmare, Gelid, Thicket, Verdant, Murk, Venomous Zombie, Snowy Zombie, Frozen Zombie (Nemo's), Venomous Skeleton, Snowy Skeleton, Frozen Skeleton, Crimson Skeleton, Warped Skeleton, Venomous Spider, Snowy Spider, Frozen Spider, Snow Spider, Ice Spider, Sand Spider, Venomous Creeper, Snowy Creeper, Frozen Creeper, Scorched Creeper (62) | 40 | 1 | 1–2 Sparks, 10% for two | starting roster |
+| 2 | Deadeye Skeleton, Enderman, Witch, Drowned Captain, Dark Phantom, Blister Zombie, Split Head Zombie, Rotten Mutant, Giant Bogged, Giant Parched, Giant Spider, Giant Cave Spider, Piglin, Corsair, Frozen Zombie (Mob Variants), Armored Spider, Infected Piglin, Zombified Piglin, Wither Skeleton, Vindicator, Vex, Phantom, Blaze, Ghast, Breeze, Magma Cube, Guardian, Shulker, Hoglin, Zoglin, Creaking, Forgotten, Undead Warrior, Illusioner (Friends & Foes), Iceologer, Barnacle, Orvane, the Last Scribe, Giant (38) | 30 | 2 | 2–4 Sparks | starting roster |
+| 3 | Giant Zombie, Giant Skeleton, Giant Stray, Giant Husk, Giant Drowned, Giant Creeper, Giant Witch, Spitter, Illusioner, Evoker, Piglin Brute, Executioner, Infected Piglin Brute, Zombified Piglin Brute, Elder Guardian (15) | 20 | 3 | 5–6 Sparks and higher gear odds | starting roster |
+| 4 | Giant Enderman, Ravager, Wildfire (3) | 10 | 4 | 7–10 Sparks and higher gear odds | Nether starter, later Overworld rosters |
+| 5 | Zombie Brute, Mutant Brute, Mutant Zombie, Mutant Skeleton, Mutant Creeper, Mutant Enderman, Warden, Wither, Dark Dragon (9) | 3 | 5 (a whole bought-out book) | 11–20 Sparks and higher gear odds, plus a 10% chance of a bonus Legendary roll | later rosters |
 
 **How every kind is placed** (owner, 2026-11-20: "judge for real all", no kind kept as an anchor): a **health
 band** from health x (1 + armour / 20), cut at 25, 50, 90 and 150, and a **hit band** from one Normal hit, cut at
@@ -1190,7 +1191,7 @@ spells' tables live in `SpellUpgrades.java`; tomes have no durability, so no upg
 count, duration, or a spell's own special number. **No stat kind repeats inside a tier**: a tier's three branches
 always raise three different things. **Tier III is never a stat boost: every tier III branch is a unique perk** that
 changes how the spell plays (the model is Comet's Twin Stars, a second comet falling beside the first; others:
-Fireball's Living Bomb, Blink's Echo Step free recast, Ice Nova's Ice Prison, Felling's Forest Sweep, Treasure
+Fireball's Living Bomb, Blink's Echo Step free recast (one extra cast within four seconds, from both the staff and the Spellstone), Ice Nova's Ice Prison, Felling's Forest Sweep, Treasure
 Thread's Second Thread). The rule holds for every spell added later. The self-test enforces both halves (`testTree`).
 **Stat branches are named for what they do** (owner, 2026-11-23: "more damage or cheaper mana instead of bright
 motes"): More Damage, Less Mana, Shorter Cooldown, Wider Area, Longer Reach, Lasts Longer, More Healing and the like,
@@ -1271,7 +1272,8 @@ upgraded mana, cooldown and power and lists the branches in use, without tier or
 
 ## 7. Loot
 
-- Drop chance 14% x Item Find. **There is no item level on items** (owner, 2026-11-16).
+- Ordinary monster gear drop chance is 7% × Item Find. Tier-three and stronger monsters have a 50% first roll
+  and a 12.5% × Item Find chance for a second roll. Bosses drop one or two pieces with equal odds. **There is no item level on items** (owner, 2026-11-16).
 - Base tiers: **Iron, Diamond, Netherite**, all vanilla materials. Lightborn's own Voidsteel, Sunforged and Starmetal
   tiers are deleted (owner, 2026-11-16).
 - **Which tier drops is decided by two things** (owner, 2026-11-16; `OreTiers`):
@@ -1295,7 +1297,7 @@ upgraded mana, cooldown and power and lists the branches in use, without tier or
      before the first diamond ore), it drops the best tier the player has unlocked instead, so the ore caps the tier
      and strength only lifts the odds. A Cleanse cache counts as tier 2, tier 3 from 4 shards and Boss from the
      Legendary threshold; a Dark Fountain's stage 1 as tier 2, stage 2 as tier 3, stage 3 as Boss. So a plain zombie never drops diamond or netherite.
-- **Legendary monster loot.** A tier-five monster has a 20% chance, multiplied by Item Find, to drop an extra
+- **Legendary monster loot.** A tier-five monster has a 10% chance, multiplied by Item Find, to drop an extra
   Legendary piece of the best material its killer has mined. A boss's first roll is always Legendary and its
   tome is always tier five. Gear from monsters and bosses comes with empty upgrade trees.
 
@@ -1414,7 +1416,7 @@ of replacing each other:
 | Chestplate | Bulwark (Resistance I below half health) · Thornlight (attackers in reach take 3 and burn) · Second Dawn (once every 10 minutes a killing blow leaves you with 2 hearts) |
 | Greaves | Swift by Night (Speed I at night) · Mender's Gait (sprinting restores half a heart every 3 s) · Steadfast (no knockback) |
 | Boots | Featherfall (no fall damage) · Tide Runner (Dolphin's Grace in water) · Spring Step (Jump Boost II) |
-| Staff | Mana Font (one spell in five costs no mana) · Spellfire (spell hits set monsters alight for 2 s) · Echoing Staff (one spell in eight skips its cooldown) |
+| Staff | Spellfrost (every fourth cast freezes enemies it hits for 2 s) · Spellfire (every fourth cast ignites enemies it hits for 2 s) · Echoing Staff (one spell in eight skips its cooldown) |
 | Wings | Tireless Wings (mend while gliding) · Star Glide (the wind keeps pushing you on) · Soft Landing (no fall or wall damage) |
 | Bow, crossbow | Twin Shot (each arrow flies with a twin that cannot be picked up) · Frost Arrow (Slowness II for 3 s and 34 frostbite, a bite in three arrows) · Quiver of Light (one arrow in three is not used up) |
 | Tool | Vein Miner (an ore breaks up to 8 more of it touching it) · Smelting Touch (drops come out smelted) · Miner's Fervour (each block broken gives Haste II for 3 s) |
@@ -1434,7 +1436,9 @@ tier III one.
 **Branches are named for what they do, and no tree raises the same stat in tier I and in tier II** (owner,
 2026-11-23: one aspect per tree, as with spells; `gear_trees_raise_each_stat_once`). **The staff's tree is all
 attack** (owner, 2026-11-23): spell power, mana and its return, spell crits and their force, shorter cooldowns, never
-health, armour, toughness or knockback; its **Spellfire** replaced Spell Ward's shield. Every hit has a 5% base crit
+health, armour, toughness or knockback. Spellfrost occupies the old Mana Font branch, so earlier purchases transfer.
+Spellfire and Spellfrost count successful casts on each staff, including utility spells. A charged cast affects
+each enemy it hits once. Every hit has a 5% base crit
 chance, which the weapon tree's More Crits takes to 10%.
 
 | Piece | Tier I | Tier II |
@@ -1536,10 +1540,9 @@ More Health gear upgrade grants one extra heart.
   vanilla eye spots. Bodies keep normal lighting; eyes light no blocks and draw no outline. They shine the same
   inside and outside a ward, so a zombie at the dome's wall in black night shows only its eyes.
 - **Sparks**: **every player kill of a monster pays Sparks by its tier** (owner, 2026-11-24;
-  [the five tiers](#the-five-tiers)): Basic 1 to 2, Uncommon 3 to 6, Rare 7 to 10, Legendary 11 to 19, Mythic 20 to 35. A
+  [the five tiers](#the-five-tiers)): Basic 1 to 2 (10% for two), Uncommon 2 to 4, Rare 5 to 6, Legendary 7 to 10, Mythic 11 to 20. A
   kind the Book of Souls does not list counts as tier 1, an unlisted giant as tier 3 (`Lightborn.killSparks`,
-  `Balance.KILL_SPARKS_MIN/MAX`). Bosses pay their boss Sparks on top. A tier 3 kind and up also drops at least one
-  rolled item every time (owner, 2026-11-17); before any ore is mined that item is the first tier. Spawner monsters
+  `Balance.KILL_SPARKS_MIN/MAX`). Bosses pay their boss Sparks on top. Tier 3 and above use the higher gear odds from [Loot](#7-loot). Spawner monsters
   still pay nothing.
 - **Heavy** monsters (base health 80+: the mutants, the Wildfire, vanilla bosses) never get a Lightborn
   boss promotion. Companion monsters get loot like any monster, and their natural spawns respect the
@@ -1554,7 +1557,7 @@ More Health gear upgrade grants one extra heart.
   |---|---|---|
   | Darkness (`lightborn:darkness_zombie`) | ash-black to dusk violet, glowing violet eyes, thin smoke | each hit it lands slows you (Slowness II, 3 s) |
   | Vampire (`lightborn:vampire_zombie`) | grave-pale skin, blood-red shirt, black trousers, glowing red eyes | each hit heals it by 40% of the damage (dark-red hearts show it feed) |
-  | Giant (`lightborn:giant_zombie`) | 2x size (about 4 blocks: cannot pass a door), moss-grey skin, leather-brown rags, amber eyes | 60 HP (3x), hits 4.5 (1.5x), slower (0.19 vs 0.23), 60% knockback resistance, steps up whole blocks; never a baby, never calls giants, never becomes a drowned. Pays like the old champions: always 1 item (+25% x Item Find a second) and 25% a tome |
+  | Giant (`lightborn:giant_zombie`) | 2x size (about 4 blocks: cannot pass a door), moss-grey skin, leather-brown rags, amber eyes | 60 HP (3x), hits 4.5 (1.5x), slower (0.19 vs 0.23), 60% knockback resistance, steps up whole blocks; never a baby, never calls giants, never becomes a drowned. Pays like the old champions: 50% for a first item, plus 12.5% × Item Find for a second and 25% a tome |
 
   Melee hits only carry the traits. Each kind sounds its own: giants a deep slow groan and an iron golem's heavy
   tread, vampires higher with a hiss in their idle sounds and a bite on every hit, darkness zombies low and muffled.
@@ -1716,14 +1719,16 @@ material; anything else takes half a minute, obsidian slow (strength 6, pickaxe-
 from the core over 15 seconds, out to 56 blocks: growth, sculk veins and dead bushes go, sculk, mycelium and coarse
 dirt turn back to grass (mud too, soul sand and soil back to sand), blackstone and deepslate to stone, goo to water,
 wither roses to poppies and withered grass to green, and a little grass and a few poppies spring up; the ashen trees
-stay, a scar; nothing is said in chat. **Guard parties** start with five to six enemies in the Overworld and six to seven in the Dark, including
-a tier-3 champion from the local pool. The fountain haze is lighter and Night Vision clears it.
-Every cleared fountain increases the difficulty and rewards for later fights in that dimension. Each win adds a
-guard up to 14 and strengthens their health, damage and movement further. At two wins, a champion and
-tier 4 enemies can join, and at four wins tier 5 can join. Loot starts with 7–11 Sparks, Dark Shards and Uncommon
-gear. Later wins increase the payout and can award Rare, Legendary and Mythic gear. Local growth stage
-and victory progress both affect the reward. The Dark pays half again in Sparks and shards, with an extra
-gear drop after the first win. Existing worlds start fresh dimension counters and keep their total for chest unlocks.
+stay, a scar; nothing is said in chat. **Guard parties** start with four enemies. The Overworld starts with two tier 1 guards, one tier 2 and one tier 3.
+The Nether starts with one each from tiers 1, 2, 3 and 4. The first clear adds a tier 1 guard, the next promotes the
+lowest eligible guard one tier, and subsequent clears alternate between these steps. At eight guards, further
+clears only promote. The final cap is two tier 3, four tier 4 and two tier 5 guards. The Overworld and Nether keep
+separate clear counts. Earlier clears count toward the new rosters. The fountain haze is lighter and Night Vision
+clears it.
+
+Fountain core loot grows with victory progress and local growth stage. Starts pay 7–11 Sparks, Dark Shards and an
+Uncommon roll. Later clears can award Rare, Legendary and Mythic gear. The Nether pays half again in Sparks and
+shards, with an extra gear drop after the first win.
 
 **Guards stay until slain.** They stand immediately (Spawn Animations excludes them) and are persistent.
 When all guards vanish without being defeated, the next approach wakes a fresh group. Dying within 64 blocks
@@ -1740,8 +1745,7 @@ slimes, the Murk, the Bloated Corpse and the venomous kinds; **coast** (beach, o
 Corsair; **forest and plains** (and taiga, savanna) the raiders: Pillager, Vindicator, Evoker, Illusioner. A biome in no
 group has night kinds only. **Never a guard:** a Nether or End kind in the Overworld, a world boss (Wither, Ender
 Dragon, Warden, Elder Guardian, Orvane, the Last Scribe), a mount, a water-only kind, vanilla's mindless Giant, or a
-summon or trick (Vex, Endersoul Clone, Creaking). The champion is a mutant from the pool when one is in season, else a
-tier 3 or stronger kind, else the strongest in season. The dimension’s victory counter opens the higher tiers.
+summon or trick (Vex, Endersoul Clone, Creaking). Each roster slot draws from its own tier in the dimension's pool.
 
 **The Dark (the old Nether) has Dark Fountains too** (owner, 2026-11-20: "with their own respective enemies"; they
 are stronger, see [The Dark](#15-the-dark)); the Hollow (the old End) has none (owner, 2026-11-21, see
@@ -1790,7 +1794,7 @@ Cleanse ([The Dragon's Tale](#orvane-the-last-scribe)).
 - **Grudge.** A boss that kills you comes back as the boss of your next boss Cleanse, as strong as before, with
   "remembers you" on its bar. Its trophy is guaranteed. When several players share a Cleanse, the caller's grudge
   comes and the others wait for their own.
-- **Rewards.** Every boss kill pays three rolled items and a tome, plus 3 Sparks and a 50% chance of a Dark Shard; a named
+- **Rewards.** Every boss kill pays one or two rolled items and a tome, plus 3 Sparks and a 50% chance of a Dark Shard; a named
   boss adds 5 more. Your first credited kill of each named boss grants its trophy (25% after that) and its
   **mounted head**: the boss's face, cut from its own skin and glowing eyes by `tools/make_heads.py`, on an oak and
   ivory plaque (legendary beam; inventory fallback). Trophies and heads join the Chest of Light's Lightborn set, and a
@@ -2026,16 +2030,15 @@ within 8 of a player. There are no seasonal crop restrictions.
 ### Furniture
 
 No 26.3 furniture mod fits (Handcrafted, Another Furniture, Supplementaries and Comforts have no 26.3 build; Macaw's
-Furniture is 778 items), so Lightborn adds eight pieces of its own: **chair, table, couch, fridge, wardrobe, lamp, rug
-and shelf**. One design per piece, never one per wood type, so the Light chest gains about 8 items, not 80. Crafted
+Furniture is 778 items), so Lightborn adds seven pieces of its own: **chair, table, couch, fridge, lamp, rug and shelf**. Each has one design. Crafted
 from vanilla materials (planks of any wood, wool, iron, glass, ice for the fridge). Hand-drawn models in the ivory,
 oak and teal home style. The table is three planks over four stick legs (`PPP`/`S S`/`S S`): its first grid was the
 wooden pickaxe's (owner, 2026-11-20). **No Lightborn recipe may share a grid with any other loaded recipe**, vanilla's
 or a companion mod's; `lightborn_recipes_clash_with_none` lays out each one with its ingredients' first and last
 accepted items and offers it to every crafting recipe.
 
-Chairs and the couch seat the player with a right-click. The two-block wardrobe has one 27-slot inventory that stores
-anything; the fridge's 27 slots accept food only. The lamp emits light 14. The shelf stores and displays up to three
+Chairs and the couch seat the player with a right-click. The fridge's 27 slots accept food only. Existing placed wardrobes still open and keep their contents.
+The wardrobe item and recipe are retired. The lamp emits light 14. The shelf stores and displays up to three
 real items, keeping them through reloads and dropping them when broken.
 
 ## 14. Atmosphere and music

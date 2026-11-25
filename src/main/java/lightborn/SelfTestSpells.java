@@ -136,6 +136,41 @@ final class SelfTestSpells {
         Spells.PROJECTILES.subList(first, Spells.PROJECTILES.size()).clear();
     }
 
+    private static void testStaffElements() {
+        var playerStaff = caster.getMainHandItem();
+        int initialProjectiles = Spells.PROJECTILES.size();
+        boolean cadence = true, frost = false, fire = false;
+        for (int branch = 0; branch < 2; branch++) {
+            var staff = new ItemStack(ModItems.STARTER_STAFF);
+            LightGearTree.write(staff, new int[] {0, 0, branch}, new int[] {1, 1, 1 << branch});
+            caster.setItemInHand(InteractionHand.MAIN_HAND, staff);
+            var tome = new ItemStack(ModItems.TOMES.get(Spell.ARCANE_BOLT));
+            for (int cast = 1; cast <= 4; cast++) {
+                caster.getCooldowns().removeCooldown(caster.getCooldowns().getCooldownGroup(tome));
+                Progression.setMana(caster, (float) Progression.maxMana(caster));
+                int before = Spells.PROJECTILES.size();
+                boolean success = Spells.cast(caster, tome);
+                cadence &= success
+                        && Spells.PROJECTILES.size() == before + 1
+                        && (Spells.PROJECTILES.getLast().cast != null) == (cast == 4);
+            }
+            if (Spells.PROJECTILES.size() > initialProjectiles) {
+                var zombie = EntityTypes.ZOMBIE.create(level, EntitySpawnReason.COMMAND);
+                zombie.setPos(caster.position().add(5, 0, 0));
+                Spells.impact(level, Spells.PROJECTILES.getLast(), zombie.position(), zombie);
+                if (branch == 0) frost = Freeze.frozen(zombie);
+                else fire = zombie.getRemainingFireTicks() >= 39;
+                zombie.discard();
+            }
+            Spells.PROJECTILES
+                    .subList(initialProjectiles, Spells.PROJECTILES.size())
+                    .clear();
+        }
+        caster.setItemInHand(InteractionHand.MAIN_HAND, playerStaff);
+        Spells.forget(caster);
+        check("fourth_staff_cast_charges_delayed_projectiles", cadence && frost && fire, List.of(cadence, frost, fire));
+    }
+
     /** The owner's round of 2026-11-18: tiers, tome drops, the Spellstone in the upgrade tree, hints, night, tabs. */
     private static void testRound18() {
         check(
@@ -193,10 +228,16 @@ final class SelfTestSpells {
         caster.setAttached(ChestTabs.FOUNTAINS_BEATEN, 7);
         boolean some = ChestTabs.shop(caster) && ChestTabs.cleanse(caster) && !ChestTabs.travel(caster);
         ChestTabs.fountainBeaten(caster);
+        var playTime = net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.PLAY_TIME);
+        int originalTime = caster.getStats().getValue(playTime);
+        caster.getStats().setValue(caster, playTime, ChestTabs.TRAVEL_PLAY_TICKS - 1);
+        boolean waits = !ChestTabs.travel(caster);
+        caster.getStats().setValue(caster, playTime, ChestTabs.TRAVEL_PLAY_TICKS);
         check(
                 "chest_tabs_open_in_turn",
-                closed && some && ChestTabs.travel(caster),
+                closed && some && waits && ChestTabs.travel(caster),
                 "closed=" + closed + " some=" + some);
+        caster.getStats().setValue(caster, playTime, originalTime);
         caster.removeAttached(ChestTabs.NIGHTS_SURVIVED);
         caster.removeAttached(ChestTabs.FOUNTAINS_BEATEN);
 
@@ -362,6 +403,7 @@ final class SelfTestSpells {
         check("spells_need_tome", !Spells.cast(caster, caster.getOffhandItem()), null);
         testSpellstoneBag();
         testArcaneEcho();
+        testStaffElements();
         testRound18();
 
         // Spell damage carries the global half-damage scale.
@@ -455,10 +497,46 @@ final class SelfTestSpells {
         double x0 = caster.getX();
         boolean blinked = castTome(Spell.BLINK);
         check("spells_blink", blinked && caster.getX() > x0 + 4, String.format("%.1f -> %.1f", x0, caster.getX()));
+        testEchoStep();
         testFlightAndCage();
         testTaunt();
         testUtilitySpells();
         testCollection();
+    }
+
+    private static void testEchoStep() {
+        var blink = new ItemStack(ModItems.TOMES.get(Spell.BLINK));
+        SpellUpgrades.write(blink, new int[] {0, 0, 1});
+        var staff = caster.getMainHandItem();
+        var old = caster.getOffhandItem();
+        boolean ok = true;
+        for (boolean stone : new boolean[] {false, true}) {
+            Spells.forget(caster);
+            Perks.spendFree(caster, Spell.BLINK);
+            Progression.setMana(caster, (float) Progression.maxMana(caster));
+            var castItem = blink.copy();
+            if (stone) {
+                var spellstone = new ItemStack(Spellstone.ITEM);
+                Spellstone.store(spellstone, List.of(ItemStack.EMPTY, castItem));
+                caster.setItemInHand(InteractionHand.OFF_HAND, spellstone);
+                Spellstone.cast(caster, 1, 0);
+            } else {
+                caster.setItemInHand(InteractionHand.OFF_HAND, castItem);
+                staff.getItem().use(level, caster, InteractionHand.MAIN_HAND);
+            }
+            boolean ready =
+                    Perks.free(caster, Spell.BLINK) && caster.getCooldowns().isOnCooldown(castItem);
+            double mana = Progression.mana(caster);
+            var first = caster.position();
+            if (stone) Spellstone.cast(caster, 1, 0);
+            else staff.getItem().use(level, caster, InteractionHand.MAIN_HAND);
+            ok &= ready
+                    && !Perks.free(caster, Spell.BLINK)
+                    && caster.position().distanceToSqr(first) > 1
+                    && Progression.mana(caster) == mana;
+        }
+        caster.setItemInHand(InteractionHand.OFF_HAND, old);
+        check("blink_echo_step_passes_both_cast_routes", ok, null);
     }
 
     /**

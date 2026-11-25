@@ -576,36 +576,28 @@ public final class DarkNests {
         return out;
     }
 
-    /**
-     * A guard's kind from a pool (owner, 2026-11-17: all kinds, not just zombies), never a mutant, as a fountain's one
-     * mutant is its first guard. Tiers 1 and 2 are always in the pool; tier 3 comes at half weight on a stage-1 nest and
-     * tier 4 at a third, full from stage 3. Tier 4 waits for the second week and tier 5 for the third (owner,
-     * 2026-11-18). Null when nothing in the pool is in season.
-     */
-    static EntityType<? extends Mob> guardKind(RandomSource random, int stage, int week, List<Souls.Page> pool) {
-        var kinds = new ArrayList<EntityType<? extends Mob>>();
-        var weights = new ArrayList<Double>();
-        double total = 0;
-        for (var page : pool) {
-            if (mutant(page) || !inSeason(page, week)) continue;
-            double w = page.weight() <= 2 ? 1 : Math.min(1, stage / (double) (page.weight() - 1));
-            kinds.add(page.type().get());
-            weights.add(w);
-            total += w;
+    /** Draw exactly the requested roster tier and retain the local biome's share when it has a match. */
+    static EntityType<? extends Mob> guardKind(
+            RandomSource random, int tier, List<Souls.Page> base, List<Souls.Page> themed) {
+        var regional = themed.stream().filter(page -> page.weight() == tier).toList();
+        var choices = !regional.isEmpty() && random.nextBoolean()
+                ? regional
+                : base.stream().filter(page -> page.weight() == tier).toList();
+        if (choices.isEmpty()) {
+            // Keep working when a companion providing every local example of a tier is absent.
+            int difference = base.stream()
+                    .mapToInt(page -> Math.abs(page.weight() - tier))
+                    .min()
+                    .orElse(5);
+            choices = base.stream()
+                    .filter(page -> Math.abs(page.weight() - tier) == difference)
+                    .toList();
         }
-        double r = random.nextDouble() * total;
-        for (int i = 0; i < kinds.size(); i++) if ((r -= weights.get(i)) <= 0) return kinds.get(i);
-        return null;
+        return choices.isEmpty()
+                ? ModEntities.MIRE_ZOMBIE
+                : choices.get(random.nextInt(choices.size())).type().get();
     }
 
-    /** About half an Overworld fountain's guards are its biome's own, the rest the night's; Nether and End all theirs. */
-    static EntityType<? extends Mob> guardKind(
-            RandomSource random, int stage, int week, List<Souls.Page> base, List<Souls.Page> themed) {
-        EntityType<? extends Mob> kind = null;
-        if (!themed.isEmpty() && random.nextBoolean()) kind = guardKind(random, stage, week, themed);
-        if (kind == null) kind = guardKind(random, stage, week, base);
-        return kind != null ? kind : ModEntities.MIRE_ZOMBIE;
-    }
     // ---------------------------------------------------------------- dark that never took, and nests that end
 
     /** Each nest's core (as a long) and the reach of the dark last laid round it. */
@@ -729,132 +721,93 @@ public final class DarkNests {
         if (changed) save(level, nests);
     }
 
-    /** The first guard party is small. Later wins add guards before health and damage take over. */
-    static int guardCount(ServerLevel level, RandomSource random) {
-        return (int) Math.min(MAX_GUARDS, (dark(level) ? 6L : 5L) + random.nextInt(2) + victories(level));
+    static final int MAX_GUARDS = 8;
+    private static final int[] MAX_BY_TIER = {0, MAX_GUARDS, MAX_GUARDS, 2, 4, 2};
+    private static final String ROSTER_TAG = "lightborn_fountain_roster";
+
+    /** Old active groups are replaced on the next approach. Their saved clear counters stay in use. */
+    static boolean obsoleteGuard(net.minecraft.world.entity.Entity entity) {
+        return entity.entityTags().contains(GUARD_TAG) && !entity.entityTags().contains(ROSTER_TAG);
+    }
+
+    static List<Integer> guardRoster(boolean nether, int wins) {
+        int[] counts = nether ? new int[] {0, 1, 1, 1, 1, 0} : new int[] {0, 2, 1, 1, 0, 0};
+        int size = 4;
+        for (int step = 1; step <= wins; step++) {
+            if (step % 2 == 1 && size < MAX_GUARDS) {
+                counts[1]++;
+                size++;
+            } else if (!promoteGuard(counts)) {
+                if (size == MAX_GUARDS) break;
+                counts[1]++;
+                size++;
+            }
+        }
+        var roster = new ArrayList<Integer>(size);
+        for (int tier = 5; tier >= 1; tier--) for (int i = 0; i < counts[tier]; i++) roster.add(tier);
+        return List.copyOf(roster);
+    }
+
+    private static boolean promoteGuard(int[] counts) {
+        for (int tier = 1; tier < 5; tier++) {
+            if (counts[tier] == 0 || counts[tier + 1] >= MAX_BY_TIER[tier + 1]) continue;
+            counts[tier]--;
+            counts[tier + 1]++;
+            return true;
+        }
+        return false;
     }
 
     static int fightRank(ServerLevel level, int stage) {
         return Math.min(stage, 1 + Math.min(3, victories(level) / 2));
     }
 
-    private static void scaleGuard(Mob mob, int victories) {
-        double progress = Math.log1p(victories * .2);
-        scaleGuardStat(mob, net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH, .32 * progress);
-        scaleGuardStat(mob, net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE, .22 * progress);
-        // Ranged guards often use fixed projectile values instead of their attack attribute.
-        scaleGuardStat(mob, net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED, .06 * progress);
-        mob.setHealth(mob.getMaxHealth());
-    }
-
-    private static void scaleGuardStat(
-            Mob mob,
-            net.minecraft.core.Holder<net.minecraft.world.entity.ai.attributes.Attribute> stat,
-            double amount) {
-        var attribute = mob.getAttribute(stat);
-        if (attribute != null && amount > 0)
-            attribute.addPermanentModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
-                    ModItems.id("fountain_veteran"),
-                    amount,
-                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-    }
-
-    static final int MAX_GUARDS = 14;
-
     /**
-     * A real mutant: a monster of the two mutant mods of tier 3 or more (owner, 2026-11-18: the Spitter and up). Other
-     * companion mods' kinds (Nemo's, Variants & Ventures, Friends & Foes) guard like vanilla's.
-     */
-    static boolean mutant(Souls.Page page) {
-        return page.weight() >= 3
-                && (page.id().startsWith("mutantmonsters:") || page.id().startsWith("mutantszombies:"));
-    }
-
-    /** Whether a kind may guard a nest yet: tier 4 from the second week, tier 5 from the third (owner, 2026-11-18). */
-    static boolean inSeason(Souls.Page page, int week) {
-        return page.weight() <= 3 || page.weight() == 4 && week >= 2 || week >= 3;
-    }
-
-    /**
-     * The first guard is the fountain's champion, and only one: a mutant from its pool when one is in season, else a
-     * tier 3 or stronger kind (a giant; the Nether's Piglin Brutes and Wildfire), else the strongest kind in season.
-     */
-    static EntityType<? extends Mob> championKind(RandomSource random, int week, List<Souls.Page> pool) {
-        var mutants = new ArrayList<EntityType<? extends Mob>>();
-        var strong = new ArrayList<EntityType<? extends Mob>>();
-        var best = new ArrayList<EntityType<? extends Mob>>();
-        int top = 0;
-        for (var page : pool) if (inSeason(page, week)) top = Math.max(top, page.weight());
-        for (var page : pool) {
-            if (!inSeason(page, week)) continue;
-            var type = page.type().get();
-            if (mutant(page)) mutants.add(type);
-            else if (page.weight() >= 3) strong.add(type);
-            if (page.weight() == top) best.add(type);
-        }
-        var from = !mutants.isEmpty() ? mutants : !strong.isEmpty() ? strong : best;
-        return from.isEmpty() ? ModEntities.GIANT_ZOMBIE : from.get(random.nextInt(from.size()));
-    }
-
-    /**
-     * Day guards wake once a day when a player comes close: {@link #guardCount} monsters from the fountain's pools round
+     * Day guards wake once a day when a player comes close: its current roster from the fountain's pools round
      * the core. Any of yesterday's still standing (the Dark's never crumble) go first.
      */
     static void guards(ServerLevel level, ServerPlayer p, Nest nest, int stage) {
         var random = level.getRandom();
-        int wins = victories(level);
-        int want = guardCount(level, random), woke = 0, week = Math.min(3, 1 + wins / 2);
-        int rank = fightRank(level, stage);
+        var roster = guardRoster(dark(level), victories(level));
+        int woke = 0;
         String tag = guardOf(nest.core);
         for (var old : level.getEntities(
                 net.minecraft.world.level.entity.EntityTypeTest.forClass(Mob.class),
                 m -> m.entityTags().contains(tag))) old.discard();
         var base = pool(level, nest.core, false);
         var themed = pool(level, nest.core, true);
-        var all = new ArrayList<>(base);
-        all.addAll(themed);
-        var champions = wins >= 2
-                ? all
-                : all.stream()
-                        .filter(page -> page.weight() == 3 && !mutant(page))
-                        .toList();
-        if (wins < 2) {
-            base = base.stream().filter(page -> page.weight() <= 2).toList();
-            themed = themed.stream().filter(page -> page.weight() <= 2).toList();
-        }
         boolean overworld = level.dimension() == Level.OVERWORLD;
-        for (int i = 0; i < want * 3 && woke < want; i++) {
-            var type = woke == 0 && !champions.isEmpty()
-                    ? championKind(random, week, champions)
-                    : guardKind(random, rank, week, base, themed);
-            Mob mob = VariantCompat.keepKind(type.create(level, EntitySpawnReason.MOB_SUMMONED));
-            if (mob == null) continue;
-            double a = random.nextDouble() * Math.PI * 2, r = 3 + random.nextDouble() * 4;
-            int x = nest.core.getX() + (int) Math.round(Math.cos(a) * r),
-                    z = nest.core.getZ() + (int) Math.round(Math.sin(a) * r);
-            var at = overworld
-                    ? new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z)
-                    : guardFloor(level, x, z, nest.core.getY());
-            if (at == null) {
-                mob.discard();
-                continue;
-            }
-            mob.setPos(Vec3.atBottomCenterOf(at));
-            if (!level.noCollision(mob) || LightWards.covers(level, at)) {
-                mob.discard();
-                continue;
-            }
-            Monsters.setRank(mob, MonsterInfo.NORMAL);
-            scaleGuard(mob, wins);
-            mob.addTag(GUARD_TAG);
-            mob.addTag(guardOf(nest.core));
-            // A guard stays until slain: never despawned for distance or idleness, and shown at once rather than
-            // hidden for Spawn Animations' dig-up (the tag that mod skips).
-            mob.setPersistenceRequired();
-            mob.addTag("ts.sa.exclude");
-            if (level.addFreshEntity(mob)) {
-                Hordes.aim(mob, p);
-                woke++;
+        for (int tier : roster) {
+            for (int retry = 0; retry < 6; retry++) {
+                var type = guardKind(random, tier, base, themed);
+                Mob mob = VariantCompat.keepKind(type.create(level, EntitySpawnReason.MOB_SUMMONED));
+                if (mob == null) continue;
+                double angle = random.nextDouble() * Math.PI * 2, radius = 3 + random.nextDouble() * 4;
+                int x = nest.core.getX() + (int) Math.round(Math.cos(angle) * radius),
+                        z = nest.core.getZ() + (int) Math.round(Math.sin(angle) * radius);
+                var at = overworld
+                        ? new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z)
+                        : guardFloor(level, x, z, nest.core.getY());
+                if (at == null) {
+                    mob.discard();
+                    continue;
+                }
+                mob.setPos(Vec3.atBottomCenterOf(at));
+                if (!level.noCollision(mob) || LightWards.covers(level, at)) {
+                    mob.discard();
+                    continue;
+                }
+                Monsters.setRank(mob, MonsterInfo.NORMAL);
+                mob.addTag(GUARD_TAG);
+                mob.addTag(ROSTER_TAG);
+                mob.addTag(tag);
+                mob.setPersistenceRequired();
+                mob.addTag("ts.sa.exclude");
+                if (level.addFreshEntity(mob)) {
+                    Hordes.aim(mob, p);
+                    woke++;
+                    break;
+                }
             }
         }
         setTally(level, nest.core, woke, 0);

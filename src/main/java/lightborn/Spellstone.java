@@ -225,7 +225,7 @@ public final class Spellstone {
             return;
         var tome = tomes(p.getOffhandItem()).get(slot);
         Spell spell = TomeItem.spellOf(tome);
-        if (spell == null || p.getCooldowns().isOnCooldown(tome)) return;
+        if (spell == null) return;
         if (spell == Spell.UPDRAFT)
             TravelSpells.updraftCharge = Math.clamp(charge / (float) StaffItem.UPDRAFT_CHARGE_TICKS, .15f, 1f);
         try {

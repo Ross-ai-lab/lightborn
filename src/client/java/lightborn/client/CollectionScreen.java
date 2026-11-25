@@ -53,7 +53,7 @@ public class CollectionScreen extends Screen {
     private static final List<Fixed> FIXED = List.of(
             new Fixed(UPGRADE_SPELLS, "Upgrade Spells", QUEST_RED, p -> true),
             new Fixed(UPGRADE_GEAR, "Upgrade Gear", LIGHT_GOLD, p -> true),
-            new Fixed(CRAFTING, "Crafting", GOLD, p -> true),
+            new Fixed(CRAFTING, "Crafting", 0xFF74D8CE, p -> true),
             new Fixed(CLEANSE, "Cleanse", CLEANSE_VIOLET, ChestTabs::cleanse),
             new Fixed(SHOP, "Shop", SHOP_BLUE, ChestTabs::shop),
             new Fixed(TRAVEL, "Travel", TRAVEL_GREEN, ChestTabs::travel),

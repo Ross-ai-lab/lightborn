@@ -216,6 +216,7 @@ public final class StormSpells {
     static final double WAVE_DOUSE = 2;
 
     private static final class Wave {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final Vec3 origin, dir;
@@ -329,7 +330,7 @@ public final class StormSpells {
                                 > w.half + Math.atan2(e.getBbWidth() / 2, d)) continue;
                 w.struck.add(e.getUUID());
                 boolean doused = e.fireImmune() || e.isSensitiveToWater();
-                Spells.hit(w.owner, e, w.dmg * (doused ? WAVE_DOUSE : 1), Spell.WATER_SPLASH);
+                Spells.hit(w.owner, e, w.dmg * (doused ? WAVE_DOUSE : 1), Spell.WATER_SPLASH, w.cast);
                 e.clearFire();
                 Vec3 away = d > 0.3 ? to.normalize() : w.dir;
                 double k = 1 - knockResist(e);
@@ -381,6 +382,7 @@ public final class StormSpells {
     static final int ORB_TICKS = 120, ORB_TARGETS = 3;
 
     static final class Orb {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         Vec3 pos, dir;
@@ -424,7 +426,7 @@ public final class StormSpells {
             if (o.owner.isRemoved() || o.owner.level() != o.level || --o.ticks < 0) {
                 if (!o.owner.isRemoved() && SpellUpgrades.perk(o.owner, Spell.BALL_LIGHTNING, "Thunderclap")) {
                     for (var e : Perks.nearestMonsters(o.owner, null, o.pos, 4, 64))
-                        Spells.hit(o.owner, e, o.dmg * 3, Spell.BALL_LIGHTNING);
+                        Spells.hit(o.owner, e, o.dmg * 3, Spell.BALL_LIGHTNING, o.cast);
                     o.level.sendParticles(ParticleTypes.EXPLOSION, o.pos.x, o.pos.y, o.pos.z, 1, 0, 0, 0, 0);
                     o.level.sendParticles(
                             ParticleTypes.ELECTRIC_SPARK, o.pos.x, o.pos.y, o.pos.z, 40, 1.2, 1.2, 1.2, .3);
@@ -451,7 +453,7 @@ public final class StormSpells {
                 var prey = Perks.nearestMonsters(o.owner, null, o.pos, o.zap, o.targets);
                 for (var e : prey) {
                     zigzag(o.level, o.pos, chest(e));
-                    Spells.hit(o.owner, e, o.dmg, Spell.BALL_LIGHTNING);
+                    Spells.hit(o.owner, e, o.dmg, Spell.BALL_LIGHTNING, o.cast);
                     if (SpellUpgrades.perk(o.owner, Spell.BALL_LIGHTNING, "Stunning Arc")) Perks.root(e, o.owner, 20);
                     if (SpellUpgrades.perk(o.owner, Spell.BALL_LIGHTNING, "Mana Spark")) Perks.mana(o.owner, 1);
                 }
@@ -501,6 +503,7 @@ public final class StormSpells {
     static final int GALE_TICKS = 80;
 
     static final class Gale {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         Vec3 pos, dir;
@@ -591,7 +594,7 @@ public final class StormSpells {
                 }
                 if (now - g.cut.getOrDefault(e, -1000L) < 10) continue;
                 g.cut.put(e, now);
-                Spells.hit(p, e, g.dmg, Spell.CYCLONE);
+                Spells.hit(p, e, g.dmg, Spell.CYCLONE, g.cast);
                 if (fire) e.igniteForSeconds(3);
                 g.level.sendParticles(ParticleTypes.SWEEP_ATTACK, e.getX(), chest(e).y, e.getZ(), 1, 0, 0, 0, 0);
             }
@@ -625,6 +628,7 @@ public final class StormSpells {
     static final int TEMPEST_TICKS = 240, TEMPEST_BOLTS = 3;
 
     static final class Tempest {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final double dmg, radius;
@@ -713,7 +717,7 @@ public final class StormSpells {
                 if (t.chain)
                     for (var next : Perks.nearestMonsters(p, e, e.position(), 5, 1)) {
                         SpellKit.line(t.level, chest(e), chest(next), ParticleTypes.ELECTRIC_SPARK, .3);
-                        Spells.hit(p, next, t.dmg / 2, Spell.TEMPEST);
+                        Spells.hit(p, next, t.dmg / 2, Spell.TEMPEST, t.cast);
                     }
             }
         }
@@ -726,7 +730,7 @@ public final class StormSpells {
             tempestBolt.setPos(e.getX(), e.getY(), e.getZ());
             t.level.addFreshEntity(tempestBolt);
         }
-        Spells.hit(t.owner, e, dmg, Spell.TEMPEST);
+        Spells.hit(t.owner, e, dmg, Spell.TEMPEST, t.cast);
         e.igniteForSeconds(3);
         if (t.clap) e.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 40, 3), t.owner);
         if (t.charged) Perks.mana(t.owner, 2);

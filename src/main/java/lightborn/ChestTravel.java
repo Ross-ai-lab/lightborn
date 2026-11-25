@@ -213,9 +213,7 @@ public final class ChestTravel {
                 (a, c) -> reply(
                         c.player(),
                         a.source,
-                        ChestTabs.travel(c.player())
-                                ? start(c.player(), a.source, a.site)
-                                : "Beat " + ChestTabs.TRAVEL_FOUNTAINS + " Dark Fountains first."));
+                        ChestTabs.travel(c.player()) ? start(c.player(), a.source, a.site) : ChestTabs.TRAVEL_LOCKED));
     }
 
     static void reply(ServerPlayer p, BlockPos source, String message) {

@@ -160,6 +160,7 @@ public final class FrostSpells {
     static final int CHILL_TICKS = 50;
 
     private static final class Spike {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         Vec3 pos;
@@ -249,7 +250,7 @@ public final class FrostSpells {
         ServerLevel level = s.level;
         Vec3 at = chest(e);
         if (chilled(e)) {
-            Spells.hit(s.owner, e, s.dmg * SHATTER, Spell.GLACIAL_SPIKE);
+            Spells.hit(s.owner, e, s.dmg * SHATTER, Spell.GLACIAL_SPIKE, s.cast);
             e.removeEffect(MobEffects.SLOWNESS);
             e.setTicksFrozen(0);
             Frostbite.clear(e); // the shatter spends the frost
@@ -272,7 +273,7 @@ public final class FrostSpells {
                         e.getBoundingBox().inflate(SPLINTER_RADIUS),
                         o -> o != e && o instanceof Enemy && Spells.canHitArea(s.owner, o))) {
                     line(level, at, chest(o), new DustParticleOptions(0xDDF8FF, 0.8f), 0.4);
-                    Spells.hit(s.owner, o, s.dmg * SHATTER * SPLINTER, Spell.GLACIAL_SPIKE);
+                    Spells.hit(s.owner, o, s.dmg * SHATTER * SPLINTER, Spell.GLACIAL_SPIKE, s.cast);
                 }
             }
             // Frozen Tomb: the shatter chills the monsters round it, ready to shatter in turn.
@@ -285,7 +286,7 @@ public final class FrostSpells {
                     level.sendParticles(ParticleTypes.SNOWFLAKE, o.getX(), o.getY() + 1, o.getZ(), 10, .3, .5, .3, .02);
                 }
         } else {
-            Spells.hit(s.owner, e, s.dmg, Spell.GLACIAL_SPIKE);
+            Spells.hit(s.owner, e, s.dmg, Spell.GLACIAL_SPIKE, s.cast);
             if (e.isAlive()) {
                 e.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, CHILL_TICKS, 0), s.owner);
                 e.setTicksFrozen(Math.max(e.getTicksFrozen(), 60));
@@ -325,6 +326,7 @@ public final class FrostSpells {
     static final float SPIRE = 3.6f;
 
     static final class Sentry {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final Vec3 pos, tip;
@@ -521,7 +523,7 @@ public final class FrostSpells {
         SpellKit.line(s.level, from, chest(e), ParticleTypes.END_ROD, 1.4);
         shardLanding = true;
         try {
-            Spells.hit(s.owner, e, dmg, Spell.SENTINEL);
+            Spells.hit(s.owner, e, dmg, Spell.SENTINEL, s.cast);
         } finally {
             shardLanding = false;
         }
@@ -605,6 +607,7 @@ public final class FrostSpells {
     static final int STORM_TICKS = 160;
 
     static final class Blizzard {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         Vec3 pos;
@@ -709,7 +712,7 @@ public final class FrostSpells {
                 double dx = e.getX() - b.pos.x, dz = e.getZ() - b.pos.z;
                 if (dx * dx + dz * dz > b.radius * b.radius || e.getY() < b.pos.y - 2) continue;
                 inside.add(e);
-                Spells.hit(b.owner, e, b.dmg, Spell.BLIZZARD);
+                Spells.hit(b.owner, e, b.dmg, Spell.BLIZZARD, b.cast);
                 e.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 30, 2), b.owner);
                 // Frozen through, as powder snow leaves them: Glacial Spike shatters what is frozen.
                 e.setTicksFrozen(Math.max(e.getTicksFrozen(), e.getTicksRequiredToFreeze() + 20));
@@ -731,7 +734,7 @@ public final class FrostSpells {
                         .2,
                         .3,
                         .1);
-                Spells.hit(b.owner, e, b.dmg * 3, Spell.BLIZZARD);
+                Spells.hit(b.owner, e, b.dmg * 3, Spell.BLIZZARD, b.cast);
                 sound(b.level, e.position(), SoundEvents.GLASS_BREAK, .8f, 1.4f);
             }
         }

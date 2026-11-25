@@ -12,7 +12,14 @@ public final class CastContext {
     private CastContext() {}
 
     /** {@code upgrades}: the choice kept in each tier of the tome ({@link SpellUpgrades#chosen}). */
-    record Cast(ServerPlayer player, Spell spell, ItemStack tome, double power, int[] upgrades, boolean replay) {}
+    record Cast(
+            ServerPlayer player,
+            Spell spell,
+            ItemStack tome,
+            double power,
+            int[] upgrades,
+            boolean replay,
+            LightGearPerks.SpellElement element) {}
 
     private static final ThreadLocal<Cast> CAST = new ThreadLocal<>();
 
@@ -22,9 +29,20 @@ public final class CastContext {
 
     static boolean perform(
             ServerPlayer player, Spell spell, ItemStack tome, double power, boolean replay, BooleanSupplier work) {
+        return perform(player, spell, tome, power, replay, null, work);
+    }
+
+    static boolean perform(
+            ServerPlayer player,
+            Spell spell,
+            ItemStack tome,
+            double power,
+            boolean replay,
+            LightGearPerks.SpellElement element,
+            BooleanSupplier work) {
         Cast before = CAST.get();
         int[] chosen = SpellUpgrades.chosen(tome);
-        CAST.set(new Cast(player, spell, tome, power, chosen, replay));
+        CAST.set(new Cast(player, spell, tome, power, chosen, replay, element));
         SpellUpgrades.armed(player, spell, chosen);
         try {
             return work.getAsBoolean();
@@ -34,9 +52,27 @@ public final class CastContext {
         }
     }
 
+    /** Run an effect using the cast that created it. */
+    static void resume(Cast cast, Runnable work) {
+        Cast before = CAST.get();
+        if (cast == null) CAST.remove();
+        else CAST.set(cast);
+        try {
+            work.run();
+        } finally {
+            if (before == null) CAST.remove();
+            else CAST.set(before);
+        }
+    }
+
     /** The cast now running, or null outside one. */
     static Cast current() {
         return CAST.get();
+    }
+
+    static Cast elemental() {
+        var cast = current();
+        return cast != null && cast.element() != null ? cast : null;
     }
 
     static double power(ServerPlayer player, Spell spell, double fallback) {

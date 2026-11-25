@@ -236,8 +236,8 @@ public final class LightGearTree {
                     mult("Faster Mana", "Mana comes back 20% faster.", ModAttributes.MANA_REGEN, .20),
                     add("Shorter Cooldowns", "Spells ready 5% sooner.", ModAttributes.COOLDOWN_SPEED, .05),
                     add("Harder Crits", "Crits hit 10% harder.", ModAttributes.CRIT_DAMAGE, .30),
-                    perk("Mana Font", "One spell in five costs no mana."),
-                    perk("Spellfire", "Your spells set the monsters they strike alight for 2 seconds."),
+                    perk("Spellfrost", "Every fourth spell freezes the enemies it hits for 2 seconds."),
+                    perk("Spellfire", "Every fourth spell sets the enemies it hits alight for 2 seconds."),
                     perk("Echoing Staff", "One spell in eight leaves its tome ready again at once.")),
             tree(
                     add("More Armour", "+1 armour.", Attributes.ARMOR, 1),

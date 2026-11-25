@@ -77,6 +77,7 @@ public final class ChestCrafting {
             String matched,
             int page,
             int pages,
+            int crafted,
             String message)
             implements CustomPacketPayload {
         public static final Type<Show> TYPE = new Type<>(ModItems.id("craft_show"));
@@ -95,6 +96,8 @@ public final class ChestCrafting {
                 Show::page,
                 ByteBufCodecs.VAR_INT,
                 Show::pages,
+                ByteBufCodecs.VAR_INT,
+                Show::crafted,
                 ByteBufCodecs.stringUtf8(220),
                 Show::message,
                 Show::new);
@@ -280,6 +283,7 @@ public final class ChestCrafting {
                 preview == null ? "" : id(preview.recipe()),
                 page,
                 pages,
+                created,
                 message);
     }
 

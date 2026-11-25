@@ -112,7 +112,7 @@ public final class HexSpells {
                 for (var e : List.copyOf(l.bound))
                     if (e != entity && e.isAlive()) {
                         SpellKit.line(l.level, chest(entity), chest(e), new DustParticleOptions(0xB9FFF4, 1f), .35);
-                        Spells.hit(by, e, taken * l.share, Spell.SOUL_LINK);
+                        Spells.hit(by, e, taken * l.share, Spell.SOUL_LINK, l.cast);
                     }
             } finally {
                 sharing = false;
@@ -162,6 +162,7 @@ public final class HexSpells {
     static final double SIPHON_HEAL = 0.5;
 
     private static final class Tether {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final LivingEntity target;
@@ -252,7 +253,7 @@ public final class HexSpells {
             }
             if (t.age % 10 == 0) {
                 float before = e.getHealth();
-                Spells.hit(p, e, t.dmg, Spell.SIPHON);
+                Spells.hit(p, e, t.dmg, Spell.SIPHON, t.cast);
                 float drained = Math.max(0, before - Math.max(0, e.getHealth()));
                 if (drained > 0) {
                     float heal = (float) (drained * SIPHON_HEAL), room = p.getMaxHealth() - p.getHealth();
@@ -277,11 +278,17 @@ public final class HexSpells {
     static final int PLAGUE_TICKS = 160;
 
     private static final class Infection {
+        final CastContext.Cast cast;
         final ServerPlayer owner;
         final double dmg, spread;
         int ticks = PLAGUE_TICKS;
 
         Infection(ServerPlayer owner, double dmg, double spread) {
+            this(owner, dmg, spread, CastContext.elemental());
+        }
+
+        Infection(ServerPlayer owner, double dmg, double spread, CastContext.Cast cast) {
+            this.cast = cast;
             this.owner = owner;
             this.dmg = dmg;
             this.spread = spread;
@@ -374,7 +381,7 @@ public final class HexSpells {
                         0.2,
                         0.01);
             }
-            if (inf.ticks % 20 == 0) Spells.hit(inf.owner, e, inf.dmg, Spell.CONTAGION);
+            if (inf.ticks % 20 == 0) Spells.hit(inf.owner, e, inf.dmg, Spell.CONTAGION, inf.cast);
         }
     }
 
@@ -389,7 +396,7 @@ public final class HexSpells {
                 dead.getBoundingBox().inflate(inf.spread),
                 e -> e != dead && e instanceof Enemy && Spells.canHitArea(inf.owner, e) && !INFECTED.containsKey(e))) {
             if (e.distanceTo(dead) > inf.spread) continue;
-            INFECTED.put(e, new Infection(inf.owner, inf.dmg, inf.spread));
+            INFECTED.put(e, new Infection(inf.owner, inf.dmg, inf.spread, inf.cast));
             rot(e, inf.owner);
             line(level, at, chest(e), new DustParticleOptions(0x6FBF2A, 0.7f), 0.5);
             caught++;
@@ -407,7 +414,7 @@ public final class HexSpells {
                             LivingEntity.class,
                             new net.minecraft.world.phys.AABB(spot, spot).inflate(2.5, 1.5, 2.5),
                             e -> e instanceof Enemy && Spells.canHitArea(inf.owner, e) && !INFECTED.containsKey(e))) {
-                        INFECTED.put(e, new Infection(inf.owner, inf.dmg, inf.spread));
+                        INFECTED.put(e, new Infection(inf.owner, inf.dmg, inf.spread, inf.cast));
                         rot(e, inf.owner);
                     }
                 });
@@ -425,6 +432,7 @@ public final class HexSpells {
     static final int LINK_MORE = 5, LINK_TICKS = 200;
 
     static final class Link {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final Set<LivingEntity> bound = new LinkedHashSet<>();
@@ -500,7 +508,7 @@ public final class HexSpells {
                     for (var dead : fallen)
                         for (var e : List.copyOf(l.bound)) {
                             SpellKit.line(l.level, chest(dead), chest(e), new DustParticleOptions(0x7FE8DA, 1f), .3);
-                            Spells.hit(l.owner, e, Perks.flat(l.owner, 6), Spell.SOUL_LINK);
+                            Spells.hit(l.owner, e, Perks.flat(l.owner, 6), Spell.SOUL_LINK, l.cast);
                         }
                 } finally {
                     sharing = false;

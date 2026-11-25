@@ -89,6 +89,8 @@ final class CraftingTab extends ChestTab {
         }
     }
 
+    private long sparkedAt = Long.MIN_VALUE;
+
     private void request(int action) {
         if (action != ChestCrafting.BROWSE
                 && (pending || view == null || view.output().isEmpty())) return;
@@ -109,6 +111,7 @@ final class CraftingTab extends ChestTab {
         view = response;
         page = view.page();
         if (!response.message().isEmpty()) status = response.message();
+        if (response.crafted() > 0) sparkedAt = System.nanoTime();
         pending = false;
     }
 
@@ -231,6 +234,23 @@ final class CraftingTab extends ChestTab {
         }
     }
 
+    private void craftSparks(GuiGraphicsExtractor g, int x, int y) {
+        if (sparkedAt == Long.MIN_VALUE) return;
+        float time = (System.nanoTime() - sparkedAt) / 720_000_000f;
+        if (time >= 1) return;
+        int alpha = Math.round(255 * (1 - time));
+        for (int i = 0; i < 18; i++) {
+            double angle = i * 2.399963;
+            double spread = 8 + (i % 7) * 4;
+            int px = x + (int) (Math.cos(angle) * spread * time);
+            int py = y + (int) (Math.sin(angle) * spread * time - 15 * time + 12 * time * time);
+            int color = alpha << 24 | (i % 3 == 0 ? 0xFFF4C5 : 0xFFC148);
+            int ray = time < .35 && i % 3 == 0 ? 2 : 1;
+            g.fill(px - ray, py, px + ray + 1, py + 1, color);
+            g.fill(px, py - ray, px + 1, py + ray + 1, color);
+        }
+    }
+
     private void craftingArrow(GuiGraphicsExtractor g, int tip, int y) {
         g.fill(gridX() + 60, y, tip + 1, y + 1, BRASS);
         for (int offset = 1; offset <= 4; offset++) {
@@ -315,6 +335,7 @@ final class CraftingTab extends ChestTab {
             }
             if (mx >= rx - 26 && mx <= rx + 26 && my >= ry - 43 && my <= ry + 23) hovered = view.output();
         }
+        craftSparks(g, rx, ry - 4);
         String hint = status.isEmpty()
                 ? manual ? "Pick an ingredient, then click a cell." : "Uses the Chest of Light and your inventory."
                 : status;

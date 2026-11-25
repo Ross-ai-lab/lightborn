@@ -65,10 +65,16 @@ public final class Furniture {
                     .sound(SoundType.WOOD)
                     .noOcclusion();
             if (kind == Kind.LAMP) props.lightLevel(s -> 14);
+            if (kind == Kind.WARDROBE) props.noLootTable();
             var block = Registry.register(BuiltInRegistries.BLOCK, key, new Furnishing(kind, props));
             BLOCKS.put(kind, block);
-            ModItems.register(
-                    kind.id(), p -> new BlockItem(block, p), new Item.Properties().useBlockDescriptionPrefix());
+            if (kind == Kind.WARDROBE) {
+                // Keep the old item ID readable in saves. Placed wardrobes retain their inventory.
+                var legacy = ResourceKey.create(Registries.ITEM, ModItems.id(kind.id()));
+                Registry.register(BuiltInRegistries.ITEM, legacy, new Item(new Item.Properties().setId(legacy)));
+            } else
+                ModItems.register(
+                        kind.id(), p -> new BlockItem(block, p), new Item.Properties().useBlockDescriptionPrefix());
         }
         STORAGE = Registry.register(
                 BuiltInRegistries.BLOCK_ENTITY_TYPE,

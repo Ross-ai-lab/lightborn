@@ -397,6 +397,7 @@ public final class LightSpells {
     static final double WISP_SEEK = 16;
 
     static final class Wisp {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         Vec3 pos, vel;
@@ -488,7 +489,7 @@ public final class LightSpells {
                     && w.target != null
                     && w.target.getBoundingBox().inflate(.35).contains(w.pos)) {
                 var t = w.target;
-                Spells.hit(w.owner, t, w.dmg, Spell.WISPS);
+                Spells.hit(w.owner, t, w.dmg, Spell.WISPS, w.cast);
                 if (SpellUpgrades.perk(w.owner, Spell.WISPS, "Bursting Wisps"))
                     Spells.withSpell(
                             Spell.WISPS,
@@ -514,6 +515,7 @@ public final class LightSpells {
     static final double DISC_REACH = 14, DISC_SPEED = 1.1, DISC_WIDTH = 1.0;
 
     static final class Disc {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         Vec3 pos, dir;
@@ -585,7 +587,7 @@ public final class LightSpells {
                     d.pos = d.pos.add(
                             to.length() < DISC_SPEED * 1.3 ? to : to.normalize().scale(DISC_SPEED * 1.3));
                     if (d.ricochet.getBoundingBox().inflate(d.width * .5).contains(d.pos)) {
-                        Spells.hit(d.owner, d.ricochet, d.dmg, Spell.HALO_DISC);
+                        Spells.hit(d.owner, d.ricochet, d.dmg, Spell.HALO_DISC, d.cast);
                         bleed(d.owner, d.ricochet, d.dmg);
                         d.phase = 2;
                     }
@@ -606,7 +608,7 @@ public final class LightSpells {
                     e -> Spells.canHitDirect(d.owner, e) && !hit.contains(e))) {
                 if (e.getBoundingBox().inflate(d.width * .6).contains(d.pos) || chest(e).distanceTo(d.pos) < d.width) {
                     hit.add(e);
-                    Spells.hit(d.owner, e, d.dmg, Spell.HALO_DISC);
+                    Spells.hit(d.owner, e, d.dmg, Spell.HALO_DISC, d.cast);
                     bleed(d.owner, e, d.dmg);
                 }
             }
@@ -757,6 +759,7 @@ public final class LightSpells {
     // owner, 2026-11-22: 20 s, was 6
 
     static final class Dome {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final Vec3 centre;
@@ -831,7 +834,7 @@ public final class LightSpells {
                 if (e instanceof Mob m && m.getNavigation().isInProgress())
                     m.getNavigation().stop();
                 if (d.smitten.add(e) && SpellUpgrades.perk(d.owner, Spell.SANCTUARY, "Smiting Edge"))
-                    Spells.hit(d.owner, e, Perks.flat(d.owner, 3), Spell.SANCTUARY);
+                    Spells.hit(d.owner, e, Perks.flat(d.owner, 3), Spell.SANCTUARY, d.cast);
             }
             for (var shot : d.level.getEntitiesOfClass(Projectile.class, box)) {
                 if (shot.getOwner() instanceof Player) continue;
@@ -994,6 +997,7 @@ public final class LightSpells {
     // gone the moment you leave it (owner, 2026-11-22)
 
     static final class Steed {
+        final CastContext.Cast cast = CastContext.elemental();
         final SpiritSteed horse;
         int ticks, idle;
         final Map<LivingEntity, Long> trampled = new HashMap<>();
@@ -1083,7 +1087,7 @@ public final class LightSpells {
                         LivingEntity.class, horse.getBoundingBox().inflate(.6), e -> monster(p, e))) {
                     if (now - s.trampled.getOrDefault(e, -100L) < 20) continue;
                     s.trampled.put(e, now);
-                    Spells.hit(p, e, Perks.flat(p, 6), Spell.SPIRIT_STEED);
+                    Spells.hit(p, e, Perks.flat(p, 6), Spell.SPIRIT_STEED, s.cast);
                     Vec3 away = e.position().subtract(horse.position()).multiply(1, 0, 1);
                     away = away.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : away.normalize();
                     e.setDeltaMovement(away.scale(.9).add(0, .4, 0));
@@ -1119,6 +1123,7 @@ public final class LightSpells {
     // a minute (owner, 2026-11-22)
 
     static final class Brand {
+        final CastContext.Cast cast = CastContext.elemental();
         int ticks;
         final double dmg;
 
@@ -1186,7 +1191,7 @@ public final class LightSpells {
         branding = true;
         try {
             if (hurt.isAlive()) {
-                Spells.hit(p, hurt, brand.dmg, Spell.LIGHTBRAND);
+                Spells.hit(p, hurt, brand.dmg, Spell.LIGHTBRAND, brand.cast);
                 hurt.igniteForSeconds(3);
             }
             ((ServerLevel) hurt.level())
@@ -1202,7 +1207,7 @@ public final class LightSpells {
                             .06);
             if (SpellUpgrades.perk(p, Spell.LIGHTBRAND, "Cleave"))
                 for (var e : Perks.nearestMonsters(p, hurt, hurt.position(), 2.5, 6)) {
-                    Spells.hit(p, e, brand.dmg, Spell.LIGHTBRAND);
+                    Spells.hit(p, e, brand.dmg, Spell.LIGHTBRAND, brand.cast);
                     e.igniteForSeconds(3);
                 }
             if (SpellUpgrades.perk(p, Spell.LIGHTBRAND, "Radiant Thirst")) p.heal(1);
@@ -1219,6 +1224,7 @@ public final class LightSpells {
     static final int RING_TICKS = 200, RING_BLADES = 3;
 
     static final class Ring {
+        final CastContext.Cast cast = CastContext.elemental();
         int ticks;
         final double dmg, radius;
         final int blades;
@@ -1303,7 +1309,7 @@ public final class LightSpells {
                     Vec3 from = p.position().add(0, 1, 0);
                     for (var e : Perks.nearestMonsters(p, null, from, 12, r.blades)) {
                         SpellKit.line(level, from, chest(e), new DustParticleOptions(0xE8EEFF, 1f), .3);
-                        Spells.hit(p, e, r.dmg * 2, Spell.BLADE_RING);
+                        Spells.hit(p, e, r.dmg * 2, Spell.BLADE_RING, r.cast);
                     }
                     sound(level, from, SoundEvents.PLAYER_ATTACK_SWEEP, 1f, .8f);
                 }
@@ -1339,7 +1345,7 @@ public final class LightSpells {
                 if (dx * dx + dz * dz > (r.radius + .6) * (r.radius + .6)) continue;
                 if (now - r.cut.getOrDefault(e, -1000L) < every) continue;
                 r.cut.put(e, now);
-                Spells.hit(p, e, r.dmg, Spell.BLADE_RING);
+                Spells.hit(p, e, r.dmg, Spell.BLADE_RING, r.cast);
                 if (SpellUpgrades.perk(p, Spell.BLADE_RING, "Bleeding Blades")) FormSpells.bleed(p, e, 60);
                 level.sendParticles(
                         ParticleTypes.SWEEP_ATTACK, e.getX(), e.getY() + e.getBbHeight() * .5, e.getZ(), 1, 0, 0, 0, 0);
@@ -1369,6 +1375,7 @@ public final class LightSpells {
     static final int DAWN_GATHER = 30, SUN_TICKS = 120;
 
     static final class Dawn {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final double dmg;
@@ -1382,6 +1389,7 @@ public final class LightSpells {
     }
 
     static final class Sun {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final Vec3 pos;
@@ -1466,7 +1474,7 @@ public final class LightSpells {
             if (s.ticks % 20 != 0) continue;
             for (var e : Perks.nearestMonsters(s.owner, null, s.pos.add(0, -3, 0), 8, 64)) {
                 SpellKit.line(s.level, s.pos, chest(e), new DustParticleOptions(0xFFE27A, .9f), .35);
-                Spells.hit(s.owner, e, s.dmg, Spell.DAWNBREAK);
+                Spells.hit(s.owner, e, s.dmg, Spell.DAWNBREAK, s.cast);
                 e.igniteForSeconds(3);
             }
             sound(s.level, s.pos, SoundEvents.FIRECHARGE_USE, .5f, 1.6f);
@@ -1483,7 +1491,7 @@ public final class LightSpells {
                 level.getEntitiesOfClass(LivingEntity.class, p.getBoundingBox().inflate(radius), e -> monster(p, e))) {
             if (e.distanceToSqr(p) > radius * radius) continue;
             boolean undead = e.getType().builtInRegistryHolder().is(EntityTypeTags.UNDEAD);
-            Spells.hit(p, e, undead ? d.dmg * 1.5 : d.dmg, Spell.DAWNBREAK);
+            Spells.hit(p, e, undead ? d.dmg * 1.5 : d.dmg, Spell.DAWNBREAK, d.cast);
             if (undead) e.igniteForSeconds(5);
             double near = 1 - Math.min(1, e.distanceTo(p) / radius);
             throwFrom(e, at, .6 + near * 1.2, .35 + near * .3);
@@ -1497,7 +1505,8 @@ public final class LightSpells {
         if (SpellUpgrades.perk(p, Spell.DAWNBREAK, "Morning Warmth"))
             for (var friend : level.getEntitiesOfClass(
                     ServerPlayer.class, p.getBoundingBox().inflate(radius), Player::isAlive)) friend.heal(6);
-        if (SpellUpgrades.perk(p, Spell.DAWNBREAK, "Lingering Sun")) SUNS.add(new Sun(p, at.add(0, 4, 0), d.dmg / 3));
+        if (SpellUpgrades.perk(p, Spell.DAWNBREAK, "Lingering Sun"))
+            CastContext.resume(d.cast, () -> SUNS.add(new Sun(p, at.add(0, 4, 0), d.dmg / 3)));
         if (SpellUpgrades.perk(p, Spell.DAWNBREAK, "Sun Ward"))
             p.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 200, 1, false, false, true));
         if (SpellUpgrades.perk(p, Spell.DAWNBREAK, "Purging Light")) {

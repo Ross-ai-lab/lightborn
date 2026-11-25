@@ -200,6 +200,7 @@ public final class ArcaneSpells {
     static final double WARD_SOAK = 0.5, WARD_REFLECT = 1.5;
 
     private static final class Ward {
+        final CastContext.Cast cast = CastContext.elemental();
         int ticks;
         final double power;
 
@@ -251,7 +252,7 @@ public final class ArcaneSpells {
             return;
         if (!Spells.canHitDirect(p, attacker)) return;
         double full = hit / (1 - WARD_SOAK);
-        Spells.hit(p, attacker, full * WARD_REFLECT + w.power, Spell.MIRROR_WARD);
+        Spells.hit(p, attacker, full * WARD_REFLECT + w.power, Spell.MIRROR_WARD, w.cast);
         ServerLevel level = p.level();
         line(level, chest(p), chest(attacker), ParticleTypes.END_ROD, 0.6);
         Vec3 at = chest(attacker);
@@ -314,6 +315,7 @@ public final class ArcaneSpells {
     static final double WELL_TICK_SHARE = 0.3;
 
     private static final class Well {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         Vec3 c;
@@ -422,7 +424,7 @@ public final class ArcaneSpells {
                             e.getDeltaMovement().scale(0.5).add(to.normalize().scale(pull)));
                     e.resetFallDistance();
                 }
-                if (bite) Spells.hit(w.owner, e, w.dmg * WELL_TICK_SHARE, Spell.GRAVITY_WELL);
+                if (bite) Spells.hit(w.owner, e, w.dmg * WELL_TICK_SHARE, Spell.GRAVITY_WELL, w.cast);
             }
             if (w.age >= w.life) {
                 drop(w.core);
@@ -460,6 +462,7 @@ public final class ArcaneSpells {
     // ten seconds (owner, 2026-11-22)
 
     static final class Mark {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerLevel level;
         final Vec3 pos;
         final float yRot, xRot, health, mana;
@@ -553,7 +556,7 @@ public final class ArcaneSpells {
         Vec3 left = p.position();
         if (SpellUpgrades.perk(p, Spell.REWIND, "Parting Shock")) {
             for (var e : Perks.nearestMonsters(p, null, left, 4, 64)) {
-                Spells.hit(p, e, Perks.flat(p, 6), Spell.REWIND);
+                Spells.hit(p, e, Perks.flat(p, 6), Spell.REWIND, m.cast);
                 Vec3 away = e.position().subtract(left).multiply(1, 0, 1);
                 away = away.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : away.normalize();
                 e.setDeltaMovement(away.scale(1.1).add(0, .45, 0));
@@ -758,6 +761,7 @@ public final class ArcaneSpells {
     // traps wait until set off (owner, 2026-11-22: no time limit)
 
     static final class Rune {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final Vec3 pos;
@@ -837,7 +841,7 @@ public final class ArcaneSpells {
         for (var e : r.level.getEntitiesOfClass(
                 LivingEntity.class, new AABB(r.pos, r.pos).inflate(r.radius, 2, r.radius), e -> monster(p, e))) {
             if (e.distanceToSqr(r.pos) > (r.radius + .5) * (r.radius + .5)) continue;
-            Spells.hit(p, e, r.dmg, Spell.RUNE_SNARE);
+            Spells.hit(p, e, r.dmg, Spell.RUNE_SNARE, r.cast);
             throwFrom(e, r.pos, .25, .75);
             if (bind) Perks.root(e, p, 60);
             if (sear) e.igniteForSeconds(4);
@@ -988,6 +992,7 @@ public final class ArcaneSpells {
     static final String HELD_TAG = "lightborn_time_stopped";
 
     static final class Held {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final Vec3 pos, motion;
         final boolean noAi, noGravity, stored;
@@ -1110,7 +1115,7 @@ public final class ArcaneSpells {
         if (blow > 0) {
             releasing = true;
             try {
-                Spells.hit(h.owner, living, blow, Spell.TIME_STOP);
+                Spells.hit(h.owner, living, blow, Spell.TIME_STOP, h.cast);
             } finally {
                 releasing = false;
             }

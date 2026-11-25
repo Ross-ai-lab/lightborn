@@ -160,7 +160,9 @@ final class SelfTestFormSpells {
                 new AABB(caster.blockPosition()).inflate(3),
                 m -> m.entityTags().contains(FormSpells.BODY_TAG));
         caster.setPos(start.x + 6, start.y + 3, start.z);
-        FormSpells.end(caster);
+        FormSpells.power(caster);
+        boolean rightClickStayed = caster.isSpectator();
+        FormSpells.returnSpirit(caster);
         boolean home = !caster.isSpectator()
                 && caster.position().distanceTo(start) < .1
                 && !caster.hasAttached(FormSpells.SPIRIT_HOME)
@@ -168,7 +170,7 @@ final class SelfTestFormSpells {
         boolean bodyGone = bodies.size() == 1 && bodies.get(0).isRemoved();
         check(
                 "spell_spirit_walk_leaves_and_returns",
-                cast && out && home && bodyGone,
+                cast && out && rightClickStayed && home && bodyGone,
                 "out=" + out + " bodies=" + bodies.size() + " home=" + home + " body gone=" + bodyGone);
         clean();
     }

@@ -141,7 +141,7 @@ public class Lightborn implements ModInitializer {
         });
 
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
-            if (LightWards.rejectsCreeperMinion(level, entity)) {
+            if (LightWards.rejectsCreeperMinion(level, entity) || DarkNests.obsoleteGuard(entity)) {
                 entity.discard();
                 return;
             }
@@ -394,10 +394,10 @@ public class Lightborn implements ModInitializer {
         LootRoller.Rarity floor = null;
         boolean giant = Giants.is(dead);
         if (info.rank() == MonsterInfo.BOSS) {
-            count = Balance.BOSS_DROPS;
+            count = Balance.BOSS_DROPS + (random.nextBoolean() ? 1 : 0);
             floor = LootRoller.Rarity.RARE;
         } else if (giant || monsterTier(dead) >= 3) {
-            count = 1 + (random.nextDouble() < Balance.GIANT_SECOND_DROP * find ? 1 : 0);
+            count = (random.nextBoolean() ? 1 : 0) + (random.nextDouble() < Balance.GIANT_SECOND_DROP * find ? 1 : 0);
         } else {
             count = random.nextDouble() < Balance.DROP_CHANCE * find ? 1 : 0;
         }
@@ -489,6 +489,7 @@ public class Lightborn implements ModInitializer {
     /** The Sparks one kill pays ({@link Balance#KILL_SPARKS_MIN}). */
     static int killSparks(LivingEntity dead) {
         int t = monsterTier(dead);
+        if (t == 1) return dead.getRandom().nextInt(10) == 0 ? 2 : 1;
         return Balance.KILL_SPARKS_MIN[t]
                 + dead.getRandom().nextInt(Balance.KILL_SPARKS_MAX[t] - Balance.KILL_SPARKS_MIN[t] + 1);
     }

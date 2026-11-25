@@ -69,7 +69,7 @@ public final class Spells {
             return false;
         }
         // Echo Step and Return Trip: one free cast inside their window, past the cooldown and without mana.
-        boolean echo = Perks.free(player, spell), font = LightGearPerks.freeCast(player);
+        boolean echo = Perks.free(player, spell);
         if (player.getCooldowns().isOnCooldown(tome) && !echo) return false;
         if (spell.kind == Spell.Kind.ATTACK && spell.baseDamage > 0 && WardCombat.inside(player)) {
             WardCombat.warn(player);
@@ -77,7 +77,7 @@ public final class Spells {
         }
         float mana = Progression.mana(player);
         int[] chosen = SpellUpgrades.chosen(tome);
-        double cost = echo || font || ArcaneSpells.flowing(player) // Wellspring
+        double cost = echo || ArcaneSpells.flowing(player) // Wellspring
                 ? 0
                 : spell.mana * Math.max(.1, 1 + SpellUpgrades.total(spell, chosen, SpellUpgrades.Stat.COST));
         if (mana < cost) {
@@ -100,7 +100,17 @@ public final class Spells {
         }
         double basePower =
                 damage(player, spell) * Math.max(.1, 1 + SpellUpgrades.total(spell, chosen, SpellUpgrades.Stat.POWER));
-        if (!CastContext.perform(player, spell, tome, basePower, () -> perform(player, spell))) return false;
+        var staff = player.getMainHandItem();
+        var charge = LightGearPerks.spellCharge(staff);
+        if (!CastContext.perform(
+                player,
+                spell,
+                tome,
+                basePower,
+                false,
+                charge == null ? null : charge.element(),
+                () -> perform(player, spell))) return false;
+        if (charge != null) charge.commit(staff);
         // From the mana left after the cast, so mana a spell gave back as it landed (Mana Leech) is kept.
         Progression.setMana(player, (float) Math.max(0, Progression.mana(player) - cost));
         ArcaneSpells.afterCast(player, spell, tome, basePower); // Twincast
@@ -205,15 +215,16 @@ public final class Spells {
         target.damageCooldownTime = 0;
         critHit = crit;
         boolean alive = target.isAlive();
+        boolean landed;
         try {
-            target.hurtServer(level, level.damageSources().indirectMagic(caster, caster), (float) amount);
+            landed = target.hurtServer(level, level.damageSources().indirectMagic(caster, caster), (float) amount);
         } finally {
             critHit = false;
         }
         boolean killed = alive && target.isDeadOrDying();
         if (killed) TomeAwakening.killed(caster, target, CONTEXT.get());
         Perks.afterHit(caster, target, CONTEXT.get(), amount, killed);
-        if (!killed) LightGearPerks.spellHit(caster, target);
+        if (landed && !killed) LightGearPerks.spellHit(caster, target);
         if (crit)
             level.sendParticles(
                     ParticleTypes.ENCHANTED_HIT,
@@ -229,6 +240,11 @@ public final class Spells {
 
     static void hit(ServerPlayer caster, LivingEntity target, double amount, Spell school) {
         withSpell(school, () -> hit(caster, target, amount));
+    }
+
+    static void hit(ServerPlayer caster, LivingEntity target, double amount, Spell school, CastContext.Cast cast) {
+        if (cast == null) hit(caster, target, amount, school);
+        else CastContext.resume(cast, () -> hit(caster, target, amount, school));
     }
 
     static void areaHit(ServerPlayer caster, Vec3 center, double radius, double amount, Consumer<LivingEntity> extra) {
@@ -300,6 +316,7 @@ public final class Spells {
         final Spell spell;
         Vec3 pos;
         final Vec3 vel;
+        final CastContext.Cast cast = CastContext.elemental();
         final double damage;
         final double radius;
         int life;
@@ -385,7 +402,8 @@ public final class Spells {
         var old = CONTEXT.get();
         CONTEXT.set(pr.spell);
         try {
-            impactNow(level, pr, at, struck);
+            if (pr.cast == null) impactNow(level, pr, at, struck);
+            else CastContext.resume(pr.cast, () -> impactNow(level, pr, at, struck));
         } finally {
             CONTEXT.set(old);
         }

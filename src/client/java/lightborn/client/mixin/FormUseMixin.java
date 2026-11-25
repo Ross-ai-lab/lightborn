@@ -19,7 +19,7 @@ public abstract class FormUseMixin {
     private void lightborn$formPower(CallbackInfo ci) {
         var p = ((Minecraft) (Object) this).player;
         if (p == null || FormSpells.form(p) == FormSpells.Form.NONE) return;
-        ClientPlayNetworking.send(new DragonStory.Power(3));
+        if (!FormSpells.spiritSight(p)) ClientPlayNetworking.send(new DragonStory.Power(3));
         ci.cancel();
     }
 }

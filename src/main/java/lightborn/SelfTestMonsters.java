@@ -67,8 +67,8 @@ final class SelfTestMonsters {
         wild.aiStep();
         var spirit = DarkPhantom.TYPE.create(level, EntitySpawnReason.COMMAND);
         spirit.setPos(base.getX() - 4, base.getY() + 30, base.getZ() - 4);
-        level.addFreshEntity(spirit);
         spirit.setAttached(ModData.THRALL_MASTER, java.util.UUID.randomUUID());
+        level.addFreshEntity(spirit);
         spirit.aiStep();
         boolean spiritStays = !spirit.isRemoved();
         spirit.discard();
@@ -141,12 +141,15 @@ final class SelfTestMonsters {
         // Gear drops only in the materials the killer has mined: this killer has mined all three.
         int mined = caster.getAttachedOrElse(OreTiers.MINED, 0);
         caster.setAttached(OreTiers.MINED, 7);
-        var drops = Lightborn.dropLoot(level, champ, Monsters.info(champ), caster);
-        check("giant_drops", !drops.isEmpty(), drops.size());
+        int empty = 0;
+        for (int roll = 0; roll < 20; roll++)
+            if (Lightborn.dropLoot(level, champ, Monsters.info(champ), caster).isEmpty()) empty++;
+        check("giant_drops_are_optional", empty > 0 && empty < 20, empty);
         var bossDrops = Lightborn.dropLoot(level, boss, Monsters.info(boss), caster);
         check(
                 "boss_drops",
-                bossDrops.size() == Balance.BOSS_DROPS
+                bossDrops.size() >= Balance.BOSS_DROPS
+                        && bossDrops.size() <= Balance.BOSS_DROPS + 1
                         && LootRoller.rarity(bossDrops.getFirst()) == LootRoller.Rarity.LEGENDARY
                         && bossDrops.stream().allMatch(stack -> LightGearTree.level(stack) == 1),
                 bossDrops.size());

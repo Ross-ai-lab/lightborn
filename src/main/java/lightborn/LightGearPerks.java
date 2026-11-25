@@ -3,6 +3,7 @@ package lightborn;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -531,9 +532,34 @@ final class LightGearPerks {
 
     // ---------------------------------------------------------------- the staff, around a cast
 
-    /** Mana Font: one cast in five is free. */
-    static boolean freeCast(ServerPlayer p) {
-        return has(p, STAFF, "Mana Font") && p.getRandom().nextInt(5) == 0;
+    private static final String ELEMENT_CASTS = "staff_element_casts";
+
+    record SpellCharge(int next, SpellElement element) {
+        void commit(ItemStack staff) {
+            net.minecraft.world.item.component.CustomData.update(
+                    DataComponents.CUSTOM_DATA, staff, tag -> tag.putInt(ELEMENT_CASTS, next));
+        }
+    }
+
+    static SpellCharge spellCharge(ItemStack staff) {
+        boolean frost = LightGearTree.perk(staff, "Spellfrost");
+        if (!frost && !LightGearTree.perk(staff, "Spellfire")) return null;
+        int previous = staff.getOrDefault(
+                        DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.EMPTY)
+                .copyTag()
+                .getIntOr(ELEMENT_CASTS, 0);
+        int next = (Math.floorMod(previous, 4) + 1) % 4;
+        return new SpellCharge(next, next == 0 ? new SpellElement(frost) : null);
+    }
+
+    /** One charged cast can affect each monster it hits once, even if its damage repeats. */
+    static final class SpellElement {
+        final boolean frost;
+        final java.util.Set<java.util.UUID> struck = new java.util.HashSet<>();
+
+        SpellElement(boolean frost) {
+            this.frost = frost;
+        }
     }
 
     /** After a cast: true when Echoing Staff spares the tome its cooldown. */
@@ -541,14 +567,16 @@ final class LightGearPerks {
         return has(p, STAFF, "Echoing Staff") && p.getRandom().nextInt(8) == 0;
     }
 
-    /**
-     * Spellfire (owner, 2026-11-23: staff upgrades are for attack, never health or defence; it replaced Spell Ward's
-     * shield): a spell's blow sets the monster alight for 2 seconds.
-     */
     static void spellHit(ServerPlayer p, net.minecraft.world.entity.LivingEntity target) {
-        if (target.isAlive()
-                && target instanceof net.minecraft.world.entity.monster.Enemy
-                && has(p, STAFF, "Spellfire"))
-            target.igniteForSeconds(Math.max(2, target.getRemainingFireTicks() / 20f));
+        var cast = CastContext.current();
+        if (cast == null
+                || cast.player() != p
+                || cast.element() == null
+                || !target.isAlive()
+                || !(target instanceof net.minecraft.world.entity.monster.Enemy)) return;
+        var element = cast.element();
+        if (!element.struck.add(target.getUUID())) return;
+        if (element.frost) Freeze.freeze(p.level(), p, target, 40);
+        else target.igniteForSeconds(Math.max(2, target.getRemainingFireTicks() / 20f));
     }
 }

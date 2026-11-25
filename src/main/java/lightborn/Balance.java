@@ -79,7 +79,7 @@ public final class Balance {
 
     // ---- Giant zombies: the big kill of an ordinary night (in place of champions, owner 2026-11-09) ----
     /** Rolled items from a giant: always one, a second at this chance times Item Find. */
-    public static final double GIANT_SECOND_DROP = 0.25;
+    public static final double GIANT_SECOND_DROP = 0.125;
 
     public static final double TOME_FROM_GIANT = 0.125; // halved with the rest (owner, 2026-11-18)
 
@@ -188,14 +188,14 @@ public final class Balance {
 
     // ---- Loot ----
     /** Chance per ordinary kill, times Item Find (was 0.10 while champions added their own drops). */
-    public static final double DROP_CHANCE = 0.14;
+    public static final double DROP_CHANCE = 0.07;
 
     /** Mythic, the rung above Legendary (owner, 2026-11-22): one roll in a hundred; Legendary gave it a point. */
     public static final double MYTHIC_CHANCE = 0.01;
 
     public static final double LEGENDARY_CHANCE = 0.04;
     public static final double RARE_CHANCE = 0.25;
-    public static final int BOSS_DROPS = 3;
+    public static final int BOSS_DROPS = 1;
 
     // ---- Spell tomes (casts per tome and drop weights live on Spell) ----
     /** Chance per ordinary kill, times Item Find. */
@@ -225,15 +225,15 @@ public final class Balance {
     public static final int COLLECTION_GIFT_SPARKS = 1;
     /**
      * Sparks every monster kill pays by its power tier ({@link Souls#tierOf}, 1 to 5), lowest and highest (owner,
-     * 2026-11-24): Basic 1 to 2, Uncommon 3 to 6, Rare 7 to 10, Legendary 11 to 19, Mythic 20 to 35. Index 0 is unused.
+     * 2026-11-24): Basic 1 to 2 (10% for two), Uncommon 2 to 4, Rare 5 to 6, Legendary 7 to 10, Mythic 11 to 20. Index 0 is unused.
      */
-    public static final int[] KILL_SPARKS_MIN = {0, 1, 3, 7, 11, 20}, KILL_SPARKS_MAX = {0, 2, 6, 10, 19, 35};
+    public static final int[] KILL_SPARKS_MIN = {0, 1, 2, 5, 7, 11}, KILL_SPARKS_MAX = {0, 2, 4, 6, 10, 20};
 
     /**
      * Chance a tier 5 monster drops a bonus Legendary piece, times Item Find.
      * Bosses have a separate guaranteed Legendary roll.
      */
-    public static final double TIER_FIVE_LEGENDARY_CHANCE = 0.2;
+    public static final double TIER_FIVE_LEGENDARY_CHANCE = 0.1;
     /** After dawn a Cleanse-cracked ward heals one crack this often (ten seconds; must be a multiple of 10). */
     public static final int SCAR_HEAL_TICKS = 200;
     /** Share of the carried Sparks that burn away for good on death; the rest drop where you fell. */

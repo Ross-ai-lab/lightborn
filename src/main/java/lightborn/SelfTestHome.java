@@ -33,7 +33,7 @@ final class SelfTestHome {
         for (var holder : l.getServer().getRecipeManager().getRecipes())
             if (Arrays.stream(Furniture.Kind.values())
                     .anyMatch(k -> holder.id().identifier().equals(ModItems.id(k.id())))) recipes++;
-        check("eight_furniture_recipes", recipes == 8, recipes);
+        check("seven_furniture_recipes", recipes == 7, recipes);
         var fridge = at.east(2);
         l.setBlockAndUpdate(fridge, Furniture.BLOCKS.get(Furniture.Kind.FRIDGE).defaultBlockState());
         var storage = (Furniture.Storage) l.getBlockEntity(fridge);

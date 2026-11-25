@@ -146,6 +146,7 @@ public final class Collection {
      */
     static final Set<String> UNOBTAINABLE = Set.of(
             "lightborn:light_chest",
+            "lightborn:wardrobe",
             "minecraft:bedrock",
             "minecraft:budding_amethyst",
             "minecraft:reinforced_deepslate",

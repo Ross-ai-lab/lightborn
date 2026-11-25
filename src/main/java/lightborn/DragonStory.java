@@ -111,6 +111,8 @@ public final class DragonStory {
                 ModItems.id(name), b -> b.persistent(codec).copyOnDeath());
     }
 
+    public static final int RETURN_SPIRIT = 4;
+
     public record Power(int action) implements CustomPacketPayload {
         public static final Type<Power> TYPE = new Type<>(ModItems.id("story_power"));
         static final StreamCodec<RegistryFriendlyByteBuf, Power> CODEC =
@@ -150,6 +152,7 @@ public final class DragonStory {
             } else if (a.action == 2) DragonForm.breathe(c.player());
             // Right-click in a beast form is its power (owner, 2026-11-23: not V), sent by FormUseMixin.
             else if (a.action == 3) FormSpells.power(c.player());
+            else if (a.action == RETURN_SPIRIT) FormSpells.returnSpirit(c.player());
         });
         UseBlockCallback.EVENT.register(
                 (p, l, h, hit) -> p instanceof ServerPlayer s ? gate(s, h, hit.getBlockPos()) : InteractionResult.PASS);

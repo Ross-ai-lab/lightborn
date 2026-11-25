@@ -105,6 +105,7 @@ public class VisualTest implements FabricClientGameTest {
             "boss",
             "encounter",
             "spellstone",
+            "spirit_walk",
             "nest",
             "nether_nest",
             "dark",
@@ -281,6 +282,28 @@ public class VisualTest implements FabricClientGameTest {
                 Soft.require(
                         ctx.computeOnClient(mc -> ((CollectionScreen) mc.gui.screen()).canCraft()),
                         "The Crafting tab could not preview a bucket from stored iron");
+                var craft = ctx.computeOnClient(mc -> {
+                    var button = mc.gui.screen().children().stream()
+                            .filter(Button.class::isInstance)
+                            .map(Button.class::cast)
+                            .filter(b -> b.visible && b.getMessage().getString().equals("Craft"))
+                            .findFirst()
+                            .orElseThrow();
+                    double scale = mc.getWindow().getGuiScale();
+                    return new double[] {
+                        (button.getX() + button.getWidth() / 2.0) * scale,
+                        (button.getY() + button.getHeight() / 2.0) * scale
+                    };
+                });
+                ctx.getInput().setCursorPos(craft[0], craft[1]);
+                ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+                ctx.waitTicks(5);
+                ctx.takeScreenshot("lightborn_chest_crafting_sparks");
+                Soft.require(
+                        sp.getServer()
+                                .computeOnServer(
+                                        server -> player(server).getInventory().countItem(Items.BUCKET) == 2),
+                        "Craft button did not create a bucket");
                 ctx.setScreen(() -> null);
             }
 
@@ -1488,6 +1511,25 @@ public class VisualTest implements FabricClientGameTest {
                 ctx.getInput().setCursorPos(1, 1);
                 ctx.getInput().pressKey(InputConstants.KEY_E);
                 ctx.waitTicks(5);
+            }
+
+            if (scene("spirit_walk")) {
+                fresh(ctx, sp, 18000, false);
+                castGreater(sp, Spell.SPIRIT_WALK);
+                ctx.waitTicks(10);
+                ctx.getInput().holdMouse(InputConstants.MOUSE_BUTTON_RIGHT);
+                ctx.waitTicks(6);
+                Soft.require(
+                        ctx.computeOnClient(mc -> mc.player.isSpectator() && mc.player.isScoping()),
+                        "Spirit Walk did not scope when held");
+                ctx.takeScreenshot("lightborn_spirit_walk_spyglass");
+                ctx.getInput().releaseMouse(InputConstants.MOUSE_BUTTON_RIGHT);
+                ctx.getInput().holdKey(InputConstants.KEY_LCONTROL);
+                ctx.waitTicks(8);
+                ctx.getInput().releaseKey(InputConstants.KEY_LCONTROL);
+                Soft.require(
+                        sp.getServer().computeOnServer(server -> !player(server).isSpectator()),
+                        "Control did not return the spirit");
             }
 
             if (scene("nest")) {

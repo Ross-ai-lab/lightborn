@@ -40,6 +40,7 @@
     "OwlSightMixin",
     "FormRenderMixin",
     "FormUseMixin",
+    "SpiritScopeMixin",
     "FrostTintMixin",
     "ContainerScreenAccessor",
     "BenchSwitchMixin"

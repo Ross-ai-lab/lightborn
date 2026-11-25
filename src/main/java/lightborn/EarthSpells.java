@@ -165,6 +165,7 @@ public final class EarthSpells {
     // ---------------------------------------------------------------- Earthshatter
 
     private static final class Fissure {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         Vec3 pos;
@@ -322,7 +323,7 @@ public final class EarthSpells {
                 double dx = e.getX() - f.pos.x, dz = e.getZ() - f.pos.z;
                 if (dx * dx + dz * dz > f.radius * f.radius) continue;
                 f.struck.add(e.getUUID());
-                Spells.hit(f.owner, e, f.dmg, Spell.EARTHSHATTER);
+                Spells.hit(f.owner, e, f.dmg, Spell.EARTHSHATTER, f.cast);
                 e.setDeltaMovement(e.getDeltaMovement().multiply(0.3, 0, 0.3).add(0, 0.8 * (1 - knockResist(e)), 0));
             }
         }
@@ -398,6 +399,7 @@ public final class EarthSpells {
     static final double WALL_REACH = 12;
 
     static final class Wall {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final List<BlockPos> cells;
@@ -534,7 +536,7 @@ public final class EarthSpells {
                 if (!(w.level.getBlockState(cell).getBlock() instanceof ConjuredBlock)) continue;
                 for (var e : w.level.getEntitiesOfClass(
                         LivingEntity.class, new AABB(cell).inflate(.3), e -> monster(w.owner, e)))
-                    if (struck.add(e)) Spells.hit(w.owner, e, Perks.flat(w.owner, 1), Spell.STONE_WALL);
+                    if (struck.add(e)) Spells.hit(w.owner, e, Perks.flat(w.owner, 1), Spell.STONE_WALL, w.cast);
             }
         }
     }
@@ -547,6 +549,7 @@ public final class EarthSpells {
     static final net.minecraft.resources.Identifier STILL = ModItems.id("crystal_shell_still");
 
     static final class Shell {
+        final CastContext.Cast cast = CastContext.elemental();
         int ticks;
         final List<Display.BlockDisplay> walls = new ArrayList<>();
 
@@ -661,18 +664,18 @@ public final class EarthSpells {
             s.walls.forEach(SpellKit::drop);
             free(p);
             it.remove();
-            shatter(p);
+            shatter(p, s.cast);
         }
     }
 
-    private static void shatter(ServerPlayer p) {
+    private static void shatter(ServerPlayer p, CastContext.Cast cast) {
         var level = p.level();
         double radius = SpellUpgrades.scale(Spell.CRYSTAL_SHELL, AREA, SHELL_SHATTER);
         boolean shards = SpellUpgrades.perk(p, Spell.CRYSTAL_SHELL, "Shard Burst");
         boolean blind = SpellUpgrades.perk(p, Spell.CRYSTAL_SHELL, "Blinding Shatter");
         purify(p);
         for (var e : Perks.nearestMonsters(p, null, p.position(), radius, 64)) {
-            if (shards) Spells.hit(p, e, Perks.flat(p, 8), Spell.CRYSTAL_SHELL);
+            if (shards) Spells.hit(p, e, Perks.flat(p, 8), Spell.CRYSTAL_SHELL, cast);
             throwFrom(e, p.position(), 2.2, .55); // twice as far (owner, 2026-11-22)
             if (blind) daze(e, p, DAZE_TICKS);
         }
@@ -707,6 +710,7 @@ public final class EarthSpells {
     // owner, 2026-11-23 (was .88)
 
     static final class Boulder {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final Display.BlockDisplay stone;
@@ -846,7 +850,7 @@ public final class EarthSpells {
         sound(b.level, at, SoundEvents.STONE_BREAK, 1.6f, .5f);
         sound(b.level, at, SoundEvents.GENERIC_EXPLODE.value(), .6f, 1.4f);
         for (var e : Perks.nearestMonsters(b.owner, null, at, radius, 32)) {
-            Spells.hit(b.owner, e, dmg, Spell.BOULDER);
+            Spells.hit(b.owner, e, dmg, Spell.BOULDER, b.cast);
             if (!(e instanceof Mob m && Cage.mighty(m))) {
                 Vec3 away = e.position().subtract(at).multiply(1, 0, 1);
                 away = away.lengthSqr() < 1e-4 ? new Vec3(1, 0, 0) : away.normalize();
@@ -864,7 +868,7 @@ public final class EarthSpells {
                         chest(e),
                         new BlockParticleOption(ParticleTypes.BLOCK, Blocks.STONE.defaultBlockState()),
                         .5);
-                Spells.hit(b.owner, e, dmg / 2, Spell.BOULDER);
+                Spells.hit(b.owner, e, dmg / 2, Spell.BOULDER, b.cast);
             }
     }
 }

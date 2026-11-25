@@ -459,7 +459,7 @@ final class SelfTest {
         check(
                 "items_registered",
                 count
-                        == 41
+                        == 40
                                 + Spell.values().length
                                 + ModEntities.EGGS.size() /* + the Spellstone, Dark Shard Ore, Spark Ore */,
                 count);

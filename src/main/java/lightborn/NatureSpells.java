@@ -90,6 +90,7 @@ public final class NatureSpells {
     static final int THORN_TICKS = 160, ROOT_GROW = 8, ROOTS_MAX = 48;
 
     static final class Thicket {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final Vec3 centre, along;
@@ -241,7 +242,7 @@ public final class NatureSpells {
                 if (strangle) Perks.root(e, p, 10);
                 else e.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 10, 2), p);
                 if (!cut) continue;
-                Spells.hit(p, e, t.dmg, Spell.THORNFIELD);
+                Spells.hit(p, e, t.dmg, Spell.THORNFIELD, t.cast);
                 if (venom) e.addEffect(new MobEffectInstance(MobEffects.POISON, 60, 0), p);
                 t.level.sendParticles(ParticleTypes.CRIT, e.getX(), e.getY() + .4, e.getZ(), 5, .3, .2, .3, .1);
                 t.level.sendParticles(
@@ -433,6 +434,7 @@ public final class NatureSpells {
     static final float TREE_SCALE = 1.75f;
 
     static final class Bloom {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final ServerLevel level;
         final List<Display.BlockDisplay> tree = new ArrayList<>(), ring = new ArrayList<>();
@@ -618,7 +620,7 @@ public final class NatureSpells {
         }
         if (b.thorns && !b.owner.isRemoved())
             for (var e : Perks.nearestMonsters(b.owner, null, b.at, b.radius, 32)) {
-                Spells.hit(b.owner, e, Perks.flat(b.owner, 2), Spell.LIFEBLOOM);
+                Spells.hit(b.owner, e, Perks.flat(b.owner, 2), Spell.LIFEBLOOM, b.cast);
                 level.sendParticles(ParticleTypes.CRIT, e.getX(), chest(e).y, e.getZ(), 6, .3, .3, .3, .1);
             }
         if (b.manaBloom && !b.owner.isRemoved() && b.owner.position().distanceToSqr(b.at) <= b.radius * b.radius)

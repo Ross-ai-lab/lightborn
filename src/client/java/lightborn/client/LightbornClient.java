@@ -41,6 +41,7 @@ public class LightbornClient implements ClientModInitializer {
     static final KeyMapping.Category CATEGORY =
             KeyMapping.Category.register(Identifier.fromNamespaceAndPath("lightborn", "keys"));
     static KeyMapping storyPower, dragonBreath, spellstoneFive;
+    private boolean wasSpiritControlDown;
 
     @Override
     public void onInitializeClient() {
@@ -221,6 +222,16 @@ public class LightbornClient implements ClientModInitializer {
 
         // The Spellstone's keys go first, before the game reads Q, R and V for themselves.
         ClientTickEvents.START_CLIENT_TICK.register(SpellstoneView::tick);
+        ClientTickEvents.START_CLIENT_TICK.register(client -> {
+            boolean down = InputConstants.isKeyDown(InputConstants.KEY_LCONTROL)
+                    || InputConstants.isKeyDown(InputConstants.KEY_RCONTROL);
+            if (down
+                    && !wasSpiritControlDown
+                    && client.gui.screen() == null
+                    && lightborn.FormSpells.spiritSight(client.player))
+                ClientPlayNetworking.send(new DragonStory.Power(DragonStory.RETURN_SPIRIT));
+            wasSpiritControlDown = down;
+        });
         net.minecraft.client.gui.screens.MenuScreens.register(lightborn.Spellstone.MENU, SpellstoneView.Screen::new);
         net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback.EVENT.register(
                 data -> data instanceof lightborn.Spellstone.Slots s ? new SpellstoneView.Tooltip(s.tomes()) : null);

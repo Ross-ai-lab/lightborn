@@ -237,7 +237,7 @@ final class UpgradeTab extends ChestTab {
     /** Height of one tier of the tree: roomy on a tall screen, tighter on a short one, leaving the panel ~46 px. */
     private int treeRow() {
         int space = bottom() - 52 - treeTop();
-        return Math.clamp((space - 20) / 2, 30, 46);
+        return Math.clamp((space - 20) / 2, 26, 46);
     }
 
     /** Top of a tier's three branch nodes. */
@@ -571,9 +571,12 @@ final class UpgradeTab extends ChestTab {
             lines.addAll(fits ? full : brief);
             colors.addAll(fits ? fullColors : briefColors);
         }
-        int ly = py + 4;
-        for (int i = 0; i < lines.size() && ly + 9 <= bottom; i++, ly += 10)
-            g.text(font(), lines.get(i), px + 5, ly, colors.get(i), false);
+        float scale = Math.min(1f, (bottom - py - 7f) / Math.max(10, lines.size() * 10));
+        g.pose().pushMatrix();
+        g.pose().translate(px + 5, py + 4);
+        g.pose().scale(scale, scale);
+        for (int i = 0; i < lines.size(); i++) g.text(font(), lines.get(i), 0, i * 10, colors.get(i), false);
+        g.pose().popMatrix();
     }
 
     @Override

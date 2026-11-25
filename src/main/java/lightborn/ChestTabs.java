@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -17,7 +18,7 @@ import net.minecraft.world.level.Level;
  * <ul>
  *   <li>Shop: after surviving one night (outdoors or in, from nightfall to dawn without dying);
  *   <li>Cleanse: after beating one Dark Fountain;
- *   <li>Travel: after beating {@link #TRAVEL_FOUNTAINS};
+ *   <li>Travel: after seven Minecraft days of player playtime;
  *   <li>Spirits: once the Book of Souls has been found (carried, or in a Spellstone).
  * </ul>
  * The counts live on the player, kept through death and synced to them so the chest can read them.
@@ -25,7 +26,9 @@ import net.minecraft.world.level.Level;
 public final class ChestTabs {
     private ChestTabs() {}
 
-    public static final int CLEANSE_FOUNTAINS = 1, TRAVEL_FOUNTAINS = 8, SHOP_NIGHTS = 1;
+    public static final int CLEANSE_FOUNTAINS = 1, SHOP_NIGHTS = 1;
+    static final int TRAVEL_PLAY_TICKS = 7 * 24_000;
+    public static final String TRAVEL_LOCKED = "Play for seven Minecraft days first.";
 
     /** Dark Fountains whose core this player broke. */
     public static final AttachmentType<Integer> FOUNTAINS_BEATEN = AttachmentRegistry.<Integer>create(
@@ -39,6 +42,10 @@ public final class ChestTabs {
             b -> b.persistent(Codec.INT)
                     .copyOnDeath()
                     .syncWith(ByteBufCodecs.VAR_INT, AttachmentSyncPredicate.targetOnly()));
+
+    private static final AttachmentType<Boolean> TRAVEL_READY = AttachmentRegistry.<Boolean>create(
+            ModData.id("travel_ready"), b -> b.syncWith(ByteBufCodecs.BOOL, AttachmentSyncPredicate.targetOnly()));
+
     /** Whether this player has held the Book of Souls. */
     public static final AttachmentType<Boolean> SOULS_FOUND = AttachmentRegistry.<Boolean>create(
             ModData.id("souls_found"),
@@ -61,7 +68,14 @@ public final class ChestTabs {
     }
 
     public static boolean travel(Player p) {
-        return p.isCreative() || p.getAttachedOrElse(FOUNTAINS_BEATEN, 0) >= TRAVEL_FOUNTAINS;
+        return p.isCreative()
+                || (p instanceof ServerPlayer server
+                        ? playedWeek(server)
+                        : Boolean.TRUE.equals(p.getAttached(TRAVEL_READY)));
+    }
+
+    private static boolean playedWeek(ServerPlayer player) {
+        return player.getStats().getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)) >= TRAVEL_PLAY_TICKS;
     }
 
     public static boolean spirits(Player p) {
@@ -86,6 +100,8 @@ public final class ChestTabs {
         wasNight = night;
         long day = LightShop.day(overworld);
         for (ServerPlayer p : server.getPlayerList().getPlayers()) {
+            boolean ready = playedWeek(p);
+            if (ready != Boolean.TRUE.equals(p.getAttached(TRAVEL_READY))) p.setAttached(TRAVEL_READY, ready);
             if (!Boolean.TRUE.equals(p.getAttached(SOULS_FOUND)) && carriesSouls(p)) p.setAttached(SOULS_FOUND, true);
             if (!p.isAlive()) continue;
             if (nightfall && p.level().dimension() == Level.OVERWORLD) p.setAttached(WATCH, day);

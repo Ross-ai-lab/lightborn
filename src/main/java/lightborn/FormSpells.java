@@ -468,6 +468,7 @@ public final class FormSpells {
 
     /** One player's shape: its spell's power and perks, read once when it was cast. */
     static final class Shape {
+        final CastContext.Cast cast = CastContext.elemental();
         final Form form;
         final long until;
         final double dmg, reach, area;
@@ -676,7 +677,7 @@ public final class FormSpells {
             if (!p.isRemoved() && p.isAlive()) {
                 if (sh.has("Haunting"))
                     for (var e : Perks.nearestMonsters(p, null, p.position(), 6, 32)) {
-                        Spells.hit(p, e, Perks.flat(p, 8), Spell.SPIRIT_WALK);
+                        Spells.hit(p, e, Perks.flat(p, 8), Spell.SPIRIT_WALK, sh.cast);
                         HexSpells.frighten(p, e, 60, false, false);
                     }
                 if (sh.has("Unseen Return")) {
@@ -889,15 +890,16 @@ public final class FormSpells {
 
     // ---------------------------------------------------------------- The forms: right-click powers
 
-    /** Right-click in a form: its power, if it is ready. True when a form took the click. */
+    public static void returnSpirit(ServerPlayer p) {
+        if (spiritSight(p)) end(p);
+    }
+
+    /** Right-click in a beast form activates its power when ready. */
     public static boolean power(ServerPlayer p) {
         Shape sh = SHAPES.get(p);
         if (sh == null) return false;
         long now = p.level().getGameTime();
-        if (sh.form == Form.SPIRIT) {
-            end(p);
-            return true;
-        }
+        if (sh.form == Form.SPIRIT) return true;
         if (now < sh.ready) return true;
         ServerLevel level = p.level();
         boolean used = switch (sh.form) {
@@ -954,7 +956,7 @@ public final class FormSpells {
         List<LivingEntity> bitten = new ArrayList<>(List.of(prey));
         if (sh.has("Rending Pounce")) bitten.addAll(Perks.nearestMonsters(p, prey, prey.position(), 2.5, 16));
         for (var e : bitten) {
-            Spells.hit(p, e, sh.dmg, Spell.WOLF_FORM);
+            Spells.hit(p, e, sh.dmg, Spell.WOLF_FORM, sh.cast);
             if (sh.has("Feral Bite")) bleed(p, e);
             level.sendParticles(ParticleTypes.SWEEP_ATTACK, e.getX(), chest(e).y, e.getZ(), 1, 0, 0, 0, 0);
         }
@@ -975,7 +977,7 @@ public final class FormSpells {
     /** Bear: a roar that strikes and throws back every monster near. */
     private static boolean roar(ServerLevel level, ServerPlayer p, Shape sh) {
         for (var e : Perks.nearestMonsters(p, null, p.position(), sh.area, 32)) {
-            Spells.hit(p, e, sh.dmg, Spell.BEAR_FORM);
+            Spells.hit(p, e, sh.dmg, Spell.BEAR_FORM, sh.cast);
             if (!(e instanceof Mob m && Cage.mighty(m))) {
                 Vec3 away = e.position().subtract(p.position()).multiply(1, 0, 1);
                 away = away.lengthSqr() < 1e-4 ? p.getLookAngle() : away.normalize();
@@ -1063,7 +1065,7 @@ public final class FormSpells {
             struck.add(e);
         }
         for (var e : struck) {
-            Spells.hit(p, e, sh.dmg, Spell.WARDEN_FORM);
+            Spells.hit(p, e, sh.dmg, Spell.WARDEN_FORM, sh.cast);
             if (!(e instanceof Mob m && Cage.mighty(m))) {
                 double keep = 1 - SpellKit.knockResist(e);
                 e.setDeltaMovement(
@@ -1077,7 +1079,7 @@ public final class FormSpells {
                     .filter(e -> !struck.contains(e))
                     .limit(2)
                     .forEach(e -> {
-                        Spells.hit(p, e, sh.dmg / 2, Spell.WARDEN_FORM);
+                        Spells.hit(p, e, sh.dmg / 2, Spell.WARDEN_FORM, sh.cast);
                         level.sendParticles(ParticleTypes.SONIC_BOOM, e.getX(), chest(e).y, e.getZ(), 1, 0, 0, 0, 0);
                     });
         // The rings start a little ahead of you, so they never fill your own view.

@@ -529,6 +529,7 @@ public final class SummonSpells {
     static final double COLOSSUS_SCALE = 2, SLAM_RADIUS = 4;
 
     static final class Giant {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final IronGolem golem;
         final double dmg, slam;
@@ -663,7 +664,7 @@ public final class SummonSpells {
             if (near.isEmpty()) continue;
             // The slam: both fists into the ground, a ring of broken earth, everything near thrown back.
             for (var e : near) {
-                Spells.hit(g.owner, e, g.dmg * .5, Spell.COLOSSUS);
+                Spells.hit(g.owner, e, g.dmg * .5, Spell.COLOSSUS, g.cast);
                 throwFrom(e, golem.position(), 1.2, .55);
             }
             for (double r = 1; r <= g.slam; r += 1)

@@ -626,6 +626,7 @@ public final class TravelSpells {
     }
 
     static final class Pair {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer owner;
         final Gate a, b;
         int ticks, age;
@@ -754,7 +755,7 @@ public final class TravelSpells {
                     if (g.arrived.contains(e.getUUID())) continue;
                     if (e instanceof LivingEntity le && monster(p, le)) {
                         if (SpellUpgrades.perk(p, Spell.MOONGATE, "Banishing Gate") && now % 10 == 0) {
-                            Spells.hit(p, le, Perks.flat(p, 8), Spell.MOONGATE);
+                            Spells.hit(p, le, Perks.flat(p, 8), Spell.MOONGATE, pair.cast);
                             throwFrom(le, g.pos, 1.2, .5);
                         }
                         continue;
@@ -823,6 +824,7 @@ public final class TravelSpells {
     static final int COMET_TICKS = 10, COMET_SAFE = 60, SECOND_WIND = 60;
 
     static final class Dash {
+        final CastContext.Cast cast = CastContext.elemental();
         final ServerPlayer p;
         final Vec3 dir;
         final double speed, dmg;
@@ -930,7 +932,7 @@ public final class TravelSpells {
             Vec3 at = chest(e);
             if (SpellKit.distToSegment(at, a.add(0, 1, 0), b.add(0, 1, 0)) > COMET_HIT) continue;
             d.struck.add(e);
-            Spells.hit(d.p, e, d.dmg, Spell.COMET_DASH);
+            Spells.hit(d.p, e, d.dmg, Spell.COMET_DASH, d.cast);
             Vec3 side = e.position().subtract(b);
             side = side.subtract(d.dir.scale(side.dot(d.dir)));
             if (side.lengthSqr() < 1e-3) side = d.dir.cross(up);
@@ -945,7 +947,7 @@ public final class TravelSpells {
     private static void shockwave(ServerLevel level, Dash d) {
         Vec3 at = d.p.position();
         for (var e : Perks.nearestMonsters(d.p, null, at, 3, 32)) {
-            Spells.hit(d.p, e, d.dmg * .5, Spell.COMET_DASH);
+            Spells.hit(d.p, e, d.dmg * .5, Spell.COMET_DASH, d.cast);
             fling(e, e.position().subtract(at), 1.1, .45);
         }
         Spells.ring(level, at.add(0, .2, 0), 3, ParticleTypes.FLAME);

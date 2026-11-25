@@ -125,12 +125,7 @@ public final class HomeMove {
         ServerPlayNetworking.registerGlobalReceiver(Move.TYPE, (m, ctx) -> {
             var p = ctx.player();
             if (LightShop.near(p, m.chest()))
-                ChestTravel.reply(
-                        p,
-                        m.chest(),
-                        ChestTabs.travel(p)
-                                ? start(p, m.chest())
-                                : "Beat " + ChestTabs.TRAVEL_FOUNTAINS + " Dark Fountains first.");
+                ChestTravel.reply(p, m.chest(), ChestTabs.travel(p) ? start(p, m.chest()) : ChestTabs.TRAVEL_LOCKED);
         });
     }
 
