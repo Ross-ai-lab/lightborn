@@ -113,7 +113,8 @@ final class CollectionLight {
 
     static void tickPlayer(ServerPlayer player) {
         tickGround(player);
-        int light = Boolean.TRUE.equals(player.getAttached(ModData.LIGHT_COMPLETE)) ? 15 : LightGear.radiance(player);
+        boolean complete = Boolean.TRUE.equals(player.getAttached(ModData.LIGHT_COMPLETE));
+        int light = complete ? 15 : LightGear.radiance(player);
         if (!player.isAlive() || player.isSpectator() || light <= 0) {
             release(player.getUUID());
             return;
@@ -128,7 +129,7 @@ final class CollectionLight {
             STRENGTHS.put(player.getUUID(), light);
             place(player.getUUID(), site);
         }
-        if (light == 15 && Scheduler.now() % 10 == 0) {
+        if (complete && Scheduler.now() % 10 == 0) {
             var level = player.level();
             double angle = level.getRandom().nextDouble() * Math.PI * 2;
             double x = Math.cos(angle) * 2.8, z = Math.sin(angle) * 2.8;

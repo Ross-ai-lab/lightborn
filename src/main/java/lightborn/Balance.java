@@ -9,7 +9,7 @@ public final class Balance {
     public static final int TABLE_LAPIS_PER_TIER = 3;
 
     public static final int ANVIL_LAPIS_CAP = 39;
-    public static final int FOOD_DRAIN_TICKS = 5 * 60 * 20;
+    public static final int FOOD_DRAIN_TICKS = 4615;
     /** Book of Souls: one kill earns a kind's spirit; ranks II to V and slots 3 to 5 are bought with Sparks. */
     public static final int SPIRIT_KILL_COUNT_CAP = 9999, SPIRIT_MAX_RANK = 5;
     /**
@@ -227,7 +227,7 @@ public final class Balance {
      * Sparks every monster kill pays by its power tier ({@link Souls#tierOf}, 1 to 5), lowest and highest (owner,
      * 2026-11-24): Basic 1 to 2 (10% for two), Uncommon 2 to 4, Rare 5 to 6, Legendary 7 to 10, Mythic 11 to 20. Index 0 is unused.
      */
-    public static final int[] KILL_SPARKS_MIN = {0, 1, 2, 5, 7, 11}, KILL_SPARKS_MAX = {0, 2, 4, 6, 10, 20};
+    public static final int[] KILL_SPARKS = {0, 1, 2, 3, 5, 10};
 
     /**
      * Chance a tier 5 monster drops a bonus Legendary piece, times Item Find.

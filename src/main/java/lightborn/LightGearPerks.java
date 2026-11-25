@@ -85,8 +85,8 @@ final class LightGearPerks {
         if (has(p, CHEST, "Bulwark") && p.getHealth() < p.getMaxHealth() / 2) keep(p, MobEffects.RESISTANCE, 0);
         if (has(p, GREAVES, "Swift by Night") && LightDragons.night(level)) keep(p, MobEffects.SPEED, 0);
         if (has(p, GREAVES, "Mender's Gait") && p.isSprinting() && p.tickCount % 60 == 0) p.heal(1);
-        if (has(p, BOOTS, "Tide Runner") && p.isInWater()) keep(p, MobEffects.DOLPHINS_GRACE, 0);
-        if (has(p, BOOTS, "Spring Step")) keep(p, MobEffects.JUMP_BOOST, 1);
+        if (has(p, BOOTS, "Swimmer") && p.isInWater()) keep(p, MobEffects.DOLPHINS_GRACE, 0);
+        if (has(p, BOOTS, "Spring Step")) keep(p, MobEffects.JUMP_BOOST, 0);
         if (p.isFallFlying() && has(p, WINGS, "Tireless Wings")) {
             var wings = piece(p, WINGS);
             wings.setDamageValue(Math.max(0, wings.getDamageValue() - 2));
@@ -137,15 +137,16 @@ final class LightGearPerks {
 
     /** Clear Mind keeps these off the wearer. */
     static boolean immune(LivingEntity p, net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> fx) {
-        return (fx == MobEffects.NAUSEA || fx == MobEffects.DARKNESS || fx == MobEffects.MINING_FATIGUE)
-                && has(p, HELM, "Clear Mind");
+        return (fx == MobEffects.SLOWNESS || fx == NatureSpells.THORN_SLOW) && has(p, BOOTS, "Unhindered")
+                || (fx == MobEffects.NAUSEA || fx == MobEffects.DARKNESS || fx == MobEffects.MINING_FATIGUE)
+                        && has(p, HELM, "Clear Mind");
     }
 
     /** Every hit, before armour: the sword's extra damage, Featherfall and Soft Landing. */
     static float modify(LivingEntity target, DamageSource source, float amount) {
         if (target instanceof ServerPlayer p) {
             boolean fall = source.is(DamageTypes.FALL);
-            if (fall && has(p, BOOTS, "Featherfall")) return 0;
+            if (fall && has(p, BOOTS, "Featherfall")) amount *= .4f;
             if ((fall || source.is(DamageTypes.FLY_INTO_WALL)) && has(p, WINGS, "Soft Landing")) return 0;
             if (fall && has(p, MACE, "Meteor Fall")) return 0;
         }

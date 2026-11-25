@@ -209,7 +209,7 @@ final class UpgradeTab extends ChestTab {
     }
 
     private int stripY() {
-        return upgradeY() + 14;
+        return upgradeY() + (gear ? 10 : 0);
     }
 
     private int perRow() {
@@ -304,13 +304,6 @@ final class UpgradeTab extends ChestTab {
     void draw(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         int x = s.gridX() + 4, y = upgradeY(), w = s.gridW() - 12;
         int free = free();
-        g.text(
-                font(),
-                Component.literal(gear ? "Upgrade Gear" : "Upgrade Spells").withStyle(ChatFormatting.BOLD),
-                x,
-                y,
-                gear ? LIGHT_GOLD : UP_RED,
-                true);
         var slots = treeSlots();
         if (slots.isEmpty()) {
             int ly = stripY() + 4;

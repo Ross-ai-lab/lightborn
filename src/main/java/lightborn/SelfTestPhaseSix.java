@@ -139,6 +139,10 @@ final class SelfTestPhaseSix {
                 "food_activity_no_extra_drain",
                 food.getFoodLevel() == 20 && food.getSaturationLevel() == 8,
                 food.getFoodLevel());
+        p.setHealth(p.getMaxHealth() - 8);
+        p.heal(8);
+        check("recovering_health_spends_food", food.getFoodLevel() == 19, food.getFoodLevel());
+        food.setFoodLevel(20);
         p.setAttached(ModData.FOOD_TIMER, Balance.FOOD_DRAIN_TICKS - 2);
         SteadyFood.tick(p);
         check("food_fixed_timer_before_boundary", food.getFoodLevel() == 20, food.getFoodLevel());

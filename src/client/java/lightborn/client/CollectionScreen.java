@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import lightborn.ChestStations;
 import lightborn.ChestTabs;
 import lightborn.ChestTravel;
 import lightborn.Cleanse;
@@ -42,7 +43,7 @@ import net.minecraft.world.entity.player.Player;
  */
 public class CollectionScreen extends Screen {
     /** One fixed tab: its code, name, colour and whether this player has it yet. */
-    public static final int CRAFTING = -8;
+    public static final int CRAFTING = -8, FURNACE = -9, ANVIL = -10;
 
     private record Fixed(int code, String name, int color, Predicate<Player> open) {}
 
@@ -53,7 +54,9 @@ public class CollectionScreen extends Screen {
     private static final List<Fixed> FIXED = List.of(
             new Fixed(UPGRADE_SPELLS, "Upgrade Spells", QUEST_RED, p -> true),
             new Fixed(UPGRADE_GEAR, "Upgrade Gear", LIGHT_GOLD, p -> true),
-            new Fixed(CRAFTING, "Crafting", 0xFF74D8CE, p -> true),
+            new Fixed(CRAFTING, "Crafting", 0xFF74D8CE, p -> ChestStations.owned(p, ChestStations.Station.CRAFTING)),
+            new Fixed(FURNACE, "Furnace", 0xFFFFA66C, p -> ChestStations.owned(p, ChestStations.Station.FURNACE)),
+            new Fixed(ANVIL, "Anvil", 0xFFB3BCD3, p -> ChestStations.owned(p, ChestStations.Station.ANVIL)),
             new Fixed(CLEANSE, "Cleanse", CLEANSE_VIOLET, ChestTabs::cleanse),
             new Fixed(SHOP, "Shop", SHOP_BLUE, ChestTabs::shop),
             new Fixed(TRAVEL, "Travel", TRAVEL_GREEN, ChestTabs::travel),
@@ -87,6 +90,8 @@ public class CollectionScreen extends Screen {
         fixedTabs.put(UPGRADE_SPELLS, spells);
         fixedTabs.put(UPGRADE_GEAR, gear);
         fixedTabs.put(CRAFTING, crafting);
+        fixedTabs.put(FURNACE, new StationTab(this, ChestStations.Station.FURNACE));
+        fixedTabs.put(ANVIL, new StationTab(this, ChestStations.Station.ANVIL));
         fixedTabs.put(CLEANSE, cleanse);
         fixedTabs.put(SHOP, shopTab);
         fixedTabs.put(TRAVEL, travel);

@@ -47,15 +47,14 @@ final class SelfTestMonsters {
             var mob = page.get().type().get().create(level, EntitySpawnReason.COMMAND);
             for (int i = 0; i < 20 && mob != null; i++) {
                 int n = Lightborn.killSparks(mob);
-                if (Lightborn.monsterTier(mob) != t || n < Balance.KILL_SPARKS_MIN[t] || n > Balance.KILL_SPARKS_MAX[t])
+                if (Lightborn.monsterTier(mob) != t || n != Balance.KILL_SPARKS[t])
                     sparkBad.add(page.get().id() + "=" + n);
             }
         }
         var unlisted = EntityTypes.SLIME.create(level, EntitySpawnReason.COMMAND);
         int slimeSparks = Lightborn.killSparks(unlisted);
-        if (Lightborn.monsterTier(unlisted) != 1
-                || slimeSparks < Balance.KILL_SPARKS_MIN[1]
-                || slimeSparks > Balance.KILL_SPARKS_MAX[1]) sparkBad.add("slime=" + slimeSparks);
+        if (Lightborn.monsterTier(unlisted) != 1 || slimeSparks != Balance.KILL_SPARKS[1])
+            sparkBad.add("slime=" + slimeSparks);
         check("every_monster_pays_sparks_by_tier", sparkBad.isEmpty(), sparkBad);
         // Dark Phantoms vanish by day, a slept-through night included (owner, 2026-11-20); a spirit phantom stays.
         var clock = level.registryAccess().getOrThrow(net.minecraft.world.clock.WorldClocks.OVERWORLD);
@@ -150,7 +149,8 @@ final class SelfTestMonsters {
                 "boss_drops",
                 bossDrops.size() >= Balance.BOSS_DROPS
                         && bossDrops.size() <= Balance.BOSS_DROPS + 1
-                        && LootRoller.rarity(bossDrops.getFirst()) == LootRoller.Rarity.LEGENDARY
+                        && java.util.Set.of(LootRoller.Rarity.LEGENDARY, LootRoller.Rarity.UNCOMMON)
+                                .contains(LootRoller.rarity(bossDrops.getFirst()))
                         && bossDrops.stream().allMatch(stack -> LightGearTree.level(stack) == 1),
                 bossDrops.size());
         caster.setAttached(OreTiers.MINED, mined);

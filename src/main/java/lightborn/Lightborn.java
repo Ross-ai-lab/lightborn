@@ -68,6 +68,7 @@ public class Lightborn implements ModInitializer {
                 (entity, source, dealt, taken, blocked) -> Taunt.struck(entity, source));
         ModAttributes.init();
         ModData.init();
+        SteadyFood.init();
         ChestTabs.init();
         SurfaceLights.init();
         WardCombat.init();
@@ -76,6 +77,7 @@ public class Lightborn implements ModInitializer {
         ChestGlow.init();
         ModItems.init();
         ModEntities.init();
+        NatureSpells.init();
         DarkRealm.initWorld();
         Hollow.initWorld();
         SpellSchools.init();
@@ -236,6 +238,7 @@ public class Lightborn implements ModInitializer {
                     if (changed) p.setAttached(ModData.STORAGE, stored);
                 }
             ChestTabs.tick(server);
+            ChestStations.tick(server);
             NightHearing.tick(server);
             SteadyFood.tick(server);
             Command.tick(server);
@@ -412,6 +415,7 @@ public class Lightborn implements ModInitializer {
             LootRoller.Rarity r = LootRoller.rollRarity(random, rarity);
             if (floor != null && r == LootRoller.Rarity.UNCOMMON) r = floor;
             if (bossLegendary) r = LootRoller.Rarity.LEGENDARY;
+            r = LootRoller.combatRarity(random, r);
             ItemStack stack = LootRoller.roll(random, tier, r);
             LootBeams.onDrop(dead.spawnAtLocation(level, stack), r);
             dropped.add(stack);
@@ -438,7 +442,7 @@ public class Lightborn implements ModInitializer {
         if (info.rank() != MonsterInfo.BOSS
                 && monsterTier(dead) == 5
                 && best != null
-                && random.nextDouble() < Balance.TIER_FIVE_LEGENDARY_CHANCE * find) {
+                && random.nextDouble() < Balance.TIER_FIVE_LEGENDARY_CHANCE * find * .5) {
             ItemStack bonus = LootRoller.roll(random, best, LootRoller.Rarity.LEGENDARY);
             LootBeams.onDrop(dead.spawnAtLocation(level, bonus), LootRoller.Rarity.LEGENDARY);
             dropped.add(bonus);
@@ -486,12 +490,9 @@ public class Lightborn implements ModInitializer {
         return page == null ? (Giants.is(dead) ? 3 : 1) : Math.clamp(page.weight(), 1, 5);
     }
 
-    /** The Sparks one kill pays ({@link Balance#KILL_SPARKS_MIN}). */
+    /** The Sparks one kill pays, by monster tier. */
     static int killSparks(LivingEntity dead) {
-        int t = monsterTier(dead);
-        if (t == 1) return dead.getRandom().nextInt(10) == 0 ? 2 : 1;
-        return Balance.KILL_SPARKS_MIN[t]
-                + dead.getRandom().nextInt(Balance.KILL_SPARKS_MAX[t] - Balance.KILL_SPARKS_MIN[t] + 1);
+        return Balance.KILL_SPARKS[monsterTier(dead)];
     }
 
     /**

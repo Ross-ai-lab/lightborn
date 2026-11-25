@@ -180,7 +180,7 @@ public final class SpellUpgrades {
                 perk("Safe Landing", "No fall harm from where you blink to."),
                 perk("Blink Mend", "Each blink heals you a heart."),
                 perk("Phase Burst", "You arrive in a burst that throws back and slows monsters within 4 blocks."),
-                perk("Echo Step", "After a blink you can blink once more within 4 seconds, free and without waiting."),
+                perk("Echo Step", "Blink again within 4 seconds for 40 mana, without waiting for the cooldown."),
                 perk("Shadow Step", "You arrive unseen and quick: Invisibility and Speed II for 3 seconds."));
         spell(
                 Spell.STONESKIN,
@@ -644,8 +644,8 @@ public final class SpellUpgrades {
                 Spell.THORNFIELD,
                 u("More Damage", "+20% damage.", POWER, .20),
                 u("Less Mana", "Costs 30% less mana.", COST, -.30),
-                u("Wider Area", "The brambles spread 40% wider.", AREA, .40),
-                u("Lasts Longer", "Grows 12 seconds instead of 8.", DURATION, .50),
+                u("Wider Area", "The brambles spread 25% wider.", AREA, .25),
+                u("Lasts Longer", "Grows 10 seconds instead of 8.", DURATION, .25),
                 perk("Healing Roots", "Standing in your thicket, you heal 1 each second."),
                 u("Shorter Cooldown", "35% shorter cooldown.", COOLDOWN, -.35),
                 perk("Strangling Roots", "Monsters in it cannot move at all."),

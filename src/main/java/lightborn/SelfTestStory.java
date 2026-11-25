@@ -339,7 +339,7 @@ final class SelfTestStory {
                 for (int i = 0; i < n; i++) p.setItemSlot(slots[i], LightGear.gift(indices[i], 3));
                 check(
                         "radiance_" + n,
-                        LightGear.radiance(p) == (n == 0 ? 0 : Math.min(13, 2 + n * 2)),
+                        LightGear.radiance(p) == (n == 0 ? 0 : Math.min(15, (2 + n * 2) * 2)),
                         LightGear.radiance(p));
             }
             l.clockManager().setTotalTicks(clock, 110L * 24000 + 6000);

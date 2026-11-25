@@ -74,12 +74,32 @@ public class VisualTest implements FabricClientGameTest {
             "hut",
             "chest",
             "chest_gui4",
+            "chest_stations",
             "chest_crafting",
             "chest_hands",
             "hut_outside",
             "loot_beams",
             "showcase",
             "title");
+
+    private static void chestButton(ClientGameTestContext ctx, String label) {
+        double[] point = ctx.computeOnClient(mc -> {
+            var button = mc.gui.screen().children().stream()
+                    .filter(Button.class::isInstance)
+                    .map(Button.class::cast)
+                    .filter(b -> b.visible && b.getMessage().getString().equals(label))
+                    .findFirst()
+                    .orElseThrow();
+            double scale = mc.getWindow().getGuiScale();
+            return new double[] {
+                (button.getX() + button.getWidth() / 2.0) * scale, (button.getY() + button.getHeight() / 2.0) * scale
+            };
+        });
+        ctx.getInput().setCursorPos(point[0], point[1]);
+        ctx.waitTicks(2);
+        ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+    }
+
     /** Scenes in the open field beside the hut, in order. */
     static final List<String> FIELD = List.of(
             "zombies",
@@ -249,11 +269,70 @@ public class VisualTest implements FabricClientGameTest {
                 ctx.setScreen(() -> null);
             }
 
+            if (scene("chest_stations")) {
+                sp.getServer().runOnServer(server -> {
+                    look(server, -1, 1, -.5, 2, 1.2, 1);
+                    var player = player(server);
+                    player.setGameMode(GameType.SURVIVAL);
+                    player.setAttached(lightborn.ChestTabs.NIGHTS_SURVIVED, 1);
+                    player.getInventory().add(new ItemStack(ModItems.SPARK, 40));
+                });
+                ctx.waitTicks(12);
+                ctx.getInput().resizeWindow(1920, 1080);
+                ctx.runOnClient(mc -> {
+                    mc.options.guiScale().set(4);
+                    mc.resizeGui();
+                    var screen = new CollectionScreen(chestAt);
+                    mc.gui.setScreen(screen);
+                    screen.select(-2);
+                });
+                ctx.waitTicks(30);
+                chestButton(ctx, "Stations >");
+                ctx.waitTicks(5);
+                ctx.takeScreenshot("lightborn_chest_stations");
+                Soft.require(
+                        ctx.computeOnClient(mc -> ((CollectionScreen) mc.gui.screen()).outOfFrame())
+                                .isEmpty(),
+                        "A station shop button crosses the frame");
+                Soft.require(
+                        ctx.computeOnClient(mc -> ((CollectionScreen) mc.gui.screen()).cutLabels())
+                                .isEmpty(),
+                        "A station shop button has a clipped label");
+                ctx.runOnClient(mc -> net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(
+                        new lightborn.LightShop.Buy(
+                                chestAt,
+                                0,
+                                lightborn.ChestStations.OFFER_START
+                                        + lightborn.ChestStations.Station.FURNACE.ordinal())));
+                ctx.waitTicks(10);
+                Soft.require(
+                        sp.getServer()
+                                .computeOnServer(server -> lightborn.ChestStations.owned(
+                                        player(server), lightborn.ChestStations.Station.FURNACE)),
+                        "Shop purchase did not unlock Furnace");
+                ctx.runOnClient(mc -> ((CollectionScreen) mc.gui.screen()).select(CollectionScreen.FURNACE));
+                ctx.waitTicks(5);
+                ctx.takeScreenshot("lightborn_chest_furnace_tab");
+                chestButton(ctx, "Open Furnace");
+                ctx.waitTicks(12);
+                Soft.require(
+                        ctx.computeOnClient(
+                                mc -> mc.player.containerMenu instanceof net.minecraft.world.inventory.FurnaceMenu),
+                        "Chest Furnace did not open a usable furnace menu");
+                ctx.takeScreenshot("lightborn_chest_furnace");
+                ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
+                ctx.waitTicks(3);
+            }
+
             if (scene("chest_crafting")) {
                 sp.getServer().runOnServer(server -> {
                     look(server, -1, 1, -.5, 2, 1.2, 1);
                     var player = player(server);
                     player.setGameMode(GameType.SURVIVAL);
+                    player.setAttached(lightborn.ChestTabs.NIGHTS_SURVIVED, 1);
+                    player.getInventory().add(new ItemStack(ModItems.SPARK, lightborn.ChestStations.PRICE));
+                    lightborn.ChestStations.purchase(
+                            player, chestAt, lightborn.ChestStations.Station.CRAFTING.ordinal());
                     player.setAttached(
                             ModData.STORAGE,
                             List.of(
@@ -395,6 +474,8 @@ public class VisualTest implements FabricClientGameTest {
                                 "The non-essential donation did not store the repeat sea pickles and the two new drops");
                         ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
                         ctx.waitTicks(3);
+                        int sparksBeforeDeposit =
+                                sp.getServer().computeOnServer(server -> lightborn.LightShop.sparks(player(server)));
                         double[] sparkButton = ctx.computeOnClient(mc -> {
                             var button = mc.gui.screen().children().stream()
                                     .filter(Button.class::isInstance)
@@ -414,9 +495,11 @@ public class VisualTest implements FabricClientGameTest {
                         ctx.waitTicks(8);
                         Soft.require(
                                 sp.getServer()
-                                        .computeOnServer(server -> Collection.stored(player(server), "lightborn:spark")
-                                                        .getCount()
-                                                == 98),
+                                                .computeOnServer(
+                                                        server -> Collection.stored(player(server), "lightborn:spark")
+                                                                        .getCount()
+                                                                == sparksBeforeDeposit)
+                                        && sparksBeforeDeposit > 64,
                                 "Deposit Sparks failed to store more than a vanilla stack");
                         double[] search = ctx.computeOnClient(mc -> {
                             var button = mc.gui.screen().children().stream()
@@ -1517,19 +1600,28 @@ public class VisualTest implements FabricClientGameTest {
                 fresh(ctx, sp, 18000, false);
                 castGreater(sp, Spell.SPIRIT_WALK);
                 ctx.waitTicks(10);
+                sp.getServer().runOnServer(server -> {
+                    var p = player(server);
+                    p.teleportTo(p.level(), p.getX(), p.getY() + 3, p.getZ(), Set.of(), -90, 8, false);
+                });
+                ctx.waitTicks(5);
+                float before =
+                        ctx.computeOnClient(mc -> mc.gameRenderer.mainCamera().getFov());
                 ctx.getInput().holdMouse(InputConstants.MOUSE_BUTTON_RIGHT);
                 ctx.waitTicks(6);
+                Soft.require(
+                        ctx.computeOnClient(mc -> mc.gameRenderer.mainCamera().getFov()) < before * .4f,
+                        "Spirit Walk did not change camera magnification");
                 Soft.require(
                         ctx.computeOnClient(mc -> mc.player.isSpectator() && mc.player.isScoping()),
                         "Spirit Walk did not scope when held");
                 ctx.takeScreenshot("lightborn_spirit_walk_spyglass");
                 ctx.getInput().releaseMouse(InputConstants.MOUSE_BUTTON_RIGHT);
-                ctx.getInput().holdKey(InputConstants.KEY_LCONTROL);
+                ctx.getInput().pressKey(InputConstants.KEY_Q);
                 ctx.waitTicks(8);
-                ctx.getInput().releaseKey(InputConstants.KEY_LCONTROL);
                 Soft.require(
                         sp.getServer().computeOnServer(server -> !player(server).isSpectator()),
-                        "Control did not return the spirit");
+                        "Q did not return the spirit");
             }
 
             if (scene("nest")) {

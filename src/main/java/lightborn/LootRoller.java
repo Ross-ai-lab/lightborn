@@ -131,7 +131,6 @@ public final class LootRoller {
     static final List<Affix> STAFF_AFFIXES = List.of(
             SPELL,
             MANA,
-            REGEN,
             HASTE,
             LEECH,
             a("spell_crit", "Spell Crit Chance", ModAttributes.SPELL_CRIT, 0.02, 0.05, Style.CHANCE),
@@ -151,7 +150,6 @@ public final class LootRoller {
             a("item_rarity", "Item Rarity", ModAttributes.ITEM_RARITY, 0.05, 0.12, Style.PCT),
             a("spell_power", "Spell Power", ModAttributes.SPELL_POWER, 0.03, 0.06, Style.PCT),
             MANA,
-            REGEN,
             HASTE);
 
     public static Rarity rollRarity(RandomSource random, double rarityMultiplier) {
@@ -163,6 +161,10 @@ public final class LootRoller {
         if (r < legendary) return Rarity.LEGENDARY;
         if (r < rare) return Rarity.RARE;
         return r < Math.min(1, rare) + .35 ? Rarity.UNCOMMON : Rarity.PLAIN;
+    }
+
+    static Rarity combatRarity(RandomSource random, Rarity rarity) {
+        return (rarity == Rarity.RARE || rarity == Rarity.LEGENDARY) && random.nextBoolean() ? Rarity.UNCOMMON : rarity;
     }
 
     private static final Kind[] KIND_WEIGHTS = {
@@ -231,7 +233,9 @@ public final class LootRoller {
         Collections.shuffle(pool, new Random(random.nextLong()));
         int count =
                 Math.min(pool.size(), rarity.minAffixes + random.nextInt(rarity.maxAffixes - rarity.minAffixes + 1));
-        List<Affix> chosen = pool.subList(0, count);
+        boolean mythicStaff = kind == Kind.STAFF && rarity == Rarity.MYTHIC;
+        List<Affix> chosen = new ArrayList<>(pool.subList(0, mythicStaff ? count - 1 : count));
+        if (mythicStaff) chosen.addFirst(REGEN);
 
         List<ItemAttributeModifiers.Entry> entries = new ArrayList<>(base.modifiers());
         List<ItemAttributeModifiers.Entry> rolled = new ArrayList<>();
@@ -243,6 +247,7 @@ public final class LootRoller {
                     : affix.style() == Style.STEADY
                             ? Math.round(value * 10.0) / 10.0
                             : Math.round(value * 1000.0) / 1000.0;
+            if (armor(kind) || kind == Kind.STAFF && (affix == MANA || affix == SPELL)) value *= .5;
             Identifier id = Identifier.fromNamespaceAndPath(Lightborn.MOD_ID, "affix_" + affix.key() + "_" + slotKey);
             AttributeModifier mod = new AttributeModifier(id, value, affix.op());
             if (affix.style() == Style.CHANCE) {
@@ -257,7 +262,7 @@ public final class LootRoller {
         }
         // A staff's rarity adds Max Mana outside the affix count, joined into the staff's one Max Mana line (owner,
         // 2026-11-16: each stat shows once).
-        int rarityMana = rarityMana(kind, rarity);
+        double rarityMana = rarityMana(kind, rarity);
         if (rarityMana > 0) {
             boolean joined = false;
             for (List<ItemAttributeModifiers.Entry> list : List.of(entries, rolled))
@@ -294,14 +299,15 @@ public final class LootRoller {
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
             tag.putString("lightborn_rarity", rarity.saveId);
             tag.putBoolean("affixes_rebalanced", true);
+            tag.putBoolean("affixes_2026_11_25", true);
         });
         if (rarity.top()) stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
         return stack;
     }
 
     /** Max Mana a staff's rarity adds on top of its affixes (Basic 0, Uncommon 10, Rare 20, Legendary 35, Mythic 55). */
-    public static int rarityMana(Kind kind, Rarity rarity) {
-        return kind == Kind.STAFF ? Balance.STAFF_RARITY_MANA[rarity.ordinal()] : 0;
+    public static double rarityMana(Kind kind, Rarity rarity) {
+        return kind == Kind.STAFF ? Balance.STAFF_RARITY_MANA[rarity.ordinal()] * .5 : 0;
     }
 
     private static final int[] OLD_STAFF_MANA = {0, 25, 50, 100, 150};
@@ -347,7 +353,7 @@ public final class LootRoller {
                     double amount = modifier.amount();
                     if (entry.attribute().equals(ModAttributes.MAX_MANA) && !path.startsWith("light_tree_")) {
                         int oldBonus = staff && !manaTrimmed ? OLD_STAFF_MANA[rarity.ordinal()] : 0;
-                        int newBonus = staff && !manaTrimmed ? rarityMana(Kind.STAFF, rarity) : 0;
+                        int newBonus = staff && !manaTrimmed ? Balance.STAFF_RARITY_MANA[rarity.ordinal()] : 0;
                         amount = path.startsWith("affix_max_mana_")
                                 ? Math.round((amount - oldBonus)) * .5 + newBonus
                                 : amount - oldBonus + newBonus;
@@ -374,7 +380,101 @@ public final class LootRoller {
                 changed = true;
             }
         }
+        changed |= rescaleSavedGear(stack, rarity, tag.getBooleanOr("affixes_2026_11_25", false));
         return LightGearTree.refresh(stack) || changed;
+    }
+
+    private static boolean armor(Kind kind) {
+        return switch (kind) {
+            case HELMET, CHESTPLATE, LEGGINGS, BOOTS -> true;
+            default -> false;
+        };
+    }
+
+    private static boolean rescaleSavedGear(ItemStack stack, Rarity rarity, boolean migrated) {
+        if (migrated || stack.get(DataComponents.ATTRIBUTE_MODIFIERS) == null) return false;
+        int kind = LightGearTree.kind(stack);
+        boolean staff = ModItems.isStaff(stack) && !stack.is(ModItems.STARTER_STAFF);
+        boolean armor = kind == LightGearTree.HELM
+                || kind == LightGearTree.CHEST
+                || kind == LightGearTree.LEGS
+                || kind == LightGearTree.BOOTS;
+        if (!staff && (!armor || rarity == null)) return false;
+        var original = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
+        var defaults = stack.getItem().getDefaultInstance().get(DataComponents.ATTRIBUTE_MODIFIERS);
+        if (rarity == null && original.equals(defaults)) return false;
+        var builder = ItemAttributeModifiers.builder();
+        boolean mythicStaff = staff && rarity == Rarity.MYTHIC;
+        boolean hasRegen = original.modifiers().stream()
+                .anyMatch(e -> e.attribute().equals(ModAttributes.MANA_REGEN)
+                        && e.modifier().id().getNamespace().equals(Lightborn.MOD_ID)
+                        && e.modifier().id().getPath().startsWith("affix_"));
+        var replacement = mythicStaff && !hasRegen
+                ? original.modifiers().reversed().stream()
+                        .filter(e -> e.modifier().id().getNamespace().equals(Lightborn.MOD_ID)
+                                && e.modifier().id().getPath().startsWith("affix_"))
+                        .findFirst()
+                        .orElse(null)
+                : null;
+        for (var entry : original.modifiers()) {
+            if (entry == replacement) continue;
+            var mod = entry.modifier();
+            var display = entry.display();
+            var attribute = entry.attribute();
+            String path = mod.id().getPath();
+            if (mod.id().getNamespace().equals(Lightborn.MOD_ID)) {
+                if (path.startsWith("affix_mana_regen_")) {
+                    if (!mythicStaff) continue;
+                }
+                var current = rarity == null
+                                && defaults != null
+                                && (path.startsWith("staff_") || staff && attribute.equals(ModAttributes.SPELL_POWER))
+                        ? defaults.modifiers().stream()
+                                .filter(e -> e.modifier().id().getPath().equals(path))
+                                .findFirst()
+                                .orElse(null)
+                        : null;
+                if (current != null) {
+                    attribute = current.attribute();
+                    mod = current.modifier();
+                    display = current.display();
+                } else if (staff && path.equals("staff_signature") && attribute.equals(ModAttributes.MANA_REGEN)) {
+                    var spec = ModItems.SPECIALISTS.getFirst();
+                    attribute = spec.stat();
+                    mod = new AttributeModifier(mod.id(), spec.value(), spec.op());
+                    display = ItemAttributeModifiers.Display.override(
+                            Component.literal(spec.text()).withStyle(ChatFormatting.DARK_GREEN));
+                } else if (armor && path.startsWith("affix_")
+                        || staff
+                                && !path.startsWith("light_tree_")
+                                && (attribute.equals(ModAttributes.MAX_MANA)
+                                        || attribute.equals(ModAttributes.SPELL_POWER))) {
+                    double amount = mod.amount() * .5;
+                    mod = new AttributeModifier(mod.id(), amount, mod.operation());
+                    if (display != null && armor) {
+                        var label = ARMOR_AFFIXES.stream()
+                                .filter(a -> path.startsWith("affix_" + a.key() + "_"))
+                                .findFirst()
+                                .orElse(null);
+                        if (label != null && label.style() == Style.CHANCE)
+                            display = ItemAttributeModifiers.Display.override(
+                                    Component.literal("+" + trim(amount * 100) + "% " + label.label())
+                                            .withStyle(ChatFormatting.BLUE));
+                    }
+                }
+            }
+            if (display == null) builder.add(attribute, mod, entry.slot());
+            else builder.add(attribute, mod, entry.slot(), display);
+        }
+        if (mythicStaff && !hasRegen)
+            builder.add(
+                    REGEN.attribute(),
+                    new AttributeModifier(ModItems.id("affix_mana_regen_mainhand"), .30, REGEN.op()),
+                    EquipmentSlotGroup.MAINHAND);
+        var next = builder.build();
+        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, next);
+        CustomData.update(DataComponents.CUSTOM_DATA, stack, data -> data.putBoolean("affixes_2026_11_25", true));
+        return true;
     }
 
     private static boolean stripDisallowedAffixes(ItemStack stack) {

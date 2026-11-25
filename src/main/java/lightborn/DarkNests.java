@@ -172,6 +172,14 @@ public final class DarkNests {
                         .jumpFactor(.5f)
                         .sound(SoundType.HONEY_BLOCK)
                         .noLootTable()));
+        net.fabricmc.fabric.api.event.player.AttackBlockCallback.EVENT.register((player, level, hand, pos, side) -> {
+            if (level instanceof ServerLevel server
+                    && player instanceof ServerPlayer p
+                    && !p.isSpectator()
+                    && server.getBlockState(pos).is(NEST)
+                    && !mayBreak(server, p, pos)) return net.minecraft.world.InteractionResult.FAIL;
+            return net.minecraft.world.InteractionResult.PASS;
+        });
         PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, be) ->
                 !(state.is(NEST) && player instanceof ServerPlayer p && level instanceof ServerLevel l)
                         || mayBreak(l, p, pos));
@@ -211,9 +219,12 @@ public final class DarkNests {
                 net.minecraft.world.level.entity.EntityTypeTest.forClass(Mob.class),
                 m -> m.isAlive() && m.entityTags().contains(tag));
         if (standing.isEmpty()) return true;
-        for (var m : standing)
+        for (var m : standing) {
+            Hordes.aim(m, p);
+            m.getNavigation().moveTo(p, 1.25);
             m.addEffect(new net.minecraft.world.effect.MobEffectInstance(
                     net.minecraft.world.effect.MobEffects.GLOWING, 200, 0, false, false));
+        }
         p.sendOverlayMessage(Component.literal("Its guards still stand: " + standing.size() + " left.")
                 .withStyle(ChatFormatting.DARK_PURPLE));
         level.playSound(null, core, SoundEvents.SCULK_SHRIEKER_SHRIEK, SoundSource.HOSTILE, .6f, 1.4f);
@@ -776,24 +787,27 @@ public final class DarkNests {
                 m -> m.entityTags().contains(tag))) old.discard();
         var base = pool(level, nest.core, false);
         var themed = pool(level, nest.core, true);
-        boolean overworld = level.dimension() == Level.OVERWORLD;
         for (int tier : roster) {
-            for (int retry = 0; retry < 6; retry++) {
+            for (int retry = 0; retry < 24; retry++) {
                 var type = guardKind(random, tier, base, themed);
                 Mob mob = VariantCompat.keepKind(type.create(level, EntitySpawnReason.MOB_SUMMONED));
                 if (mob == null) continue;
-                double angle = random.nextDouble() * Math.PI * 2, radius = 3 + random.nextDouble() * 4;
+                double angle = random.nextDouble() * Math.PI * 2, radius = 2 + random.nextDouble() * 2.5;
                 int x = nest.core.getX() + (int) Math.round(Math.cos(angle) * radius),
                         z = nest.core.getZ() + (int) Math.round(Math.sin(angle) * radius);
-                var at = overworld
-                        ? new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z)
-                        : guardFloor(level, x, z, nest.core.getY());
+                var at = guardFloor(level, x, z, nest.core.getY());
                 if (at == null) {
                     mob.discard();
                     continue;
                 }
                 mob.setPos(Vec3.atBottomCenterOf(at));
-                if (!level.noCollision(mob) || LightWards.covers(level, at)) {
+                if (!level.noCollision(mob)
+                        || LightWards.covers(level, at)
+                        || !level.getEntitiesOfClass(
+                                        Mob.class,
+                                        mob.getBoundingBox().inflate(.2),
+                                        guard -> guard.entityTags().contains(tag))
+                                .isEmpty()) {
                     mob.discard();
                     continue;
                 }
@@ -816,12 +830,15 @@ public final class DarkNests {
 
     /** Standing room by a Nether or End fountain: the nearest floor within a few blocks of the core's height. */
     private static BlockPos guardFloor(ServerLevel level, int x, int z, int y) {
-        for (int dy = 0; dy <= 6; dy++)
+        for (int dy = 0; dy <= 3; dy++)
             for (int sign : new int[] {1, -1}) {
                 var at = new BlockPos(x, y + dy * sign, z);
                 var below = at.below();
-                if (level.getBlockState(at).isAir()
-                        && level.getBlockState(at.above()).isAir()
+                if (level.getFluidState(at).isEmpty()
+                        && level.getBlockState(at).getCollisionShape(level, at).isEmpty()
+                        && level.getBlockState(at.above())
+                                .getCollisionShape(level, at.above())
+                                .isEmpty()
                         && level.getBlockState(below).isFaceSturdy(level, below, net.minecraft.core.Direction.UP))
                     return at;
             }
@@ -875,6 +892,7 @@ public final class DarkNests {
                     : i == 0 && wins >= 4
                             ? LootRoller.Rarity.LEGENDARY
                             : wins >= 2 ? LootRoller.Rarity.RARE : LootRoller.Rarity.UNCOMMON;
+            rarity = LootRoller.combatRarity(random, rarity);
             var tier = OreTiers.pick(random, p, rank >= 3 ? OreTiers.BOSS : rank + 1);
             if (tier != null) LootBeams.onDrop(drop(level, at, LootRoller.roll(random, tier, rarity)), rarity);
         }

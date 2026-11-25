@@ -5,6 +5,8 @@ import static lightborn.client.ChestStyle.*;
 import java.util.ArrayList;
 import java.util.List;
 import lightborn.Balance;
+import lightborn.ChestStations;
+import lightborn.ChestTabs;
 import lightborn.LightShop;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -21,7 +23,10 @@ final class ShopTab extends ChestTab {
     private String message = "";
     private final List<Button> buy = new ArrayList<>();
     /** Widens the ward one step for Sparks. */
-    private Button growWard;
+    private Button growWard, page;
+
+    private boolean stations;
+    private final List<Button> unlock = new ArrayList<>();
 
     ShopTab(CollectionScreen s) {
         super(s);
@@ -34,6 +39,18 @@ final class ShopTab extends ChestTab {
     @Override
     void init() {
         buy.clear();
+        unlock.clear();
+        page = s.add(Button.builder(Component.literal("Stations >"), b -> stations = !stations)
+                .bounds(0, 0, 76, 13)
+                .build());
+        for (var station : ChestStations.Station.values())
+            unlock.add(s.add(Button.builder(Component.literal("Unlock"), b -> {
+                        if (s.shop != null)
+                            ClientPlayNetworking.send(new LightShop.Buy(
+                                    s.chest, s.shop.day(), ChestStations.OFFER_START + station.ordinal()));
+                    })
+                    .bounds(0, 0, 86, 16)
+                    .build()));
         for (int i = 0; i < 8; i++) {
             final int index = i;
             buy.add(s.add(Button.builder(Component.literal("Buy"), b -> {
@@ -79,7 +96,24 @@ final class ShopTab extends ChestTab {
     @Override
     void layout(boolean on) {
         var shop = s.shop;
-        growWard.visible = on && shop != null;
+        page.visible = on && shop != null;
+        page.setMessage(Component.literal(stations ? "< Daily wares" : "Stations >"));
+        page.setPosition(s.gridX() + s.gridW() - page.getWidth(), s.top() + HEAD - 3);
+        for (var station : ChestStations.Station.values()) {
+            int i = station.ordinal();
+            Button button = unlock.get(i);
+            button.visible = on && shop != null && stations;
+            if (!button.visible) continue;
+            var player = mc().player;
+            boolean owned = ChestStations.owned(player, station);
+            boolean ready = station != ChestStations.Station.TRAVEL || ChestTabs.travelReady(player);
+            button.active = !owned && ready && shop.sparks() >= ChestStations.PRICE;
+            button.setMessage(Component.literal(
+                    owned ? "Unlocked" : ready ? "Unlock · " + sparks(ChestStations.PRICE) : "Available after 7 days"));
+            button.setWidth(cardW() - 8);
+            button.setPosition(cardX(i) + 4, stationY(i) + stationHeight() - 21);
+        }
+        growWard.visible = on && shop != null && !stations;
         if (shop != null) {
             int tier = shop.wardTier();
             boolean max = tier >= Balance.WARD_PRICES.length;
@@ -97,6 +131,7 @@ final class ShopTab extends ChestTab {
         for (int i = 0; i < buy.size(); i++) {
             Button b = buy.get(i);
             b.visible = on
+                    && !stations
                     && shop != null
                     && i < shop.offers().size()
                     && !shop.offers().get(i).stack().isEmpty();
@@ -108,6 +143,27 @@ final class ShopTab extends ChestTab {
                     .withStyle(st -> st.withColor(SHOP_BLUE & 0xFFFFFF)));
             b.setWidth(cardW() - 8);
             b.setPosition(cardX(i) + 4, cardY(i) + cardH() - 22);
+        }
+    }
+
+    private int stationHeight() {
+        return Math.min(64, (s.h() - HEAD - 30) / 2);
+    }
+
+    private int stationY(int i) {
+        return cardY(0) + i / 2 * stationHeight();
+    }
+
+    private void drawStations(GuiGraphicsExtractor g) {
+        for (var station : ChestStations.Station.values()) {
+            int i = station.ordinal(), x = cardX(i), y = stationY(i), w = cardW(), h = stationHeight();
+            g.fill(x, y, x + w, y + h - 3, 0xFF846338);
+            g.fill(x + 1, y + 1, x + w - 1, y + h - 4, SLOT_IN);
+            g.item(new net.minecraft.world.item.ItemStack(station.icon), x + 5, y + 5);
+            g.text(font(), station.title, x + 25, y + 4, GOLD, false);
+            var lines = font().split(Component.literal(station.description), w - 32);
+            for (int line = 0; line < lines.size() && 24 + line * 9 < h - 16; line++)
+                g.text(font(), lines.get(line), x + 25, y + 15 + line * 9, IVORY, false);
         }
     }
 
@@ -139,9 +195,10 @@ final class ShopTab extends ChestTab {
             g.text(font(), "Opening shop…", x, y, DIM, false);
             return;
         }
-        g.text(font(), "New wares every dawn", x, y, IVORY, false);
-        drawWardCard(g);
-        for (int i = 0; i < shop.offers().size(); i++) {
+        g.text(font(), stations ? "Chest upgrades" : "New wares every dawn", x, y, IVORY, false);
+        if (stations) drawStations(g);
+        else drawWardCard(g);
+        for (int i = 0; !stations && i < shop.offers().size(); i++) {
             var o = shop.offers().get(i);
             if (o.stack().isEmpty()) continue;
             int cx = cardX(i), cy = cardY(i), cw = cardW(), ch = cardH();

@@ -70,7 +70,7 @@ final class Perks {
 
     // ---------------------------------------------------------------- free casts
 
-    /** Echo Step's window for the free second blink. */
+    /** Echo Step's window for the extra blink. */
     static final int ECHO_TICKS = 80;
     /** Return Trip's window after arriving home: the Homeward cooldown is three minutes, so the window is longer. */
     static final int RETURN_TICKS = 6000;

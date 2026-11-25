@@ -135,7 +135,7 @@ final class SelfTest {
             // Every affix is a line of its own (owner, 2026-11-18): it never folds into one of the item's own stats,
             // so a Rare shows exactly two new lines and a Legendary three. Only a staff's rarity mana joins its Max
             // Mana line, and it is not an affix.
-            int rarityMana = ModItems.isStaff(stack) ? LootRoller.rarityMana(ModItems.Kind.STAFF, r) : 0;
+            double rarityMana = ModItems.isStaff(stack) ? LootRoller.rarityMana(ModItems.Kind.STAFF, r) : 0;
             int affixes = mods == null ? -1 : 0;
             boolean folded = false;
             double rarityPart = 0; // the rarity's mana: its own line, or what it added to the staff's Max Mana line

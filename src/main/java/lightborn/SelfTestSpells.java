@@ -235,7 +235,7 @@ final class SelfTestSpells {
         caster.getStats().setValue(caster, playTime, ChestTabs.TRAVEL_PLAY_TICKS);
         check(
                 "chest_tabs_open_in_turn",
-                closed && some && waits && ChestTabs.travel(caster),
+                closed && some && waits && ChestTabs.travelReady(caster) && !ChestTabs.travel(caster),
                 "closed=" + closed + " some=" + some);
         caster.getStats().setValue(caster, playTime, originalTime);
         caster.removeAttached(ChestTabs.NIGHTS_SURVIVED);
@@ -274,7 +274,7 @@ final class SelfTestSpells {
             {20, 140}, // Frost Nova: 20 mana, 7 s (owner, 2026-11-18)
             {15, 40},
             {25, 120},
-            {40, 200},
+            {40, 400},
             {25, 400},
             {30, 240},
             {100, 600},
@@ -312,13 +312,13 @@ final class SelfTestSpells {
             {10, 200}, // Stone Wall (owner, 2026-11-22)
             {35, 2400}, // Ward, was Sanctuary (owner, 2026-11-22)
             {20, 100},
-            {30, 3600}, // Owl Sight
+            {30, 3200}, // Owl Sight
             {100, 4800}, // Light Steed (owner, 2026-11-22)
             // The fourth shelf (2026-11-21): Tether, Wayglow, Thornfield, Lightbrand, Ball Lightning, Blade Ring,
             // Rewind, Twincast (Mend and Angler's Call deleted 2026-11-22).
             {15, 60},
             {4, 10},
-            {20, 160},
+            {30, 200},
             {25, 3600}, // Lightbrand (owner, 2026-11-22)
             {30, 200},
             {30, 300},
@@ -533,7 +533,7 @@ final class SelfTestSpells {
             ok &= ready
                     && !Perks.free(caster, Spell.BLINK)
                     && caster.position().distanceToSqr(first) > 1
-                    && Progression.mana(caster) == mana;
+                    && Progression.mana(caster) == mana - 40;
         }
         caster.setItemInHand(InteractionHand.OFF_HAND, old);
         check("blink_echo_step_passes_both_cast_routes", ok, null);

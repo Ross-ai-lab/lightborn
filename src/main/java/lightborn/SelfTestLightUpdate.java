@@ -65,6 +65,7 @@ final class SelfTestLightUpdate {
                 };
             }
             SelfTest.check("collection_rounded_quarter_bonuses", rounded, null);
+            stationsAndSalvage(level, at);
             var offers = LightShop.wares(level, 0);
             var again = LightShop.wares(level, 0);
             var tomorrow = LightShop.wares(level, 1);
@@ -437,5 +438,54 @@ final class SelfTestLightUpdate {
                 level.setBlockAndUpdate(b, Blocks.AIR.defaultBlockState());
             p.discard();
         }
+    }
+
+    private static void stationsAndSalvage(ServerLevel level, BlockPos chest) {
+        var p = FakePlayer.get(level, new GameProfile(UUID.randomUUID(), "StationTest"));
+        p.setPos(chest.getX() + .5, chest.getY(), chest.getZ() + 2.5);
+        var station = ChestStations.Station.FURNACE;
+        p.getInventory().setItem(0, new ItemStack(ModItems.SPARK, 40));
+        boolean closed = !ChestStations.owned(p, station)
+                && !ChestStations.purchase(p, chest, station.ordinal()).startsWith("Opened");
+        p.setAttached(ChestTabs.NIGHTS_SURVIVED, 1);
+        boolean bought = ChestStations.purchase(p, chest, station.ordinal()).startsWith("Opened");
+        ChestStations.purchase(p, chest, station.ordinal());
+        SelfTest.check(
+                "chest_station_opens_once_for_20_sparks",
+                closed && bought && ChestStations.owned(p, station) && LightShop.sparks(p) == 20,
+                null);
+        var playTime = net.minecraft.stats.Stats.CUSTOM.get(net.minecraft.stats.Stats.PLAY_TIME);
+        p.getStats().setValue(p, playTime, ChestTabs.TRAVEL_PLAY_TICKS);
+        boolean travelReady = !ChestTabs.travel(p);
+        ChestStations.purchase(p, chest, ChestStations.Station.TRAVEL.ordinal());
+        SelfTest.check(
+                "chest_travel_requires_purchase_after_week",
+                travelReady && ChestTabs.travel(p) && LightShop.sparks(p) == 0,
+                null);
+
+        var furnace = new ChestStations.Furnace(p);
+        furnace.setItem(0, new ItemStack(Items.RAW_IRON));
+        furnace.setItem(1, new ItemStack(Items.COAL));
+        var before = level.getBlockState(furnace.getBlockPos());
+        for (int i = 0; i < 100; i++) furnace.tick();
+        furnace = new ChestStations.Furnace(p);
+        for (int i = 0; i < 100; i++) furnace.tick();
+        SelfTest.check(
+                "chest_furnace_smelts_through_save_without_placing_block",
+                furnace.getItem(2).is(Items.IRON_INGOT)
+                        && furnace.getItem(2).getCount() == 1
+                        && level.getBlockState(furnace.getBlockPos()) == before,
+                furnace.getItem(2));
+
+        var loot = LootRoller.roll(p.getRandom(), LootRoller.Rarity.RARE, ModItems.Tier.IRON, ModItems.Kind.AXE);
+        p.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, loot);
+        var original = loot.copy();
+        var mismatched = new ItemStack(Items.IRON_AXE);
+        boolean refused = ChestSalvage.exchange(p, chest, mismatched) == 0;
+        int payout = ChestSalvage.exchange(p, chest, original);
+        SelfTest.check(
+                "chest_salvage_prices_and_consumes_matching_held_gear",
+                refused && payout == 2 && LightShop.sparks(p) == 2 && ChestSalvage.exchange(p, chest, original) == 0,
+                payout);
     }
 }

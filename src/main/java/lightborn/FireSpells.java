@@ -189,6 +189,7 @@ public final class FireSpells {
 
     /** A meteor dropping vertically onto {@code t}, landing after {@code fall} ticks. */
     static void meteorAt(ServerLevel level, Vec3 t, int fall, double radius, Runnable impact) {
+        StoryGlow.place(level, BlockPos.containing(t).above(), 15, fall + 60);
         var school = CONTEXT.get();
         final Vec3 start = t.add(0, METEOR_HEIGHT * fall / (double) METEOR_FALL, 0);
         final Display.BlockDisplay rock = meteorRock(level, start);

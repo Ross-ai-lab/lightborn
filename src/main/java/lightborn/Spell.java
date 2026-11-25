@@ -12,7 +12,15 @@ import java.util.List;
  */
 public enum Spell {
     ARCANE_BOLT(
-            "Arcane Bolt", "minecraft:amethyst_shard", 8, 10, 5, 1, true, "A fast bolt of arcane force.", Kind.ATTACK),
+            "Arcane Bolt",
+            "minecraft:amethyst_shard",
+            8,
+            10,
+            3.75,
+            1,
+            true,
+            "A fast bolt of arcane force.",
+            Kind.ATTACK),
     // Tier 2 and a little stronger (owner, 2026-11-18): 10 damage, was 9, and a 2-block blast, was 1.75.
     FIREBALL(
             "Fireball",
@@ -54,7 +62,7 @@ public enum Spell {
             true,
             "Calls a meteor straight down from the sky where you look. It lands after 3 seconds.",
             Kind.ATTACK),
-    BLINK("Blink", "minecraft:ender_pearl", 40, 200, 0, 3, true, "Teleport up to 12 blocks forward.", Kind.UTILITY),
+    BLINK("Blink", "minecraft:ender_pearl", 40, 400, 0, 3, true, "Teleport up to 12 blocks forward.", Kind.UTILITY),
     STONESKIN(
             "Stoneskin",
             "minecraft:iron_block",
@@ -430,7 +438,7 @@ public enum Spell {
             "Owl Sight",
             "minecraft:ender_eye",
             30,
-            3600,
+            3200,
             0,
             1,
             true,
@@ -472,13 +480,13 @@ public enum Spell {
     THORNFIELD(
             "Thornfield",
             "minecraft:sweet_berries",
-            20,
-            160,
-            2,
+            30,
+            200,
+            1,
             2,
             true,
             "Roots tear up out of the ground where you aim, in a patch 4 blocks round and half as long again away from"
-                    + " you, for 8 seconds: monsters in them are slowed hard and cut every second.",
+                    + " you, for 8 seconds: monsters in them are slowed and cut every second.",
             Kind.ATTACK),
     LIGHTBRAND(
             "Lightbrand",

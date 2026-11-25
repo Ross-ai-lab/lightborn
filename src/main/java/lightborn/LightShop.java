@@ -113,7 +113,9 @@ public final class LightShop {
             if (!near(ctx.player(), p.chest()) || !ChestTabs.shop(ctx.player())) return;
             String message = p.index() == GROW_WARD
                     ? LightWards.grow(ctx.player(), p.chest())
-                    : purchase(ctx.player(), p.chest(), p.day(), p.index());
+                    : p.index() >= ChestStations.OFFER_START
+                            ? ChestStations.purchase(ctx.player(), p.chest(), p.index() - ChestStations.OFFER_START)
+                            : purchase(ctx.player(), p.chest(), p.day(), p.index());
             ctx.responseSender().sendPacket(snapshot(ctx.player(), p.chest(), message));
         });
     }

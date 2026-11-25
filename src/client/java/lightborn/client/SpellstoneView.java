@@ -56,6 +56,14 @@ public final class SpellstoneView {
      */
     static void tick(Minecraft mc) {
         var p = mc.player;
+        if (p != null && mc.gui.screen() == null && lightborn.FormSpells.spiritSight(p)) {
+            boolean returning = false;
+            while (mc.options.keyDrop.consumeClick()) returning = true;
+            if (returning)
+                ClientPlayNetworking.send(new lightborn.DragonStory.Power(lightborn.DragonStory.RETURN_SPIRIT));
+            Arrays.fill(HELD, 0);
+            return;
+        }
         if (p == null || mc.gui.screen() != null || !Spellstone.casting(p)) {
             Arrays.fill(HELD, 0);
             while (LightbornClient.spellstoneFive.consumeClick()) {}
@@ -137,8 +145,9 @@ public final class SpellstoneView {
         var slots = Spellstone.tomes(p.getOffhandItem());
         int y = g.guiHeight() - 20;
         int x0 = g.guiWidth() / 2 - 91 - 29 - Spellstone.SLOTS * 21;
-        for (int i = 0; i < Spellstone.SLOTS; i++) {
-            int x = x0 + i * 21;
+        for (int display = 0; display < Spellstone.SLOTS; display++) {
+            int i = display < 3 ? display : 7 - display;
+            int x = x0 + display * 21;
             g.fill(x - 1, y - 1, x + 17, y + 17, 0x90000000);
             ItemStack tome = slots.get(i);
             if (!tome.isEmpty()) {

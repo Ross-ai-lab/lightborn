@@ -47,6 +47,25 @@ import org.joml.Vector3f;
 public final class NatureSpells {
     private NatureSpells() {}
 
+    static final net.minecraft.core.Holder<net.minecraft.world.effect.MobEffect> THORN_SLOW =
+            net.minecraft.core.Registry.registerForHolder(
+                    net.minecraft.core.registries.BuiltInRegistries.MOB_EFFECT,
+                    ModItems.id("thornfield_slow"),
+                    new ThornSlow());
+
+    private static final class ThornSlow extends net.minecraft.world.effect.MobEffect {
+        ThornSlow() {
+            super(MobEffectCategory.HARMFUL, 0x516B43);
+            addAttributeModifier(
+                    net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED,
+                    ModItems.id("thornfield_slow"),
+                    -.225,
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
+        }
+    }
+
+    static void init() {}
+
     static boolean perform(ServerLevel level, ServerPlayer p, Spell spell, double dmg) {
         return switch (spell) {
             case THORNFIELD -> thornfield(level, p, dmg);
@@ -132,6 +151,10 @@ public final class NatureSpells {
         var t = new Thicket(
                 p, centre, along, radius, SpellUpgrades.scaleInt(Spell.THORNFIELD, DURATION, THORN_TICKS), dmg);
         THICKETS.add(t);
+        for (double offset : new double[] {-radius, 0, radius}) {
+            var ground = floor(level, centre.add(along.scale(offset)).add(0, 1.5, 0), 4);
+            StoryGlow.place(level, BlockPos.containing(ground.add(0, .35, 0)), 12, t.ticks);
+        }
         sprout(t);
         sound(level, centre, SoundEvents.ROOTED_DIRT_BREAK, 1.4f, .7f);
         sound(level, centre, SoundEvents.SWEET_BERRY_BUSH_PLACE, 1.2f, .8f);
@@ -240,7 +263,7 @@ public final class NatureSpells {
             if (cut && SpellUpgrades.perk(p, Spell.THORNFIELD, "Healing Roots") && t.holds(p)) p.heal(1);
             for (var e : inThicket(t)) {
                 if (strangle) Perks.root(e, p, 10);
-                else e.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 10, 2), p);
+                else e.addEffect(new MobEffectInstance(THORN_SLOW, 10, 0, false, false, false), p);
                 if (!cut) continue;
                 Spells.hit(p, e, t.dmg, Spell.THORNFIELD, t.cast);
                 if (venom) e.addEffect(new MobEffectInstance(MobEffects.POISON, 60, 0), p);
@@ -559,29 +582,19 @@ public final class NatureSpells {
         }
     }
 
-    /** Light level 6: what two pieces of Light gear shed at night ({@link LightGear#radiance}; owner, 2026-11-23). */
-    static final int BLOOM_LIGHT = 6;
+    static final int BLOOM_LIGHT = 12;
 
     /** Lights the tree's foot, in the first open block above its root. */
     private static void lamp(Bloom b) {
         var bloomRoot = BlockPos.containing(b.at);
         for (int dy = 1; dy <= 2 && b.lamp == null; dy++) {
             var at = bloomRoot.above(dy);
-            if (!b.level.getBlockState(at).isAir()) continue;
-            b.level.setBlockAndUpdate(
-                    at,
-                    Blocks.LIGHT
-                            .defaultBlockState()
-                            .setValue(net.minecraft.world.level.block.LightBlock.LEVEL, BLOOM_LIGHT));
-            b.lamp = at;
+            if (StoryGlow.place(b.level, at, BLOOM_LIGHT, b.left)) b.lamp = at;
         }
     }
 
     /** Takes a tree down: it shrinks back into the ground, then goes; the ring and its light go at once. */
     private static void fell(Bloom b) {
-        if (b.lamp != null && b.level.getBlockState(b.lamp).is(Blocks.LIGHT))
-            b.level.setBlockAndUpdate(b.lamp, Blocks.AIR.defaultBlockState());
-        b.lamp = null;
         b.ring.forEach(SpellKit::drop);
         b.ring.clear();
         for (int i = 0; i < b.tree.size() && i < TREE.size(); i++) shape(b.tree.get(i), TREE.get(i), .02f, 10);

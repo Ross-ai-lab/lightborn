@@ -84,8 +84,8 @@ public final class ModItems {
     // Staff implicit stats per tier: melee damage bonus, spell power, max mana.
     // Found Apprentice staffs have a spell-power implicit; the separate Simple Staff starter has no attributes.
     private static final String[] STAFF_NAMES = {"apprentice_staff", "adept_staff", "archmage_staff"};
-    private static final double[] STAFF_POWER = {0.15, 0.25, 0.40};
-    private static final double[] STAFF_MANA = {0, 20, 30};
+    private static final double[] STAFF_POWER = {0.075, 0.125, 0.20};
+    private static final double[] STAFF_MANA = {0, 10, 15};
     private static final Set<Item> STAFFS = new HashSet<>();
 
     /**
@@ -106,17 +106,17 @@ public final class ModItems {
             new Specialist(
                     "thornwood_staff",
                     Tier.IRON,
-                    0.20,
-                    10,
-                    ModAttributes.MANA_REGEN,
-                    0.25,
-                    AttributeModifier.Operation.ADD_MULTIPLIED_BASE,
-                    "+25% Mana Regeneration"),
+                    0.10,
+                    5,
+                    ModAttributes.SPELL_CRIT,
+                    0.05,
+                    AttributeModifier.Operation.ADD_VALUE,
+                    "+5% Spell Crit Chance"),
             new Specialist(
                     "bone_staff",
                     Tier.DIAMOND,
-                    0.30,
-                    20,
+                    0.15,
+                    10,
                     ModAttributes.LIFE_LEECH,
                     0.04,
                     AttributeModifier.Operation.ADD_VALUE,
@@ -124,8 +124,8 @@ public final class ModItems {
             new Specialist(
                     "storm_staff",
                     Tier.NETHERITE,
-                    0.45,
-                    30,
+                    0.225,
+                    15,
                     ModAttributes.COOLDOWN_SPEED,
                     0.15,
                     AttributeModifier.Operation.ADD_MULTIPLIED_BASE,

@@ -26,6 +26,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
  */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
+    @com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod(method = "heal")
+    private void lightborn$payForHealing(
+            float amount, com.llamalad7.mixinextras.injector.wrapoperation.Operation<Void> original) {
+        var living = (net.minecraft.world.entity.LivingEntity) (Object) this;
+        float health = living.getHealth();
+        original.call(amount);
+        if (living instanceof net.minecraft.server.level.ServerPlayer player)
+            lightborn.SteadyFood.healed(player, living.getHealth() - health);
+    }
     /** A broken Light shield blocks nothing until it is mended (owner, 2026-11-20). */
     @Inject(method = "getItemBlockingWith", at = @At("RETURN"), cancellable = true)
     private void lightborn$brokenShield(CallbackInfoReturnable<net.minecraft.world.item.ItemStack> result) {

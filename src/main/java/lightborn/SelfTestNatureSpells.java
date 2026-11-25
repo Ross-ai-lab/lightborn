@@ -40,8 +40,8 @@ final class SelfTestNatureSpells {
         float lost = z0 - zombie.getHealth();
         check(
                 "spell_thornfield_slows_and_cuts",
-                grown && lost >= thorns - 1e-3 && zombie.hasEffect(MobEffects.SLOWNESS),
-                "lost " + lost + " of " + thorns + " slowed=" + zombie.hasEffect(MobEffects.SLOWNESS));
+                grown && lost >= thorns - 1e-3 && zombie.hasEffect(NatureSpells.THORN_SLOW),
+                "lost " + lost + " of " + thorns + " slowed=" + zombie.hasEffect(NatureSpells.THORN_SLOW));
         clean();
     }
 

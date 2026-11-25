@@ -28,7 +28,8 @@ public final class ChestTabs {
 
     public static final int CLEANSE_FOUNTAINS = 1, SHOP_NIGHTS = 1;
     static final int TRAVEL_PLAY_TICKS = 7 * 24_000;
-    public static final String TRAVEL_LOCKED = "Play for seven Minecraft days first.";
+    public static final String TRAVEL_LOCKED =
+            "Travel requires seven Minecraft days of playtime and the Travel unlock from the Shop.";
 
     /** Dark Fountains whose core this player broke. */
     public static final AttachmentType<Integer> FOUNTAINS_BEATEN = AttachmentRegistry.<Integer>create(
@@ -68,6 +69,10 @@ public final class ChestTabs {
     }
 
     public static boolean travel(Player p) {
+        return travelReady(p) && ChestStations.owned(p, ChestStations.Station.TRAVEL);
+    }
+
+    public static boolean travelReady(Player p) {
         return p.isCreative()
                 || (p instanceof ServerPlayer server
                         ? playedWeek(server)

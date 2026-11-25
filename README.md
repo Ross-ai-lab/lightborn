@@ -171,15 +171,15 @@ tab's footer (owner, 2026-11-17: moved out of the tab column, smaller). **Give a
 **One Sparks count** (owner, 2026-11-16): the chest's title bar shows the player's Sparks (carried plus stored) once,
 beside "Chest of Light", for every tab. No tab shows its own count.
 
-**Tabs.** Up to eight tabs in a column 90 px wide (owner, 2026-11-17: 40% slimmer), in this order: **Upgrade Spells (red), Upgrade Gear (pale gold, [Light gear](#light-gear-the-dragons-gifts)),
-Crafting (teal), Cleanse (violet), Shop (blue), Travel (green), Spirits (purple), Collection (gold)**. **Four appear only as the game
-reaches them** (owner, 2026-11-18; `ChestTabs`, counts saved on the player and synced to them): the **Shop** after
-surviving one night (in the Overworld at nightfall and alive at dawn; joining mid-night or dying starts the watch
-over), the **Cleanse** after beating one Dark Fountain, **Travel** after seven Minecraft days of recorded playtime (2 hours 20 minutes), **Spirits** once the Book of
-Souls has been carried (loose or in a Spellstone). The server refuses a hidden tab's actions too. Creative players see
-all eight. A chest opens on the Shop once it is there, else on the Collection. Each tab is its own class
-(`CollectionScreen` keeps the frame, column and scrollbar; `UpgradeTab`, `CleanseTab`, `ShopTab`, `TravelTab`,
-`SpiritsTab`, `CollectionTab`, `UnlockedWindow`).
+**Tabs.** Upgrade Spells (red), Upgrade Gear (pale gold), Crafting (teal), Furnace (copper), Anvil (silver),
+Cleanse (violet), Shop (blue), Travel (green), Spirits (purple), and Collection (gold). The Shop opens after surviving
+one full Overworld night. Cleanse opens after beating a Dark Fountain, and Spirits after carrying the Book of Souls.
+Crafting, Furnace, Travel and Anvil are permanent purchases at 20 Sparks each on the Shop's Stations page.
+Travel is available to buy after seven Minecraft days of recorded playtime (2 hours 20 minutes). The server checks
+unlocks before opening a station or accepting a tab's actions. Creative players have all tabs. The chest opens on the
+Shop when it is available and on Collection otherwise. Upgrade Spells and Upgrade Gear use the tab label as their
+heading. The recipe browser and the crafting grid use the space for their controls and previews.
+
 **The tome and gear selectors use 20-pixel item icons.** **Upgrade Spells sees the tomes inside a carried Spellstone** (owner, 2026-11-18), each in its stone's place in the
 strip on a violet rim, and upgrades them where they sit (`Spellstone.tomeAt`). **Upgrade Gear groups its strip by
 kind** (owner, 2026-11-18: the staffs lay scattered): helms, chests, leggings, boots and so on together, each kind in
@@ -200,7 +200,7 @@ the mouse as well as wheeled, and so can the Spirits list's, which scrolls when 
 spirit's lines and buttons (owner, 2026-11-17: the Claim button hung over the frame). The visual test opens every tab
 at 1920 x 1080, GUI scale 4, and fails if any button crosses the chest's frame or any label runs past its button. The Dragon Quest tab is gone (owner, 2026-11-15): the Dragon
 tells his story in his talks. There is no Overview. Selected and hovered tab backgrounds use their
-tab's colour. The seven tabs fit in one column at any window size (16 px, down to 12 on a short window). Spirits shows how many earned spirits wait to be claimed. Its page lists the book's slots (a placed spirit's chip
+tab's colour. The sidebar compresses on short windows so the tabs fit in one column. Spirits shows how many earned spirits wait to be claimed. Its page lists the book's slots (a placed spirit's chip
 spans the slots it takes; slots filled out of slots owned), every kind in two columns (placed ◆, rank, or "claim"),
 and the picked kind's rank, slots taken, bonus and buttons: Claim, Rank up (with its price), Place in book / Take out,
 and Buy a slot. **A kind not yet slain shows as "???"** (owner, 2026-11-16: no spoilers) until the first kill.
@@ -352,13 +352,27 @@ than merely the full-set prize. There is no generic footer help text.
 
 ### Crafting
 
-The Crafting tab opens from the start. Search craftable recipes and select one to lay its ingredients on the plate. The result shows how many you
+After buying Crafting, search recipes and select one to lay its ingredients on the plate. The result shows how many you
 already own across your inventory and the Chest of Light. Successful crafts send a brief burst of gold sparks
 around the result.
 Craft once or use Craft all (up to 64 operations per click). Ordinary crafting pulls ingredients from the
 player's Chest of Light first and then carried inventory. The manual grid chooses exact stacks for recipes such
 as dyeing, maps or named materials. Grid slots are previews, and the server verifies the inputs and recipe again
 when the player crafts. Outputs and remainders such as milk buckets go into the player's inventory.
+
+### Furnace and Anvil
+
+The Furnace uses vanilla furnace ingredients, fuel, timings, and output slots. Load it from your inventory.
+It continues smelting while you play elsewhere, saves its contents and progress, and pauses while you are signed out.
+The Anvil uses the same naming, combining, and Light gear repair rules as a placed anvil. Both menus require the
+player to stay near the Chest of Light.
+
+### Salvage gear
+
+Hold one rolled or upgraded item and choose **Salvage gear** on the Collection tab. Confirm the item and its payment
+to trade it permanently for Sparks. Basic and Uncommon pay 1, Rare 2, Legendary 3, Mythic 5, plus 1 for diamond or 2
+for netherite and 1 per purchased upgrade tier. Ordinary unupgraded gear and the Dragon's unique gifts are ineligible.
+Salvage pays for the item itself and does not add it to the collection.
 
 ### The Light
 
@@ -391,7 +405,7 @@ spends them (`VillagerSparksMixin`, rewriting offers as they are read, so old vi
 | A dawn refugee's direct Sparks reward | 4 to 12 |
 | Breaking a Dark Fountain | 7 to 25, rising with its stage |
 | Catching a Light Butterfly | 1; 2 one time in four; 3 one time in eight |
-| Monster kills not from a spawner | By the monster's tier: 1; 2-3; 5; 10; 25 (owner, 2026-11-20) |
+| Monster kills not from a spawner | Basic 1, Uncommon 2, Rare 3, Legendary 5, Mythic 10 |
 
 Sparks kept in the Chest of Light's storage count everywhere the chest spends them, and are spent before the
 carried ones. Sparks buy the daily shop's wares, spell upgrade tiers (10 / 25 / 50), spirit ranks (10 / 20 / 40 /
@@ -410,6 +424,8 @@ bursts into light with a chime and leaves 1 Spark, 2 one time in four, 3 one tim
 fades on its own after 3 minutes.
 
 ### Light's daily shop
+
+The Stations page sells the four permanent tab unlocks. The Daily Wares page keeps the six daily offers and the ward upgrade.
 
 The blue Shop tab sells six offers for Sparks in three rows, read left to right: **one tome, one rolled staff, one
 drop (amethyst shards or Dark Shards), one exotic item, a map to a notable structure, then one exotic food** (owner,
@@ -433,7 +449,7 @@ stay the week's, and the capped staff rolls from its own seed, so the other ware
 
 | Week | Staff | Tome tiers (band, `Spell.shopTier`) | Drop slot |
 |---|---|---|---|
-| 1 | Unrolled Apprentice, +15% Spell Power, no affixes/specialist | tier 1 (1) | 8 amethyst shards |
+| 1 | Unrolled Apprentice, +7.5% Spell Power, no affixes/specialist | tier 1 (1) | 8 amethyst shards |
 | 2 | Uncommon Iron | tier 2 (5) | Dark Shard |
 | 3 | Uncommon Diamond | tier 3 (10) | Dark Shard |
 | 4 | Rare Netherite | tiers 4 and 5 (15, 20) | Larger Dark Shard bundles |
@@ -585,7 +601,7 @@ Book of Souls (`Souls`) and Eclipse (`BossTrophies`). The casting engine (mana, 
 
 **The Spellstone** (owner, 2026-11-18; first named the Codex, renamed with a clean break: a Codex in an older world
 is gone) holds up to **five tomes** and casts all five from the off hand, with a staff in the main hand: slot 1 on
-**right-click**, slots 2 to 5 on **R, Q, V and C**. The first three keys use Dragon Form, Drop and Dragon Breath. C has its
+**right-click**, slots 2 to 5 on **R, Q, V and C**. The HUD displays **RMB, R, Q, C, V**, with each tome under its assigned key. The first three keys use Dragon Form, Drop and Dragon Breath. C has its
 own Spellstone Slot 5 binding. R, Q and V keep their own jobs whenever a staff and Spellstone are not both held; while they
 are, Q never drops and R and V call no Dragon power. A held key recasts like a held right-click; Updraft gathers while
 its key is held (the same wind ring and breath) and throws on release or at full charge.
@@ -690,12 +706,12 @@ The **shop band** column in the tables below is the tier's band (`Spell.shopTier
 
 | Spell | Base dmg | Mana | Cooldown | Shop band (week) | Notes |
 |---|---|---|---|---|---|
-| Arcane Bolt | 5 | 8 | 0.5 s | 1 | fast projectile. Arcane Echo fires three in a tight spread every sixth cast |
+| Arcane Bolt | 3.75 | 8 | 0.5 s | 1 | fast projectile. Arcane Echo fires three in a tight spread every sixth cast |
 | Fireball | 10 | 10 | 1.6 s | 2 | explodes r 2, sets on fire, no block damage (owner, 2026-11-18: tier 2, a little stronger) |
 | Ice Nova | 7 | 20 | 7 s | 10 | ring r 6 around you; knocks what it hits back hard and freezes it solid in a block of ice for 3 s (owner, 2026-11-18: twice the old shove, 20 mana, 7 s, tier 3 for it). Frozen, it slides back with the shove, then cannot move, turn, target or strike, and a creeper's fuse winds back; it can still be hurt, and the ice shatters when the time is up or it dies. Bosses and the vanilla giants are only rooted. Ice Prison: 5 s (`Freeze`) |
 | Arc | 8 | 15 | 2 s | 10 | jumps to 4 more targets |
 | Comet | 37.5 | 25 | 6 s | 20 | a magma boulder falls straight down from 60 blocks overhead and lands 3 s after the cast (a boss's meteor still takes 1 s), inside a thick burning ring (r 3, upgrades widen it); blast, debris, shockwave and smoke all stay inside the ring, which clears within about a second |
-| Blink | - | 40 | 10 s | 10 | teleport up to 12 blocks forward |
+| Blink | - | 40 | 20 s | 10 | teleport up to 12 blocks forward |
 
 Non-attack tomes. "Power" scales exactly like damage (Spell Power), so the tooltip shows the live shield or
 heal. Light, Trees, Reap, Herd Call, Gathering and Homeward always cast and always show their ring of light, even with
@@ -770,7 +786,7 @@ and after a restart they leave air. The Light Steed is never saved with the worl
 
 | Spell | Kind | Base | Mana | Cooldown | Shop band (week) | Effect |
 |---|---|---|---|---|---|---|
-| Owl Sight | utility | - | 30 | 3 min | 1 | Night Vision, and every monster within 32 glows through walls for the caster alone, for 30 s |
+| Owl Sight | utility | - | 30 | 160 s | 1 | Night Vision, and every monster within 32 glows through walls for the caster alone, for 30 s |
 | Wisps | attack | 1 a strike | 30 | 16 s | 5 | five motes of light that each hunt the nearest monster within 16 (spreading over a pack) for 10 s, striking it once a second and bouncing off between strikes, then the next monster when it dies; with nothing to hunt they circle you (owner, 2026-11-23: they keep attacking, 1 a hit, 10 s, 16 s cooldown, a bit more mana) |
 | Halo Disc | attack | 6 a cut | 12 | 1.5 s | 5 | a spinning blade of light flies 14 blocks (or to a wall) and back, cutting each creature once going and once coming |
 | Stone Wall | defence | - | 10 | 10 s | 5 | a wall 8 wide (owner, 2026-11-22) and 3 high rises across your gaze where you look (12), row by row, pushing aside what stands there; crumbles after 10 s |
@@ -817,7 +833,7 @@ Rewind, Twincast).
 |---|---|---|---|---|---|---|
 | Wayglow | mining | - | 4 | 0.5 s | 1 | a mote of light flies up to 32 blocks and stays where it lands, or where its flight ends, lighting the place like a torch for good; a Bright Mote is the same block at twice the size (`large=true`) |
 | Tether | utility | - | 15 | 3 s | 5 | a line of light (24) pulls you to the block you aim at, past any creature in the way; pulling a creature to you is the Lasso perk and a soft landing the Soft Landing upgrade (owner, 2026-11-22) |
-| Thornfield | attack | 2 a second | 20 | 8 s | 5 | roots tear up out of the ground you aim at (24), 8 s: an oval 4 round across your aim and half as long again away from you, its near edge where you aimed (owner, 2026-11-22: real roots, 50% more ground); monsters in it are slowed hard (Slowness III) and cut each second. The roots are block displays of hanging roots turned upright with mangrove-root clumps, unlit, that grow up over 8 ticks and sink back when it ends |
+| Thornfield | attack | 1 a second | 30 | 10 s | 5 | Roots grow for 8 s in an oval where you aim. The thicket gives off temporary light, slows monsters by 22.5%, and cuts them once a second. |
 | Lightbrand | attack | 3 a blow | 25 | 3 min | 5 | for a minute (owner, 2026-11-22) every weapon you hold (a sword, axe, mace or trident) spills light as the Light Sword does, seen by everyone (the synced `lightborn:lightbrand` flag), and lights the dark round you like one more piece of Light gear; each melee blow you land deals the brand's damage again as light and sets what it hits alight 3 s |
 | Ball Lightning | attack | 3 a zap | 30 | 10 s | 10 | an orb drifts along your aim for 6 s (stopping at walls), zapping the three monsters nearest it within 5 every half second |
 | Blade Ring | attack | 4 a cut | 30 | 15 s | 10 | three glowing swords circle you 2.5 out for 10 s; a monster within the ring is cut every 10 ticks (more blades, more often) |
@@ -831,7 +847,7 @@ Rewind, Twincast).
 |---|---|---|---|
 | Tether | 50% farther · 30% less mana · 25% shorter cooldown | Soft Landing (you take no fall damage after a pull) · pulls nearly twice as fast · Running Start (speed I for 4 seconds after the line lands you) | Lasso (a creature in your aim is pulled to you; it does nothing to bosses) · Slingshot (flung on past the block and up) · Double Line (one more tether within 3 s, free) |
 | Wayglow | 50% farther · 30% less mana · 25% shorter cooldown | throws three motes in a spread instead of one · Gentle Light (each throw heals you a heart) · Feather Fall (slow Falling for 5 seconds when you throw, to mark a drop and take it) | Bright Motes (twice the size, easy to spot) · Flare (monsters within 16 of the landing glow 10 s) · Kindled Stride (breaking a mote gives a second of Speed I, adding up, at most a minute) |
-| Thornfield | +20% damage · 30% less mana · 40% wider | grows 12 seconds instead of 8 · Healing Roots (standing in your thicket, you heal 1 each second) · 35% shorter cooldown | Strangling Roots (monsters cannot move) · Venom Thorns (poison) · Last Bloom (bursts at the end for triple) |
+| Thornfield | +20% damage · 30% less mana · 25% wider | grows 10 seconds instead of 8 · Healing Roots (standing in your thicket, you heal 1 each second) · 35% shorter cooldown | Strangling Roots (monsters cannot move) · Venom Thorns (poison) · Last Bloom (bursts at the end for triple) |
 | Lightbrand | +20% damage · 30% less mana · 50% longer | Searing Brand (branded blows set monsters alight for 3 seconds) · Brand Guard (resistance I while the brand burns) · 40% shorter cooldown | Cleave (monsters within 2.5 of the target struck too) · Radiant Thirst (a blow heals half a heart) · Mana Edge (2 mana a blow) |
 | Ball Lightning | +20% damage · 30% less mana · 50% longer | zaps 40% farther · zaps five monsters at a time instead of three · Mana Spark (1 mana back for each zap) | Homing Orb · Thunderclap (bursts at the end for triple within 4) · Stunning Arc (zapped monsters held a second) |
 | Blade Ring | +20% damage · 30% less mana · 50% longer | the ring is 40% wider · five blades instead of three, so they cut more often · Bleeding Blades (the blades make monsters bleed for 3 seconds) | Parry (monsters' shots knocked out of the air) · Bladestorm (at the end the blades strike the nearest monsters for double) · Whirling Guard (cuts throw back) |
@@ -848,7 +864,7 @@ Rewind, Twincast).
 **The fifth shelf** (owner, 2026-11-22: "add 10 more spells please. This will be final 10
 spell addition", chosen by Claude with no questions asked). Ten more, each doing what no older spell, spell perk or gear
 perk does; a death-saving ward was dropped because the Second Dawn gear perk already does it, a breathing-and-swimming
-spell because Tide Runner does most of it. Emberwalk's crust is a real block (`lightborn:ember_crust`, light 7, no item,
+spell because Swimmer does most of it. Emberwalk's crust is a real block (`lightborn:ember_crust`, light 7, no item,
 no drops) whose own scheduled tick melts it, saved with the chunk: back to a lava source where it was one, else to air,
 so walking never makes lava; a player standing on it keeps it hard. The Crystal Shell's walls are block displays never
 saved with the world, and a shelled player still takes what passes every guard (the void, `/kill`). Moongate's gates,
@@ -973,7 +989,7 @@ crash, logout or death still returns you; the body is a vanilla mannequin wearin
 | Bear Form | attack | 6 a roar | 100 | 3 min | Legendary | 30 s as a polar bear: +10 hearts (healed in), Resistance I, no knockback, melee twice as hard; right-click roars, striking and throwing back every monster within 5 (4 s between) |
 | Spider Form | utility | - | 100 | 2 min | Legendary | 45 s as a spider: climbs any wall it walks into, Night Vision, no fall damage, melee poisons (Poison I 3 s); right-click webs the monster you look at (24): Slowness VI and Weakness II under a cobweb for as long as you stay a spider (owner, 2026-11-23), all lifted when the form ends (3 s between) |
 | Blaze Form | attack | 5 a fireball | 100 | 3 min | Legendary | 30 s as a blaze: no fire or fall damage, Slow Falling in the air and Levitation while jump is held; right-click throws three fireballs where you look (1.5 s between). Fireballs never set blocks alight |
-| Spirit Walk | utility | - | 100 | 1 min | Basic (owner, 2026-11-23) | 30 s of spectator flight and Night Vision while your body waits where you stood. Hold right-click to zoom like a spyglass and press Control to return early |
+| Spirit Walk | utility | - | 100 | 1 min | Basic (owner, 2026-11-23) | 30 s of spectator flight and Night Vision while your body waits where you stood. Hold right-click to zoom like a spyglass and press Q to return early |
 | Shrinking | utility | - | 100 | 60 s | Basic | 30 s at a sixth of your size (`scale` 1/6; owner, 2026-11-23, was a fifth); it ends only once a full-size body fits where you are |
 | Gills | utility | - | 10 | 2.5 min | Basic | 2 min of Conduit Power and Dolphin's Grace |
 | Purify | defence | - | 15 | 30 s | Basic | every harmful effect, fire and freezing gone, and no harmful effect takes hold for 8 s (owner, 2026-11-23; was 5). Its tome is the Tome of Purify (was "of Purity") |
@@ -1191,7 +1207,7 @@ spells' tables live in `SpellUpgrades.java`; tomes have no durability, so no upg
 count, duration, or a spell's own special number. **No stat kind repeats inside a tier**: a tier's three branches
 always raise three different things. **Tier III is never a stat boost: every tier III branch is a unique perk** that
 changes how the spell plays (the model is Comet's Twin Stars, a second comet falling beside the first; others:
-Fireball's Living Bomb, Blink's Echo Step free recast (one extra cast within four seconds, from both the staff and the Spellstone), Ice Nova's Ice Prison, Felling's Forest Sweep, Treasure
+Fireball's Living Bomb, Blink's Echo Step (one extra 40-mana blink within four seconds, from either casting route), Ice Nova's Ice Prison, Felling's Forest Sweep, Treasure
 Thread's Second Thread). The rule holds for every spell added later. The self-test enforces both halves (`testTree`).
 **Stat branches are named for what they do** (owner, 2026-11-23: "more damage or cheaper mana instead of bright
 motes"): More Damage, Less Mana, Shorter Cooldown, Wider Area, Longer Reach, Lasts Longer, More Healing and the like,
@@ -1297,24 +1313,23 @@ upgraded mana, cooldown and power and lists the branches in use, without tier or
      before the first diamond ore), it drops the best tier the player has unlocked instead, so the ore caps the tier
      and strength only lifts the odds. A Cleanse cache counts as tier 2, tier 3 from 4 shards and Boss from the
      Legendary threshold; a Dark Fountain's stage 1 as tier 2, stage 2 as tier 3, stage 3 as Boss. So a plain zombie never drops diamond or netherite.
-- **Legendary monster loot.** A tier-five monster has a 10% chance, multiplied by Item Find, to drop an extra
-  Legendary piece of the best material its killer has mined. A boss's first roll is always Legendary and its
-  tome is always tier five. Gear from monsters and bosses comes with empty upgrade trees.
+- **Rare and Legendary combat loot.** Half of Rare and Legendary gear rolls from monsters and Dark Fountains
+  become Uncommon. A tier-five monster can also drop an extra Legendary at 5% × Item Find. A boss's first gear roll
+  starts at Legendary and follows the same downgrade roll. Its tome is always tier five. Combat loot starts without upgrades.
 
 - **Gear tiers** (owner, 2026-11-20), a ladder beside the monster tiers, never shown on items: 1 Crude (wood, stone,
   leather, copper, gold: crafted, never dropped), 2 Iron (iron, chainmail, the Apprentice staff), 3 Diamond, 4
   Netherite. Rarity (Uncommon, Rare, Legendary, Mythic: 1, 2, 3, 4 bonus stats) is a second scale on top. The Dragon's
   Light gear is always the tier of its holder's best ore.
   Plus **Staffs** for the mage (one per tier: Apprentice, Adept, Archmage) with built-in Spell Power and Max Mana
-  (0 / 20 / 30). Three **specialist staffs** replace about 3 in 10 staff drops of their tier, a little stronger than
-  the plain one and with a signature stat: Thornwood (Iron: +20% Spell Power, 10 mana, +25% Mana Regeneration), Bone
-  (Diamond: +30%, 20, +4% Life Leech), Storm Rod (Netherite: +45%, 30, +15% Cooldown Speed). Every staff is drawn by
+  (0 / 10 / 15). Three **specialist staffs** replace about 3 in 10 staff drops of their tier, with a signature
+  stat: Thornwood (Iron, +10% Spell Power, +5 mana, +5% Spell Crit Chance), Bone (Diamond, +15%, +10,
+  +4% Life Leech), Storm Rod (Netherite, +22.5%, +15, +15% Cooldown Speed). Every staff is drawn by
   hand as its own object, and no two staffs may differ only by colour: a violet shard, a gold ring round a cyan orb, a
   gold crescent round a red gem, a thorned branch with a bud, a skull, a forked rod with a spark.
-- Rarity applies to every rolled item, staffs included. **Rarity alone sets affix strength** (owner, 2026-11-16);
-  every monster rolls rarity at the same odds.
-- **A staff's rarity adds Max Mana** outside the affix count (owner, 2026-11-16): Basic +0, Uncommon +10, Rare +20,
-  Legendary +35, Mythic +55 (`Balance.STAFF_RARITY_MANA`). It joins the staff's one Max Mana line (each stat shows once), on top
+- Rarity applies to every rolled item, staffs included. **Material does not affect the strength of an affix.** Armour suffix values are halved across every rarity.
+- **A staff's rarity adds Max Mana** outside the affix count (owner, 2026-11-16): Basic +0, Uncommon +5, Rare +10,
+  Legendary +17.5, Mythic +27.5 (`Balance.STAFF_RARITY_MANA`). It joins the staff's one Max Mana line (each stat shows once), on top
   of the built-in Max Mana.
 - **An affix never lands on one of the item's own stats** (owner, 2026-11-18: "rare must always have 2, legendary
   always 3"): folded into the base line it would hide, so armour rolls no extra Armor, a sword no extra Attack Damage
@@ -1353,8 +1368,9 @@ and this document; a player reads only the names.
   added into that line, so each stat shows once.
 - A staff's **Attack Damage** is its melee hit only (2 plus the tier, plus the hand's 1); **Spell Power** multiplies
   spell damage and never the melee hit, so two staffs with different Spell Power show the same Attack Damage.
-- Affixes include all vanilla ones plus Spell Power, Max Mana, Mana Regen, Cooldown Speed, Spell Crit, Crit Damage,
-  Life Leech, Life on Kill, Item Find.
+- Affixes include Spell Power, Max Mana, Cooldown Speed, Spell Crit, Crit Damage, Life Leech, Life on Kill and
+  Item Find. Mana Regeneration takes one of the four Mythic staff suffix slots and is guaranteed there. Other
+  items have no Mana Regeneration suffix. Existing rolled gear is refreshed when carried or read from chest storage.
 - Structure chest loot receives one 15% tome roll per root loot context, so nested or copied tables do not multiply
   the chance.
 
@@ -1415,7 +1431,7 @@ of replacing each other:
 | Sword | Sunfire Edge (hits burn 4 s and deal 50% more to the undead) · Radiant Sweep (each hit sends half its damage into monsters within 3) · Executioner (hits deal 50% more to monsters under a third of their health) |
 | Chestplate | Bulwark (Resistance I below half health) · Thornlight (attackers in reach take 3 and burn) · Second Dawn (once every 10 minutes a killing blow leaves you with 2 hearts) |
 | Greaves | Swift by Night (Speed I at night) · Mender's Gait (sprinting restores half a heart every 3 s) · Steadfast (no knockback) |
-| Boots | Featherfall (no fall damage) · Tide Runner (Dolphin's Grace in water) · Spring Step (Jump Boost II) |
+| Boots | Featherfall (60% less fall damage) · Unhindered (immune to Slowness) · Spring Step (Jump Boost I) |
 | Staff | Spellfrost (every fourth cast freezes enemies it hits for 2 s) · Spellfire (every fourth cast ignites enemies it hits for 2 s) · Echoing Staff (one spell in eight skips its cooldown) |
 | Wings | Tireless Wings (mend while gliding) · Star Glide (the wind keeps pushing you on) · Soft Landing (no fall or wall damage) |
 | Bow, crossbow | Twin Shot (each arrow flies with a twin that cannot be picked up) · Frost Arrow (Slowness II for 3 s and 34 frostbite, a bite in three arrows) · Quiver of Light (one arrow in three is not used up) |
@@ -1447,8 +1463,8 @@ chance, which the weapon tree's More Crits takes to 10%.
 | Sword | More Damage (+1 attack damage) · Faster Swings (Swings 10% faster) · Life Steal (Heals you 3% of the damage you deal) | Longer Reach (Reaches half a block farther) · More Crits (+5% crit chance (10% in all)) · Harder Crits (Crits hit 10% harder) |
 | Chestplate | More Armour (+1 armour) · More Health (+1 heart) · More Toughness (+1 armour toughness) | More Mana (+10 mana) · Less Burning (Fire burns you 30% shorter) · Less Knockback (10% less knockback) |
 | Greaves | More Armour (+1 armour) · Faster Walking (You move 5% faster) · More Toughness (+1 armour toughness) | Higher Jumps (You jump 10% higher) · More Health (+1 heart) · Less Knockback (10% less knockback) |
-| Boots | More Armour (+1 armour) · Faster Walking (You move 4% faster) · More Toughness (+1 armour toughness) | Web Walker (You walk through cobwebs at full speed) · Safer Falls (Falls hurt you 25% less) · Step Up (You step up half a block higher without jumping) |
-| Staff | More Spell Damage (+10% spell power) · More Mana (+15 mana) · Spell Crits (+5% spell crit chance) | Faster Mana (Mana comes back 20% faster) · Shorter Cooldowns (Spells ready 5% sooner) · Harder Crits (Crits hit 10% harder) |
+| Boots | More Armour (+1 armour) · Faster Walking (You move 4% faster) · More Toughness (+1 armour toughness) | Web Walker (You walk through cobwebs at full speed) · Safer Falls (Falls hurt you 25% less) · Swimmer (Dolphin's Grace in water) |
+| Staff | More Spell Damage (+5% spell power) · More Mana (+7.5 mana) · Spell Crits (+5% spell crit chance) | Faster Mana (Mana comes back 20% faster) · Shorter Cooldowns (Spells ready 5% sooner) · Harder Crits (Crits hit 10% harder) |
 | Wings | More Armour (+1 armour) · More Toughness (+1 armour toughness) · More Health (+1 heart) | Faster Walking (You move 4% faster) · More Mana (+10 mana) · Less Knockback (10% less knockback) |
 | Bow, crossbow | Arrow Damage (Arrows hit 10% harder) · More Crits (+3% crit chance) · Faster Walking (You move 4% faster) | Harder Crits (Crits hit 10% harder) · More Mana (+10 mana) · More Health (+1 heart) |
 | Tool | Faster Mining (Mines 15% faster) · Longer Reach (Reaches blocks half a block farther) · Longer Breath (You hold your breath longer underwater) | Safer Falls (Falls hurt you 25% less) · Faster Walking (You move 4% faster) · Underwater Mining (Mining underwater is barely slowed) |
@@ -1490,10 +1506,12 @@ following them. Every Light piece worn (helm, chestplate or wings, greaves, boot
 
 | Light pieces | 1 | 2 | 3 | 4 | 5 | 6 |
 |---|---|---|---|---|---|---|
-| Light level radiated | 4 | 6 | 8 | 10 | 12 | 13 |
+| Light level radiated | 8 | 12 | 15 | 15 | 15 | 15 |
 
-Radiance shines only at night, because nights are black, which is what makes it worth wearing. The collection finale
-stays the bigger reward: level 15 with motes, day and night.
+Gear radiance shines at night and caps at Minecraft's light level 15. Collection completion shines at level 15
+day and night. Lifebloom lights its roots at level 12. Thornfield, spell wards, falling stars, meteors and bright
+projectile impacts light the blocks around their effects temporarily. Spell lights use empty space and clean up when
+they expire or when a saved chunk reloads after an interrupted session.
 
 Light gear repairs on an anvil with glowstone dust (free) and keeps its strength through both endings. **Worn out, it
 never vanishes** (owner, 2026-11-20; **any gear upgraded at the chest** too, owner 2026-11-23: it breaks and stays
@@ -1730,7 +1748,9 @@ Fountain core loot grows with victory progress and local growth stage. Starts pa
 Uncommon roll. Later clears can award Rare, Legendary and Mythic gear. The Nether pays half again in Sparks and
 shards, with an extra gear drop after the first win.
 
-**Guards stay until slain.** They stand immediately (Spawn Animations excludes them) and are persistent.
+**Guards stay until slain.** They spawn on solid floors two to five blocks from the core at roughly its own height.
+An attempt to break the crystal alerts its remaining guards, who target the player and rush them. Guards stand
+immediately (Spawn Animations excludes them) and are persistent.
 When all guards vanish without being defeated, the next approach wakes a fresh group. Dying within 64 blocks
 resets the fight. Overworld guards crumble at nightfall, while the Dark’s remain. The count which woke and
 the count defeated are saved with the fountain.
@@ -1780,10 +1800,10 @@ Cleanse ([The Dragon's Tale](#orvane-the-last-scribe)).
 |---|---|---|---|
 | Gorath the Unbroken | giant zombie | Ground Slam, Boulder Toss with a 3-block impact, one giant and 15% less damage taken after enrage. Nerfed (owner, 2026-11-15: far too tanky): his health counts 28 base (his giant body has 50) | Unbroken Plate stops knockback and gives Stoneskin on a hit once every 20 seconds |
 | Vexmora, Bonecaller | deadeye skeleton | Five-arrow Volley, Raise Dead with three skeleton kinds, three-second Bone Cage of damaging spikes | Bonecaller's Staff raises a skeleton thrall for 30 seconds on 15% of credited kills |
-| Maelis the Weaver | weaver spider | Four-block Web Burst with webs that last four seconds, Pounce, Brood of four cave spiders | No trophy of its own (owner, 2026-11-17): a legendary piece of gear drops in its place; walking through webs is the boots' Web Walker node now |
-| Syrith the Undying | vampire zombie | A visible Drain tether, Mist Step behind the target, one revival at 40% health | No trophy of its own (owner, 2026-11-17): a legendary piece of gear drops in its place |
+| Maelis the Weaver | weaver spider | Four-block Web Burst with webs that last four seconds, Pounce, Brood of four cave spiders | No trophy of its own (owner, 2026-11-17): a rolled piece of gear drops in its place; walking through webs is the boots' Web Walker node now |
+| Syrith the Undying | vampire zombie | A visible Drain tether, Mist Step behind the target, one revival at 40% health | No trophy of its own (owner, 2026-11-17): a rolled piece of gear drops in its place |
 | Ozrik Ashbringer | ember skeleton | Fire Nova, Meteor with the player's ground warning and falling rock, Burning Trail that leaves dangerous ground behind him | Ashbringer gives +60% Spell Power and 25% more Fireball and Comet damage |
-| Nyx, Herald of the Dark Moon | darkness zombie | Six seconds of Darkness, three one-hit shadow copies, Gravity Well | No trophy of its own (owner, 2026-11-22: Eclipse became an ordinary Legendary tome): a legendary piece of gear drops in its place |
+| Nyx, Herald of the Dark Moon | darkness zombie | Six seconds of Darkness, three one-hit shadow copies, Gravity Well | No trophy of its own (owner, 2026-11-22: Eclipse became an ordinary Legendary tome): a rolled piece of gear drops in its place |
 
 - **Who comes.** A Cleanse fed 6 or more shards ends with one boss after its wave: the caller's grudge if one is
   owed, else a random named boss. Boss Sigils are gone (owner, 2026-11-16): a boss is called with shards, or met in
@@ -2012,13 +2032,13 @@ their gear.
 
 ### Steady hunger and healing
 
-In survival and adventure, food decreases by one point (half a drumstick) every five minutes of active play.
-Movement, jumping, fighting, mining, healing, status effects and other actions add no exhaustion cost. Saturation
-and food values still apply to eating and natural healing. Creative and spectator players do not drain food. The
-timer saves with the player; a death starts a fresh body's timer.
+In survival and adventure, base hunger drains 30% faster, one point (half a drumstick) about every 3 minutes
+51 seconds of active play. Movement, mining and fighting still add no exhaustion. Successful healing also drains
+one food point per 6⅔ health points recovered. Fractional healing costs carry forward. Creative and spectator
+players do not drain food.
 
-Natural health recovery from food is half of vanilla's, for both fast saturated healing and slower hunger-based
-healing. Healing spells, potion healing and earned Life Regeneration bonuses keep their own values.
+Natural health recovery from food remains half of vanilla's. Healing spells, potions and Life Regeneration keep
+their normal healing amounts and pay the same food cost for the health they actually restore.
 
 ### Rain grows crops
 

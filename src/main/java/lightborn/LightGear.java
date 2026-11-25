@@ -310,13 +310,13 @@ public final class LightGear {
                         ModAttributes.SPELL_POWER,
                         new AttributeModifier(
                                 ModItems.id("light_power"),
-                                new double[] {.15, .25, .4, .55}[t - 1],
+                                new double[] {.075, .125, .20, .275}[t - 1],
                                 AttributeModifier.Operation.ADD_MULTIPLIED_BASE),
                         slot);
                 b.add(
                         ModAttributes.MAX_MANA,
                         new AttributeModifier(
-                                ModItems.id("light_mana"), (t - 1) * 15, AttributeModifier.Operation.ADD_VALUE),
+                                ModItems.id("light_mana"), (t - 1) * 7.5, AttributeModifier.Operation.ADD_VALUE),
                         slot);
             }
         }
@@ -539,6 +539,6 @@ public final class LightGear {
     static int radiance(ServerPlayer p) {
         if (!LightDragons.night(p.level())) return 0;
         int n = pieces(p) + (LightSpells.shining(p) ? 1 : 0) + (LightSpells.riding(p) ? 1 : 0);
-        return n == 0 ? 0 : Math.min(13, 2 + n * 2);
+        return n == 0 ? 0 : Math.min(15, (2 + n * 2) * 2);
     }
 }

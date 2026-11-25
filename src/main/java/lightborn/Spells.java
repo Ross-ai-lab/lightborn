@@ -68,7 +68,7 @@ public final class Spells {
                             0.6f);
             return false;
         }
-        // Echo Step and Return Trip: one free cast inside their window, past the cooldown and without mana.
+        // Echo Step and Return Trip can bypass the cooldown once within their window.
         boolean echo = Perks.free(player, spell);
         if (player.getCooldowns().isOnCooldown(tome) && !echo) return false;
         if (spell.kind == Spell.Kind.ATTACK && spell.baseDamage > 0 && WardCombat.inside(player)) {
@@ -77,9 +77,11 @@ public final class Spells {
         }
         float mana = Progression.mana(player);
         int[] chosen = SpellUpgrades.chosen(tome);
-        double cost = echo || ArcaneSpells.flowing(player) // Wellspring
-                ? 0
-                : spell.mana * Math.max(.1, 1 + SpellUpgrades.total(spell, chosen, SpellUpgrades.Stat.COST));
+        double cost = echo && spell == Spell.BLINK
+                ? 40
+                : echo || ArcaneSpells.flowing(player)
+                        ? 0
+                        : spell.mana * Math.max(.1, 1 + SpellUpgrades.total(spell, chosen, SpellUpgrades.Stat.COST));
         if (mana < cost) {
             player.sendSystemMessage(
                     Component.literal(
@@ -410,8 +412,13 @@ public final class Spells {
     }
 
     private static void impactNow(ServerLevel level, Projectile pr, Vec3 at, LivingEntity struck) {
-        if (LightDragons.night(level) && pr.owner.getMainHandItem().is(LightGear.ITEMS.get(5)))
-            StoryGlow.place(level, BlockPos.containing(at));
+        if (pr.spell == Spell.ARCANE_BOLT
+                || pr.spell == Spell.FIREBALL
+                || pr.spell == Spell.BLAZE_FORM
+                || pr.owner.getMainHandItem().is(LightGear.ITEMS.get(5))) {
+            if (!StoryGlow.place(level, BlockPos.containing(at), 15, 60))
+                StoryGlow.place(level, BlockPos.containing(at).above(), 15, 60);
+        }
         if (pr.spell == Spell.SPLINTER) {
             level.sendParticles(ParticleTypes.END_ROD, at.x, at.y, at.z, 4, 0.1, 0.1, 0.1, 0.04);
             level.playSound(null, at.x, at.y, at.z, SoundEvents.AMETHYST_BLOCK_HIT, SoundSource.PLAYERS, 0.6f, 1.8f);

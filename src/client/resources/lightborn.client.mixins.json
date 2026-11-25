@@ -41,6 +41,7 @@
     "FormRenderMixin",
     "FormUseMixin",
     "SpiritScopeMixin",
+    "SpiritScopeMixin$Overlay",
     "FrostTintMixin",
     "ContainerScreenAccessor",
     "BenchSwitchMixin"

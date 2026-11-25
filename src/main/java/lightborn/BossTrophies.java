@@ -85,7 +85,7 @@ public final class BossTrophies {
                 boss.trophyId,
                 properties(lore)
                         .stacksTo(1)
-                        .attributes(weapon(6, -2.8, ModAttributes.SPELL_POWER, power, boss.id + "_power")));
+                        .attributes(weapon(6, -2.8, ModAttributes.SPELL_POWER, power * .5, boss.id + "_power")));
     }
 
     private static ItemAttributeModifiers weapon(
@@ -143,15 +143,18 @@ public final class BossTrophies {
 
     static boolean dropTrophy(LivingEntity boss, BossKind kind, ServerLevel level, ServerPlayer fallback) {
         ItemStack trophy;
+        var rarity = LootRoller.Rarity.LEGENDARY;
         if (item(kind) != null) trophy = new ItemStack(item(kind));
         else {
             var tier = fallback == null ? null : OreTiers.pick(level.getRandom(), fallback, OreTiers.BOSS);
-            trophy = tier == null
-                    ? new ItemStack(Items.DIAMOND, 3)
-                    : LootRoller.roll(level.getRandom(), tier, LootRoller.Rarity.LEGENDARY);
+            if (tier == null) trophy = new ItemStack(Items.DIAMOND, 3);
+            else {
+                rarity = LootRoller.combatRarity(level.getRandom(), rarity);
+                trophy = LootRoller.roll(level.getRandom(), tier, rarity);
+            }
         }
         var drop = boss.spawnAtLocation(level, trophy);
-        LootBeams.onDrop(drop, LootRoller.Rarity.LEGENDARY);
+        LootBeams.onDrop(drop, rarity);
         return drop != null || (fallback != null && fallback.getInventory().add(trophy));
     }
 

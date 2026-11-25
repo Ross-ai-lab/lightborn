@@ -265,8 +265,7 @@ final class CraftingTab extends ChestTab {
         g.fill(x, y + 10, end, bottom + 13, EDGE);
         g.fill(x + 1, y + 11, end - 1, bottom + 12, AMBER_INK);
         g.fill(d, y + 11, d + 1, bottom + 12, EDGE);
-        g.text(font(), manual ? "Ingredients" : "Craftable recipes", x + 3, y, GOLD, true);
-        g.text(font(), "Crafting grid", d + 6, y, GOLD, true);
+        if (manual) g.text(font(), "Ingredients", x + 3, y, GOLD, true);
         if (view == null) return;
 
         var entries = view.entries();

@@ -112,7 +112,9 @@ public final class ChestCrafting {
         PayloadTypeRegistry.serverboundPlay().register(Ask.TYPE, Ask.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(Show.TYPE, Show.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(Ask.TYPE, (ask, ctx) -> {
-            if (LightShop.near(ctx.player(), ask.chest())) ctx.responseSender().sendPacket(handle(ctx.player(), ask));
+            if (LightShop.near(ctx.player(), ask.chest())
+                    && ChestStations.owned(ctx.player(), ChestStations.Station.CRAFTING))
+                ctx.responseSender().sendPacket(handle(ctx.player(), ask));
         });
     }
 

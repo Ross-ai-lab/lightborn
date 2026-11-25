@@ -1,14 +1,18 @@
 package lightborn;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.chunk.LevelChunk;
 
-/** Brief spell-impact light, with persistent chunk records so a crash cannot leave lights behind. */
+/** Temporary world light for magic, with chunk records to clean up lights after a restart. */
 final class StoryGlow {
     static void init() {}
 
@@ -17,51 +21,75 @@ final class StoryGlow {
 
     private record Site(ServerLevel level, BlockPos pos) {}
 
-    private static final Set<Site> LIVE = new HashSet<>();
+    private record Glow(int strength, long expires) {}
 
-    static void place(ServerLevel l, BlockPos at) {
-        at = at.immutable();
-        if (!l.getBlockState(at).isAir()) return;
-        var site = new Site(l, at);
-        var c = l.getChunkAt(at);
-        var records = new ArrayList<>(c.getAttachedOrElse(SAVED, List.of()));
-        records.add(new CollectionLight.Placed(at, l.getBlockState(at)));
-        c.setAttached(SAVED, List.copyOf(records));
-        l.setBlockAndUpdate(at, Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, 12));
-        LIVE.add(site);
-        Scheduler.later(60, () -> remove(site));
+    private static final Map<Site, Glow> LIVE = new HashMap<>();
+
+    static void place(ServerLevel level, BlockPos at) {
+        place(level, at, 15, 60);
     }
 
-    private static void remove(Site s) {
-        LIVE.remove(s);
-        var c = s.level.getChunkAt(s.pos);
-        var entries = c.getAttachedOrElse(SAVED, List.of());
-        for (var r : entries)
-            if (r.pos().equals(s.pos)
-                    && s.level.getBlockState(s.pos).is(Blocks.LIGHT)
-                    && s.level.getBlockState(s.pos).getValue(LightBlock.LEVEL) == 12)
-                s.level.setBlockAndUpdate(s.pos, r.original());
-        c.setAttached(
-                SAVED, entries.stream().filter(r -> !r.pos().equals(s.pos)).toList());
+    static boolean place(ServerLevel level, BlockPos at, int strength, int ticks) {
+        if (!level.hasChunkAt(at)) return false;
+        var site = new Site(level, at.immutable());
+        var before = level.getBlockState(at);
+        var old = LIVE.get(site);
+        boolean extending = old != null && before.is(Blocks.LIGHT) && before.getValue(LightBlock.LEVEL) == old.strength;
+        if (extending) {
+            strength = Math.max(strength, old.strength);
+        } else if (!before.isAir()) {
+            return false;
+        } else {
+            var chunk = level.getChunkAt(at);
+            var records = new ArrayList<>(chunk.getAttachedOrElse(SAVED, List.of()));
+            records.removeIf(r -> r.pos().equals(site.pos));
+            records.add(new CollectionLight.Placed(site.pos, before));
+            chunk.setAttached(SAVED, List.copyOf(records));
+        }
+        long expiry = Math.max(Scheduler.now() + ticks, old == null ? 0 : old.expires);
+        var glow = new Glow(strength, expiry);
+        if (extending && glow.equals(old)) return true;
+        LIVE.put(site, glow);
+        level.setBlockAndUpdate(at, Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, strength));
+        Scheduler.later((int) (expiry - Scheduler.now()), () -> {
+            if (LIVE.get(site) == glow) remove(site);
+        });
+        return true;
     }
 
-    static void loaded(ServerLevel l, LevelChunk c) {
+    private static void remove(Site site) {
+        var glow = LIVE.remove(site);
+        if (!site.level.hasChunkAt(site.pos)) return;
+        var chunk = site.level.getChunkAt(site.pos);
+        var entries = chunk.getAttachedOrElse(SAVED, List.of());
+        var current = site.level.getBlockState(site.pos);
+        if (current.is(Blocks.LIGHT) && current.getValue(LightBlock.LEVEL) == glow.strength)
+            for (var record : entries)
+                if (record.pos().equals(site.pos)) site.level.setBlockAndUpdate(site.pos, record.original());
+        chunk.setAttached(
+                SAVED,
+                entries.stream()
+                        .filter(record -> !record.pos().equals(site.pos))
+                        .toList());
+    }
+
+    static void loaded(ServerLevel level, LevelChunk chunk) {
         var keep = new ArrayList<CollectionLight.Placed>();
-        for (var r : c.getAttachedOrElse(SAVED, List.of())) {
-            if (LIVE.contains(new Site(l, r.pos()))) {
-                keep.add(r);
+        for (var record : chunk.getAttachedOrElse(SAVED, List.of())) {
+            if (LIVE.containsKey(new Site(level, record.pos()))) {
+                keep.add(record);
                 continue;
             }
-            var block = c.getBlockState(r.pos());
-            if (block.is(Blocks.LIGHT) && block.getValue(LightBlock.LEVEL) == 12) {
-                c.setBlockState(r.pos(), r.original(), 0);
-                l.getChunkSource().getLightEngine().checkBlock(r.pos());
+            var block = chunk.getBlockState(record.pos());
+            if (block.is(Blocks.LIGHT) && block.getValue(LightBlock.LEVEL) >= 12) {
+                chunk.setBlockState(record.pos(), record.original(), 0);
+                level.getChunkSource().getLightEngine().checkBlock(record.pos());
             }
         }
-        c.setAttached(SAVED, List.copyOf(keep));
+        chunk.setAttached(SAVED, List.copyOf(keep));
     }
 
     static void clear() {
-        for (var s : List.copyOf(LIVE)) remove(s);
+        for (var site : List.copyOf(LIVE.keySet())) remove(site);
     }
 }

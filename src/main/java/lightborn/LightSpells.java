@@ -687,6 +687,7 @@ public final class LightSpells {
         Vec3 centre = Perks.ground(level, aim);
         double area = SpellUpgrades.scale(Spell.STARFALL, AREA, STAR_AREA);
         int ticks = SpellUpgrades.scaleInt(Spell.STARFALL, DURATION, STAR_TICKS);
+        StoryGlow.place(level, BlockPos.containing(centre.add(0, .4, 0)), 15, ticks + 40);
         int count = Math.max(1, Math.round(STAR_COUNT * ticks / (float) STAR_TICKS));
         boolean guiding = SpellUpgrades.perk(p, Spell.STARFALL, "Guiding Stars");
         var random = level.getRandom();
@@ -788,6 +789,7 @@ public final class LightSpells {
                 Math.round(SpellUpgrades.scale(Spell.SANCTUARY, AREA, DOME_RADIUS)),
                 SpellUpgrades.scaleInt(Spell.SANCTUARY, DURATION, DOME_TICKS));
         DOMES.add(dome);
+        StoryGlow.place(level, BlockPos.containing(dome.centre.add(0, .75, 0)), 15, dome.ticks);
         dome.aura = new WardAura(ModEntities.WARD_AURA, level);
         dome.aura.spell(dome.centre, (int) Math.round(dome.radius));
         level.addFreshEntity(dome.aura);
@@ -1410,6 +1412,7 @@ public final class LightSpells {
     /** You gather the light for a moment, then a sun bursts from you. */
     static boolean dawnbreak(ServerLevel level, ServerPlayer p, double dmg) {
         DAWNS.add(new Dawn(p, dmg));
+        StoryGlow.place(level, p.blockPosition().above(), 15, DAWN_GATHER + 40);
         sound(level, p.position(), SoundEvents.BEACON_ACTIVATE, 1f, 1.4f);
         sound(level, p.position(), SoundEvents.AMETHYST_BLOCK_RESONATE, 1f, .6f);
         return true;

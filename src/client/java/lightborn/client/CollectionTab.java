@@ -54,7 +54,7 @@ final class CollectionTab extends ChestTab {
     private int scroll;
     private String picked;
     private int recipeIndex;
-    private Button takeOne, takeAll, putIn, giveNew, giveNonEssential, depositSparks;
+    private Button takeOne, takeAll, putIn, giveNew, giveNonEssential, depositSparks, salvage;
 
     private Button searchButton;
     private EditBox searchBox;
@@ -121,8 +121,27 @@ final class CollectionTab extends ChestTab {
                 giveNonEssential.getX() - 4,
                 footerY,
                 b -> ClientPlayNetworking.send(new Net.ChestMove(s.chest, "", Net.ChestMove.DEPOSIT_SPARKS))));
+        salvage = s.add(
+                new DonationButton(font(), "Salvage gear", depositSparks.getX() - 4, footerY, b -> confirmSalvage()));
+        salvage.setTooltip(Tooltip.create(Component.literal("Exchange one piece of held loot for Sparks.")));
         giveNonEssential.setTooltip(Tooltip.create(
                 Component.literal("Store every non-essential collectible that fits, including past gifts.")));
+    }
+
+    private void confirmSalvage() {
+        var held = mc().player.getMainHandItem().copy();
+        int value = lightborn.ChestSalvage.value(held);
+        if (value <= 0) return;
+        mc().gui
+                .setScreen(new net.minecraft.client.gui.screens.ConfirmScreen(
+                        confirmed -> {
+                            mc().gui.setScreen(s);
+                            if (confirmed) ClientPlayNetworking.send(new lightborn.ChestSalvage.Give(s.chest, held));
+                        },
+                        Component.literal("Salvage " + held.getHoverName().getString() + "?"),
+                        Component.literal("Give this item permanently for " + value + " Sparks."),
+                        Component.literal("Salvage"),
+                        Component.literal("Keep gear")));
     }
 
     /** A compact vanilla button for the footer, with a scaled label. */
@@ -322,7 +341,10 @@ final class CollectionTab extends ChestTab {
             b.visible = show;
             b.setY(s.detailY() + 26); // under the name and count, inside the short panel
         }
-        giveNew.visible = giveNonEssential.visible = depositSparks.visible = on;
+        giveNew.visible = giveNonEssential.visible = depositSparks.visible = salvage.visible = on;
+        salvage.active = on
+                && mc().player != null
+                && lightborn.ChestSalvage.value(mc().player.getMainHandItem()) > 0;
         depositSparks.active = on
                 && mc().player != null
                 && Collection.canDeposit(mc().player, Collection.idOf(lightborn.ModItems.SPARK));
@@ -379,8 +401,8 @@ final class CollectionTab extends ChestTab {
         Set<String> got = Collection.collected(mc().player);
         if (!searching) drawChips(g, mouseX, mouseY);
         String hint = "Ctrl + right-click to give one";
-        int hintX = Math.clamp(depositSparks.getX() - 110, s.left() + 8, s.gridX() + 1);
-        float hintScale = Math.min(.75f, (depositSparks.getX() - hintX - 5) / (float) font().width(hint));
+        int hintX = Math.clamp(salvage.getX() - 110, s.left() + 8, s.gridX() + 1);
+        float hintScale = Math.min(.75f, (salvage.getX() - hintX - 5) / (float) font().width(hint));
         if (hintScale > 0) {
             g.pose().pushMatrix();
             g.pose().translate(hintX, s.top() + s.h() - HELP + 4);
