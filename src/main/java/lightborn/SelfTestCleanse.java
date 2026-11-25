@@ -415,6 +415,22 @@ final class SelfTestCleanse {
                             + ordinaryInside + ", mutant veto=" + mutantVeto + ", egg=" + (fromEgg != null));
             if (fromEgg != null) fromEgg.discard();
 
+            var minionType = BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.parse("mutantmonsters:creeper_minion"));
+            var hostile =
+                    (net.minecraft.world.entity.TamableAnimal) minionType.create(level, EntitySpawnReason.MOB_SUMMONED);
+            hostile.setOwner(mutant);
+            hostile.setPos(inside);
+            var pet =
+                    (net.minecraft.world.entity.TamableAnimal) minionType.create(level, EntitySpawnReason.MOB_SUMMONED);
+            pet.setOwner(player);
+            pet.setPos(inside);
+            level.addFreshEntity(hostile);
+            check(
+                    "ward_vetoes_mutant_minion_before_aggro",
+                    hostile.isRemoved() && !LightWards.rejectsCreeperMinion(level, pet),
+                    null);
+            pet.discard();
+
             var creeper = EntityTypes.CREEPER.create(level, EntitySpawnReason.COMMAND);
             var protectedBlock = chest.east(18);
             var exposedBlock = chest.east(19);

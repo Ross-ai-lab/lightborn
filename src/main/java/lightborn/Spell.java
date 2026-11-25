@@ -805,11 +805,11 @@ public enum Spell {
             "Spirit Walk",
             "minecraft:phantom_membrane",
             100,
-            2400,
+            1200,
             0,
             1, // Basic (owner, 2026-11-23)
             true,
-            "For 15 seconds your spirit leaves your body: it flies through walls and nothing can touch it. Then it"
+            "For 30 seconds your spirit leaves your body: it flies through walls and nothing can touch it. Then it"
                     + " returns to your body, which waits where you stood. Right-click returns early.",
             Kind.UTILITY),
     SHRINKING(

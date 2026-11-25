@@ -70,6 +70,8 @@ import net.minecraft.world.level.block.EntityBlock;
 public final class Collection {
     private Collection() {}
 
+    public static final int STORAGE_LIMIT = 999;
+
     public record Reward(String text, List<PlayerBonuses.Effect> effects) {}
 
     public record Category(String key, Component name, ItemStack icon, List<String> items, Reward reward) {}
@@ -476,7 +478,7 @@ public final class Collection {
 
     // ---------------------------------------------------------------- the chest's store
 
-    /** What this player keeps in the Chest of Light: at most one stack per catalogue item. Both sides (synced). */
+    /** The stored quantity and item variant of each deposit, synced to the player. */
     public static List<ItemStack> storage(Player player) {
         List<ItemStack> list = player.getAttached(ModData.STORAGE);
         return list == null ? List.of() : list;
@@ -513,9 +515,16 @@ public final class Collection {
 
     /** How many more of {@code stack} fit beside what is stored: 0 when full, or when a different variant holds the slot. */
     private static int room(ItemStack stored, ItemStack stack) {
-        if (stored.isEmpty()) return stack.getMaxStackSize();
+        if (stored.isEmpty()) return STORAGE_LIMIT;
         if (!ItemStack.isSameItemSameComponents(stored, stack)) return 0;
-        return stored.getMaxStackSize() - stored.getCount();
+        return Math.max(0, STORAGE_LIMIT - stored.getCount());
+    }
+
+    public static boolean canDeposit(Player player, String id) {
+        var kept = stored(player, id);
+        for (var stack : player.getInventory())
+            if (!stack.isEmpty() && id.equals(idOf(stack.getItem())) && room(kept, stack) > 0) return true;
+        return false;
     }
 
     // ---------------------------------------------------------------- giving and taking
@@ -563,7 +572,7 @@ public final class Collection {
                     Component.literal("Stored: ")
                             .append(one.getHoverName())
                             .append(Component.literal(
-                                    "  (" + stored(player, id).getCount() + " / " + one.getMaxStackSize() + ")"))
+                                    "  (" + stored(player, id).getCount() + " / " + STORAGE_LIMIT + ")"))
                             .withStyle(ChatFormatting.YELLOW),
                     true);
             player.level().playSound(null, chest, SoundEvents.AMETHYST_BLOCK_STEP, SoundSource.BLOCKS, 0.8f, 1.4f);
@@ -667,7 +676,11 @@ public final class Collection {
         int n = all ? stored.getCount() : 1;
         ItemStack out = stored.copyWithCount(n);
         setStored(player, id, stored.copyWithCount(stored.getCount() - n));
-        if (!player.getInventory().add(out)) Block.popResource(player.level(), player.blockPosition(), out);
+        while (!out.isEmpty()) {
+            ItemStack part = out.split(out.getMaxStackSize());
+            player.getInventory().add(part);
+            if (!part.isEmpty()) Block.popResource(player.level(), player.blockPosition(), part);
+        }
         player.level().playSound(null, chest, SoundEvents.AMETHYST_BLOCK_CHIME, SoundSource.BLOCKS, 0.6f, 0.8f);
         return n;
     }
@@ -683,7 +696,8 @@ public final class Collection {
             ItemStack sparks = new ItemStack(ModItems.SPARK, Balance.COLLECTION_GIFT_SPARKS * newlyGiven);
             while (!sparks.isEmpty()) {
                 ItemStack part = sparks.split(sparks.getMaxStackSize());
-                if (!player.getInventory().add(part)) Block.popResource(player.level(), chest.above(), part);
+                player.getInventory().add(part);
+                if (!part.isEmpty()) Block.popResource(player.level(), chest.above(), part);
             }
         }
 

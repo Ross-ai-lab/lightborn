@@ -24,7 +24,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * The Spellstone on the client (owner, 2026-11-18): its key casts, its four slots on the HUD beside the hotbar, the
+ * The Spellstone on the client (owner, 2026-11-18): its key casts, its five slots on the HUD beside the hotbar, the
  * slot panel its tooltip shows, scrolling over it to pick a slot, and the screen it opens from the main hand.
  */
 public final class SpellstoneView {
@@ -43,13 +43,14 @@ public final class SpellstoneView {
             case 0 -> mc.options.keyUse;
             case 1 -> LightbornClient.storyPower;
             case 2 -> mc.options.keyDrop;
-            default -> LightbornClient.dragonBreath;
+            case 3 -> LightbornClient.dragonBreath;
+            default -> LightbornClient.spellstoneFive;
         };
     }
 
     /**
-     * At the start of each tick, before the game reads its own keys: with a staff and a Spellstone in hand, R, Q and V
-     * cast slots two to four and are used up here, so Q never drops the staff and R and V call no Dragon power. A held
+     * At the start of each tick, before the game reads its own keys: with a staff and a Spellstone in hand, R, Q, V and C
+     * cast slots two to five and are used up here, so Q never drops the staff and R and V call no Dragon power. A held
      * key recasts like a held right-click; Updraft gathers while its key is held and throws on release, or at full
      * charge.
      */
@@ -57,6 +58,7 @@ public final class SpellstoneView {
         var p = mc.player;
         if (p == null || mc.gui.screen() != null || !Spellstone.casting(p)) {
             Arrays.fill(HELD, 0);
+            while (LightbornClient.spellstoneFive.consumeClick()) {}
             return;
         }
         var slots = Spellstone.tomes(p.getOffhandItem());
@@ -127,7 +129,7 @@ public final class SpellstoneView {
         return s.equals("Right Button") ? "RMB" : s.length() > 3 ? s.substring(0, 3) : s;
     }
 
-    /** The four slots left of the hotbar's off-hand slot, each with its key and its cooldown, while casting. */
+    /** The five slots left of the hotbar's off-hand slot, each with its key and its cooldown, while casting. */
     static void extractHud(GuiGraphicsExtractor g, DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
         var p = mc.player;
@@ -193,7 +195,7 @@ public final class SpellstoneView {
         }
     }
 
-    /** The tooltip's slot panel: four slots with their tomes and keys, and the picked slot's tome by name. */
+    /** The tooltip's slot panel: five slots with their tomes and keys, and the picked slot's tome by name. */
     public static final class Tooltip implements ClientTooltipComponent {
         private static final Identifier SLOT = Identifier.withDefaultNamespace("container/bundle/slot_background");
         private static final Identifier PICK_BACK =
@@ -255,7 +257,7 @@ public final class SpellstoneView {
         }
     }
 
-    /** The Spellstone's slots as a screen: four tome slots, each labelled with the key that casts it. */
+    /** The Spellstone's slots as a screen: five tome slots, each labelled with the key that casts it. */
     public static final class Screen extends AbstractContainerScreen<Spellstone.Menu> {
         private static final Identifier HOPPER = Identifier.withDefaultNamespace("textures/gui/container/hopper.png");
 
@@ -269,7 +271,7 @@ public final class SpellstoneView {
             super.extractBackground(g, mouseX, mouseY, partial);
             int x = leftPos, y = topPos;
             g.blit(RenderPipelines.GUI_TEXTURED, HOPPER, x, y, 0, 0, 176, 133, 256, 256);
-            g.fill(x + 43, y + 19, x + 133, y + 37, 0xFFC6C6C6); // the hopper's five slots, painted over
+            g.fill(x + 27, y + 19, x + 149, y + 37, 0xFFC6C6C6); // the hopper's five slots, painted over
             Minecraft mc = Minecraft.getInstance();
             for (int i = 0; i < Spellstone.SLOTS; i++) {
                 int sx = x + Spellstone.Menu.SLOT_X + i * Spellstone.Menu.SLOT_STEP - 1,

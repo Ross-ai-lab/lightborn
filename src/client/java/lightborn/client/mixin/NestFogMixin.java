@@ -49,6 +49,10 @@ public abstract class NestFogMixin {
             fog.cloudEnd = 1.5f;
             return;
         }
+        if (p != null && p.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION)) {
+            lightborn$fog = 0;
+            return;
+        }
         float target = 0;
         if (p != null) {
             var nests = p.getAttached(DarkNests.SMOKE);
@@ -68,7 +72,7 @@ public abstract class NestFogMixin {
         lightborn$fog += (target - lightborn$fog) * .03f;
         float f = lightborn$fog;
         if (f < .01f) return;
-        float s = f * f * (3 - 2 * f);
+        float s = .45f * f * f * (3 - 2 * f);
         var fog = result.getReturnValue();
         fog.color.set(
                 fog.color.x + (.05f - fog.color.x) * s,
@@ -76,9 +80,9 @@ public abstract class NestFogMixin {
                 fog.color.z + (.07f - fog.color.z) * s,
                 fog.color.w);
         fog.environmentalStart = Math.min(fog.environmentalStart, lerp(s, fog.environmentalStart, 1));
-        fog.environmentalEnd = Math.min(fog.environmentalEnd, lerp(s, fog.environmentalEnd, 22));
+        fog.environmentalEnd = Math.min(fog.environmentalEnd, lerp(s, fog.environmentalEnd, 38));
         fog.renderDistanceStart = Math.min(fog.renderDistanceStart, lerp(s, fog.renderDistanceStart, 1));
-        fog.renderDistanceEnd = Math.min(fog.renderDistanceEnd, lerp(s, fog.renderDistanceEnd, 22));
+        fog.renderDistanceEnd = Math.min(fog.renderDistanceEnd, lerp(s, fog.renderDistanceEnd, 38));
         fog.skyEnd = Math.min(fog.skyEnd, lerp(s, fog.skyEnd, 30));
         fog.cloudEnd = Math.min(fog.cloudEnd, lerp(s, fog.cloudEnd, 30));
     }

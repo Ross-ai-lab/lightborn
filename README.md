@@ -166,7 +166,7 @@ completion never asks the player to give away the only hub.
 **Opening and giving.** A plain right-click opens its book. **Ctrl + right-click** with an item gives one of it (the
 client reads Ctrl and asks the server); an ordinary click never donates by accident. Both live in the Collection
 tab's footer (owner, 2026-11-17: moved out of the tab column, smaller). **Give all non-essential items** sits next to
-**Give all new** (owner, 2026-11-24). Both are 9 px high with 75% labels, beside the Ctrl + right-click hint.
+**Give all new** and **Deposit Sparks** (owner, 2026-11-24). The footer uses compact buttons beside the Ctrl + right-click hint.
 
 **One Sparks count** (owner, 2026-11-16): the chest's title bar shows the player's Sparks (carried plus stored) once,
 beside "Chest of Light", for every tab. No tab shows its own count.
@@ -288,8 +288,9 @@ apparent width at any range, and by day it burns 1.6 times brighter so it reads 
 
 ### Collection
 
-"Collect them all", for the Light. The chest is also storage: it keeps up to one stack of every catalogue item (a
-later copy only adds to that stack, same variant only), per player like an ender chest. The book has a tab per set
+"Collect them all", for the Light. The chest stores up to 999 copies of every catalogue item for each player.
+Each deposit holds matching item variants. Withdrawals split into ordinary Minecraft stacks. The Collection footer's
+**Deposit Sparks** button stores carried Sparks up to the same cap. The book has a tab per set
 with its reward, given items lit and the rest dimmed, the count kept shown on each, in a scrolling grid. Clicking an
 item opens it below the grid: Take 1, Take all (back into the inventory, dropped at your feet when full), Put in
 (every carried copy up to the stack), and how it is made, sent by the server from the recipe manager: crafting
@@ -581,20 +582,20 @@ Book of Souls (`Souls`) and Eclipse (`BossTrophies`). The casting engine (mana, 
 (holding the button repeats). A shield or torch in the off hand works as normal.
 
 **The Spellstone** (owner, 2026-11-18; first named the Codex, renamed with a clean break: a Codex in an older world
-is gone) holds up to **four tomes** and casts all four from the off hand, with a staff in the main hand: slot 1 on
-**right-click**, slots 2 to 4 on **R, Q and V** (the Dragon Form, Drop and Dragon Breath key mappings, so a rebind
-moves them too). Those three keys keep their own jobs whenever a staff and Spellstone are not both held; while they
+is gone) holds up to **five tomes** and casts all five from the off hand, with a staff in the main hand: slot 1 on
+**right-click**, slots 2 to 5 on **R, Q, V and C**. The first three keys use Dragon Form, Drop and Dragon Breath. C has its
+own Spellstone Slot 5 binding. R, Q and V keep their own jobs whenever a staff and Spellstone are not both held; while they
 are, Q never drops and R and V call no Dragon power. A held key recasts like a held right-click; Updraft gathers while
 its key is held (the same wind ring and breath) and throws on release or at full charge.
-- **A bag, like the bundle** (owner): hovering it shows its four slots with their keys. Click a tome onto it to put it
+- **A bag, like the bundle** (owner): hovering it shows its five slots with their keys. Click a tome onto it to put it
   in (the first free slot); right-click it with an empty cursor to take one out (the last filled); scroll over it to
   pick a slot first, and a click fills that slot (swapping out the tome it held) or empties it. Carried on the cursor,
   it pulls in a tome it is clicked onto and sets one down on an empty slot it is right-clicked onto. Anything that is
   not a tome swaps with it as usual. Its container's plain item list stays hidden in the tooltip.
-- **Its screen too** (owner: keep both): used from the main hand it opens on four tome-only slots labelled with their
+- **Its screen too** (owner: keep both): used from the main hand it opens on five tome-only slots labelled with their
   keys; the slot holding the open stone is locked.
 - Every tome inside keeps its upgrades, awakening and own cooldown, and a cast writes it back to its slot. Beside the
-  hotbar, while casting, the four slots show with their keys and cooldowns.
+  hotbar, while casting, the five slots show with their keys and cooldowns.
 - **Look:** a pearl-white opal in a thin gold rim, gold-nugget size (owner), with a gold four-point rune and flecks
   of colour that shift across its face; a rainbow comet of light circles it like a tilted ring, in front of the stone
   on the lower half of its orbit and behind it on the upper (owner, 2026-11-18: a rainbowish glow circling it, no dark
@@ -687,7 +688,7 @@ The **shop band** column in the tables below is the tier's band (`Spell.shopTier
 
 | Spell | Base dmg | Mana | Cooldown | Shop band (week) | Notes |
 |---|---|---|---|---|---|
-| Arcane Bolt | 5 | 8 | 0.5 s | 1 | fast projectile |
+| Arcane Bolt | 5 | 8 | 0.5 s | 1 | fast projectile. Arcane Echo fires three in a tight spread every sixth cast |
 | Fireball | 10 | 10 | 1.6 s | 2 | explodes r 2, sets on fire, no block damage (owner, 2026-11-18: tier 2, a little stronger) |
 | Ice Nova | 7 | 20 | 7 s | 10 | ring r 6 around you; knocks what it hits back hard and freezes it solid in a block of ice for 3 s (owner, 2026-11-18: twice the old shove, 20 mana, 7 s, tier 3 for it). Frozen, it slides back with the shove, then cannot move, turn, target or strike, and a creeper's fuse winds back; it can still be hurt, and the ice shatters when the time is up or it dies. Bosses and the vanilla giants are only rooted. Ice Prison: 5 s (`Freeze`) |
 | Arc | 8 | 15 | 2 s | 10 | jumps to 4 more targets |
@@ -957,7 +958,7 @@ turn, steps and scale each frame and is drawn in the world-entities pass instead
 `FormRenderMixin`), so there is no second entity to hit, save or lose, and the beast moves exactly as the player does.
 First-person hands are hidden in a form, as in Dragon Form. **Right-click uses the form's power** (owner,
 2026-11-23: "shouldn't be V but right click"; `FormUseMixin` sends it in place of any use), so in a form right-click
-never uses an item, places a block or casts slot 1 of the Spellstone; R, Q and V still cast slots 2 to 4. Every
+never uses an item, places a block or casts slot 1 of the Spellstone; R, Q, V and C still cast slots 2 to 5. Every
 transformation costs 100 mana (owner, 2026-11-23: the forms, Spirit Walk, Shrinking; Gigantify already did). One shape
 at a time: a form ends any other, the dragon's included. Spirit Walk is
 spectator mode; where the body stands and the game mode to give back are saved on the player (`spirit_home`), so a
@@ -970,7 +971,7 @@ crash, logout or death still returns you; the body is a vanilla mannequin wearin
 | Bear Form | attack | 6 a roar | 100 | 3 min | Legendary | 30 s as a polar bear: +10 hearts (healed in), Resistance I, no knockback, melee twice as hard; right-click roars, striking and throwing back every monster within 5 (4 s between) |
 | Spider Form | utility | - | 100 | 2 min | Legendary | 45 s as a spider: climbs any wall it walks into, Night Vision, no fall damage, melee poisons (Poison I 3 s); right-click webs the monster you look at (24): Slowness VI and Weakness II under a cobweb for as long as you stay a spider (owner, 2026-11-23), all lifted when the form ends (3 s between) |
 | Blaze Form | attack | 5 a fireball | 100 | 3 min | Legendary | 30 s as a blaze: no fire or fall damage, Slow Falling in the air and Levitation while jump is held; right-click throws three fireballs where you look (1.5 s between). Fireballs never set blocks alight |
-| Spirit Walk | utility | - | 100 | 2 min | Basic (owner, 2026-11-23) | 15 s of spectator flight through walls while your body waits where you stood; then you return to it; right-click returns early |
+| Spirit Walk | utility | - | 100 | 1 min | Basic (owner, 2026-11-23) | 30 s of spectator flight through walls while your body waits where you stood; then you return to it; right-click returns early |
 | Shrinking | utility | - | 100 | 60 s | Basic | 30 s at a sixth of your size (`scale` 1/6; owner, 2026-11-23, was a fifth); it ends only once a full-size body fits where you are |
 | Gills | utility | - | 10 | 2.5 min | Basic | 2 min of Conduit Power and Dolphin's Grace |
 | Purify | defence | - | 15 | 30 s | Basic | every harmful effect, fire and freezing gone, and no harmful effect takes hold for 8 s (owner, 2026-11-23; was 5). Its tome is the Tome of Purify (was "of Purity") |
@@ -1503,7 +1504,7 @@ strength and the collection hint (owner, 2026-11-20; `LightGear.hideStatsWhileBr
 `light_gear_breaks_never_vanishes`). If a piece is destroyed (lava, void), the Dragon replaces it the next night he visits; after the fight ending, the Chest of Light's
 shop offers the replacement instead, free. Light gear belongs to the Lightborn collection set.
 
-Weapon and staff affixes skip attack and movement speed. Rolled mana affixes are half their previous size and
+Movement Speed rolls only on boots. Weapon and staff affixes skip attack speed. Rolled mana affixes are half their previous size and
 critical damage affixes are 20% lower across rarities. These changes update existing rolls. Gear shows remaining
 durability, and paxels have a tree focused on breaking blocks, working reach, mining underwater and resisting wear.
 The staff's first branches grant +10% spell power, +15 mana or +5 percentage points of spell crit chance. The
@@ -1521,7 +1522,8 @@ More Health gear upgrade grants one extra heart.
   heavy types get **eight times their normal spawn weight** within that budget (owner, 2026-11-15: four times the
   earlier double), and every other companion-mod creature four times, so nights show mutants and exotics, not mostly
   zombies, skeletons and spiders. Day spawning keeps its original budget, and
-  the ward stays safe.
+  the ward stays safe. Within 96 blocks of a home, only about one in twelve natural nighttime Mutant Creeper spawn
+  attempts succeeds. Hostile minions spawned inside an active ward are removed immediately, and the ward blocks them in flight even before they have a target. Tamed player minions can enter.
 - **Witches cannot drink healing potions**, including Giant Witches. They still fight with their usual thrown potions.
 - **Zombies pound on doors but never break them.** A zombie that knows the player is behind a closed door pounds on
   it, with sound and arm movement, at one-third of vanilla's knocking volume, on Normal too.
@@ -1715,7 +1717,8 @@ material; anything else takes half a minute, obsidian slow (strength 6, pickaxe-
 from the core over 15 seconds, out to 56 blocks: growth, sculk veins and dead bushes go, sculk, mycelium and coarse
 dirt turn back to grass (mud too, soul sand and soil back to sand), blackstone and deepslate to stone, goo to water,
 wither roses to poppies and withered grass to green, and a little grass and a few poppies spring up; the ashen trees
-stay, a scar; nothing is said in chat. **Guard parties** start with two to three low-tier enemies in the Overworld and three to four in the Dark.
+stay, a scar; nothing is said in chat. **Guard parties** start with five to six enemies in the Overworld and six to seven in the Dark, including
+a tier-3 champion from the local pool. The fountain haze is lighter and Night Vision clears it.
 Every cleared fountain increases the difficulty and rewards for later fights in that dimension. Each win adds a
 guard up to 14 and strengthens their health, damage and movement further. At two wins, a champion and
 tier 4 enemies can join, and at four wins tier 5 can join. Loot starts with 7–11 Sparks, Dark Shards and Uncommon
@@ -2039,10 +2042,10 @@ real items, keeping them through reloads and dropping them when broken.
 ## 14. Atmosphere and music
 
 **Nights are 100% dark**: zero night sky and ambient fill, with eased dusk and dawn. Ordinary lights are
-suppressed at night only where they are exposed on the Overworld surface, and recover at dawn. A roof or cave ceiling
-directly above a light keeps it at full strength, including player builds and village homes with stone, wood, glass,
-slab or stair roofs. Tree leaves still count as outdoors. Dusk and dawn relight only cached sources in bounded
-batches, and building or removing a roof updates emitters in the edited column. The Chest of Light, ward lighting,
+suppressed at night over exposed Overworld surfaces, and recover at dawn. A roof spanning the area plus walls on
+at least three sides shelters lights in homes and village buildings. A thick terrain ceiling shelters cave lights.
+One block of dirt, a narrow overhang and tree leaves leave lights exposed. Dusk and dawn relight cached sources
+in batches. Changed walls or roofs cause lights nearby to recheck their shelter. The Chest of Light, ward lighting,
 Light gear and spells keep shining.
 
 Day and night each take 12,000 ticks (10 minutes at 20 ticks per second), with the normal clock rate throughout.

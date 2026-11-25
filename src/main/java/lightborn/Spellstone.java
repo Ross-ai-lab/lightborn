@@ -44,33 +44,37 @@ import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 
 /**
- * The Spellstone (owner, 2026-11-18; first called the Codex): a stone that holds up to four tomes. Held in the off hand
- * with a staff in the main hand, it casts all four: the first slot with the staff's right-click, the others with R, Q
- * and V (rebindable: the Dragon Form, Drop and Dragon Breath keys, which keep their own jobs whenever a staff and
+ * The Spellstone (owner, 2026-11-18; first called the Codex): a stone that holds up to five tomes. Held in the off hand
+ * with a staff in the main hand, it casts all five: the first slot with the staff's right-click, the others with R, Q, V
+ * and C (rebindable: the Dragon Form, Drop and Dragon Breath keys, which keep their own jobs whenever a staff and
  * Spellstone are not both held). It fills like a bundle: click a tome onto it, right-click it to take one out, and
- * scroll over it to pick the slot either one uses; hovering it shows its four slots. Used from the main hand it also
+ * scroll over it to pick the slot either one uses; hovering it shows its five slots. Used from the main hand it also
  * opens on its slots. Each tome inside keeps its upgrades, its awakening and its own cooldown; a cast writes it back.
  */
 public final class Spellstone {
     private Spellstone() {}
 
-    public static final int SLOTS = 4;
+    public static final int SLOTS = 5;
 
     /** Each slot's casting key, as its key-mapping name: right-click, R, Q and V by default. */
     public static final String[] KEYS = {
-        "key.use", "key.lightborn.story_power", "key.drop", "key.lightborn.dragon_breath"
+        "key.use",
+        "key.lightborn.story_power",
+        "key.drop",
+        "key.lightborn.dragon_breath",
+        "key.lightborn.spellstone_five"
     };
 
     public static Item ITEM;
     public static MenuType<Menu> MENU;
 
     /**
-     * The slot each player picked by scrolling over a Spellstone: {menu slot it sits in, slot 0 to 3}. The client sets
+     * The slot each player picked by scrolling over a Spellstone: {menu slot it sits in, slot 0 to 4}. The client sets
      * it as it scrolls and tells the server, so a click reads the same pick on both sides.
      */
     private static final Map<UUID, int[]> PICKED = new ConcurrentHashMap<>();
 
-    /** Client to server: cast the tome in slot {@code slot} (1 to 3); {@code charge} is Updraft's held ticks. */
+    /** Client to server: cast the tome in slot {@code slot} (1 to 4); {@code charge} is Updraft's held ticks. */
     public record Cast(int slot, int charge) implements CustomPacketPayload {
         public static final Type<Cast> TYPE = new Type<>(ModItems.id("spellstone_cast"));
         static final StreamCodec<RegistryFriendlyByteBuf, Cast> CODEC = StreamCodec.composite(
@@ -94,7 +98,7 @@ public final class Spellstone {
         }
     }
 
-    /** What its tooltip draws: the tomes in its four slots (an empty slot is an empty stack). */
+    /** What its tooltip draws: the tomes in its five slots (an empty slot is an empty stack). */
     public record Slots(List<ItemStack> tomes) implements TooltipComponent {}
 
     static void init() {
@@ -121,7 +125,7 @@ public final class Spellstone {
         return ITEM != null && s.is(ITEM);
     }
 
-    /** The four slots, copies (an empty slot is an empty stack). */
+    /** The five slots, copies (an empty slot is an empty stack). */
     public static NonNullList<ItemStack> tomes(ItemStack stone) {
         var list = NonNullList.withSize(SLOTS, ItemStack.EMPTY);
         stone.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
@@ -215,7 +219,7 @@ public final class Spellstone {
         store(off, list);
     }
 
-    /** A key cast of slot 1, 2 or 3 (slot 0 is the staff's right-click, {@link StaffItem}). */
+    /** A key cast of slots 1 to 4 (slot 0 is the staff's right-click, {@link StaffItem}). */
     static void cast(ServerPlayer p, int slot, int charge) {
         if (slot < 1 || slot >= SLOTS || !casting(p) || !p.isAlive() || p.isSpectator() || ChestTravel.flying(p))
             return;
@@ -285,7 +289,7 @@ public final class Spellstone {
         if (menu != null) menu.slotsChanged(p.getInventory());
     }
 
-    /** The Spellstone item: a bag for four tomes; opens on its slots from the main hand. */
+    /** The Spellstone item: a bag for five tomes; opens on its slots from the main hand. */
     public static final class SpellstoneItem extends Item {
         public SpellstoneItem(Properties props) {
             super(props);
@@ -387,7 +391,7 @@ public final class Spellstone {
                 Consumer<Component> out,
                 TooltipFlag flag) {
             out.accept(
-                    Component.literal("Off hand, with a staff: casts all four").withStyle(ChatFormatting.LIGHT_PURPLE));
+                    Component.literal("Off hand, with a staff: casts all five").withStyle(ChatFormatting.LIGHT_PURPLE));
             out.accept(Component.literal("Click tomes onto it; right-click takes one out")
                     .withStyle(ChatFormatting.DARK_GRAY));
             out.accept(Component.literal("Scroll over it to pick a slot").withStyle(ChatFormatting.DARK_GRAY));
@@ -395,12 +399,12 @@ public final class Spellstone {
     }
 
     /**
-     * The Spellstone's slots as a screen: four tome-only slots over the player's inventory. The slot holding the open
+     * The Spellstone's slots as a screen: five tome-only slots over the player's inventory. The slot holding the open
      * stone itself is locked, so it cannot be moved out from under its own slots.
      */
     public static final class Menu extends AbstractContainerMenu {
-        /** Where the four slots sit in the screen: 26 px apart, centred. */
-        public static final int SLOT_X = 41, SLOT_STEP = 26, SLOT_Y = 20;
+        /** Where the five slots sit in the screen: 26 px apart, centred. */
+        public static final int SLOT_X = 28, SLOT_STEP = 26, SLOT_Y = 20;
 
         private final SimpleContainer held;
         private final ItemStack stone;

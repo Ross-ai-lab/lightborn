@@ -35,9 +35,7 @@ final class SelfTestMonsters {
     private SelfTestMonsters() {}
 
     static void testMonsters() {
-        // Every monster pays Sparks by its tier (owner, 2026-11-20): 1; 2-3; 5; 10; 25. One listed kind per tier,
-        // twenty
-        // kills each, plus an unlisted monster counting as tier 1.
+        // Check the current range for each tier, including the fallback for unlisted monsters.
         var sparkBad = new java.util.ArrayList<String>();
         for (int t = 1; t <= 5; t++) {
             final int tier = t;
@@ -54,7 +52,10 @@ final class SelfTestMonsters {
             }
         }
         var unlisted = EntityTypes.SLIME.create(level, EntitySpawnReason.COMMAND);
-        if (Lightborn.killSparks(unlisted) != 1) sparkBad.add("slime=" + Lightborn.killSparks(unlisted));
+        int slimeSparks = Lightborn.killSparks(unlisted);
+        if (Lightborn.monsterTier(unlisted) != 1
+                || slimeSparks < Balance.KILL_SPARKS_MIN[1]
+                || slimeSparks > Balance.KILL_SPARKS_MAX[1]) sparkBad.add("slime=" + slimeSparks);
         check("every_monster_pays_sparks_by_tier", sparkBad.isEmpty(), sparkBad);
         // Dark Phantoms vanish by day, a slept-through night included (owner, 2026-11-20); a spirit phantom stays.
         var clock = level.registryAccess().getOrThrow(net.minecraft.world.clock.WorldClocks.OVERWORLD);

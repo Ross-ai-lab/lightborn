@@ -86,19 +86,20 @@ final class SelfTestCollection {
                 first + " " + again + " " + sword + " " + logs.getCount());
         // Put in: every carried dirt goes in up to one stack; taking out leaves it collected.
         caster.setAttached(ModData.STORAGE, List.of());
+        caster.setAttached(ModData.STORAGE, List.of(new ItemStack(Items.DIRT, 960)));
         caster.getInventory().setItem(0, new ItemStack(Items.DIRT, 50));
         caster.getInventory().setItem(1, new ItemStack(Items.SAND, 1));
         caster.getInventory().setItem(2, new ItemStack(Items.DIRT, 30));
         int put = Collection.deposit(caster, "minecraft:dirt", chest);
         int keptDirt = Collection.stored(caster, "minecraft:dirt").getCount();
         // The first gift pays a Spark, which may land in the emptied slot.
-        boolean leftOver = !caster.getInventory().getItem(0).is(Items.DIRT)
-                && caster.getInventory().getItem(2).getCount() == 16
+        boolean leftOver = caster.getInventory().getItem(0).getCount() == 11
+                && caster.getInventory().getItem(2).getCount() == 30
                 && caster.getInventory().getItem(1).getCount() == 1;
         check(
                 "collection_deposit",
-                put == 64
-                        && keptDirt == 64
+                put == 39
+                        && keptDirt == 999
                         && leftOver
                         && Collection.collected(caster).contains("minecraft:dirt"),
                 "put=" + put + " kept=" + keptDirt);
@@ -112,8 +113,11 @@ final class SelfTestCollection {
         check(
                 "collection_withdraw",
                 one == 1
-                        && rest == 63
-                        && carried == 64
+                        && rest == 998
+                        && carried == 999
+                        && java.util.stream.StreamSupport.stream(
+                                        caster.getInventory().spliterator(), false)
+                                .allMatch(stack -> stack.isEmpty() || stack.getCount() <= stack.getMaxStackSize())
                         && Collection.stored(caster, "minecraft:dirt").isEmpty()
                         && Collection.collected(caster).contains("minecraft:dirt"),
                 one + "+" + rest + " carried=" + carried);
@@ -256,7 +260,11 @@ final class SelfTestCollection {
                 new ItemStack(DragonStory.LIGHT_KEY));
         for (int i = 0; i < protectedItems.size(); i++)
             p.getInventory().setItem(i + 1, protectedItems.get(i).copy());
-        p.getInventory().setItem(11, new ItemStack(Items.DIRT, 64)); // One dirt is already in the chest.
+        p.getInventory().setItem(11, new ItemStack(Items.DIRT, 64));
+        // Leave 63 places for another batch of the already collected dirt.
+        var capped = new java.util.ArrayList<>(Collection.storage(p));
+        capped.replaceAll(stack -> stack.is(Items.DIRT) ? stack.copyWithCount(936) : stack);
+        p.setAttached(ModData.STORAGE, List.copyOf(capped));
         ItemStack namedPickle = new ItemStack(Items.SEA_PICKLE);
         namedPickle.set(DataComponents.CUSTOM_NAME, Component.literal("Keepsake"));
         p.getInventory().setItem(12, namedPickle);
@@ -276,7 +284,7 @@ final class SelfTestCollection {
                         && p.getInventory().getItem(0).isEmpty()
                         && p.getInventory().getItem(11).getCount() == 1
                         && p.getInventory().getItem(12).has(DataComponents.CUSTOM_NAME)
-                        && Collection.stored(p, "minecraft:dirt").getCount() == 64
+                        && Collection.stored(p, "minecraft:dirt").getCount() == 999
                         && Collection.stored(p, "minecraft:sea_pickle").getCount() == 3
                         && Collection.stored(p, "minecraft:spider_eye").getCount() == 2
                         && Collection.stored(p, "minecraft:rotten_flesh").getCount() == 3

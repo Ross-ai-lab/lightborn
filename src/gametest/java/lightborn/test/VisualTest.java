@@ -270,7 +270,10 @@ public class VisualTest implements FabricClientGameTest {
                 ctx.waitTicks(20);
                 ctx.runOnClient(mc -> ((CollectionScreen) mc.gui.screen()).previewCraft("minecraft:crafting_table"));
                 ctx.waitTicks(20);
+                ctx.getInput().setCursorPos(15, 15);
                 ctx.takeScreenshot("lightborn_chest_crafting");
+                ctx.waitTicks(14);
+                ctx.takeScreenshot("lightborn_chest_crafting_rotated");
                 Soft.require(
                         ctx.computeOnClient(mc -> ((CollectionScreen) mc.gui.screen()).canCraft()),
                         "The Crafting tab could not preview a crafting table from only stored planks");
@@ -288,6 +291,8 @@ public class VisualTest implements FabricClientGameTest {
                     player.getInventory().setItem(9, new ItemStack(Items.SEA_PICKLE, 3));
                     player.getInventory().setItem(10, new ItemStack(Items.ENDER_PEARL, 8));
                     player.getInventory().setItem(11, new ItemStack(Items.ROTTEN_FLESH, 12));
+                    player.getInventory().setItem(12, new ItemStack(ModItems.SPARK, 64));
+                    player.getInventory().setItem(13, new ItemStack(ModItems.SPARK, 32));
                 });
                 ctx.getInput().resizeWindow(1920, 1080);
                 ctx.runOnClient(mc -> {
@@ -353,6 +358,31 @@ public class VisualTest implements FabricClientGameTest {
                                                     == 12;
                                 }),
                                 "The non-essential donation did not store the repeat sea pickles and the two new drops");
+                        ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
+                        ctx.waitTicks(3);
+                        double[] sparkButton = ctx.computeOnClient(mc -> {
+                            var button = mc.gui.screen().children().stream()
+                                    .filter(Button.class::isInstance)
+                                    .map(Button.class::cast)
+                                    .filter(b -> b.visible
+                                            && b.getMessage().getString().equals("Deposit Sparks"))
+                                    .findFirst()
+                                    .orElseThrow();
+                            double scale = mc.getWindow().getGuiScale();
+                            return new double[] {
+                                (button.getX() + button.getWidth() / 2.0) * scale,
+                                (button.getY() + button.getHeight() / 2.0) * scale
+                            };
+                        });
+                        ctx.getInput().setCursorPos(sparkButton[0], sparkButton[1]);
+                        ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+                        ctx.waitTicks(8);
+                        Soft.require(
+                                sp.getServer()
+                                        .computeOnServer(server -> Collection.stored(player(server), "lightborn:spark")
+                                                        .getCount()
+                                                == 98),
+                                "Deposit Sparks failed to store more than a vanilla stack");
                     }
                 }
                 ctx.setScreen(() -> null);
@@ -1301,7 +1331,7 @@ public class VisualTest implements FabricClientGameTest {
             }
 
             if (scene("spellstone")) {
-                // The Spellstone (owner, 2026-11-18): four tomes in the off hand, cast by right-click, R, Q and V.
+                // The Spellstone (owner, 2026-11-18): five tomes in the off hand, cast by right-click, R, Q, V and C.
                 fresh(ctx, sp, 6000, false);
                 sp.getServer().runOnServer(server -> {
                     ServerPlayer p = player(server);
@@ -1312,7 +1342,8 @@ public class VisualTest implements FabricClientGameTest {
                                     new ItemStack(ModItems.TOMES.get(Spell.FIREBALL)),
                                     new ItemStack(ModItems.TOMES.get(Spell.FROST_NOVA)),
                                     new ItemStack(ModItems.TOMES.get(Spell.ARCANE_BOLT)),
-                                    new ItemStack(ModItems.TOMES.get(Spell.TAUNT)))));
+                                    new ItemStack(ModItems.TOMES.get(Spell.TAUNT)),
+                                    new ItemStack(ModItems.TOMES.get(Spell.OWL_SIGHT)))));
                     p.setItemInHand(InteractionHand.OFF_HAND, stone);
                     p.getCooldowns()
                             .removeCooldown(p.getCooldowns()
@@ -1322,15 +1353,25 @@ public class VisualTest implements FabricClientGameTest {
                 ctx.waitTicks(10);
                 ctx.takeScreenshot("lightborn_spellstone_hud");
                 // Q casts slot three (Arcane Bolt) and the staff stays in hand.
+                float manaBeforeBolt = sp.getServer().computeOnServer(server -> Progression.mana(player(server)));
                 ctx.getInput().pressKey(options -> options.keyDrop);
-                ctx.waitTicks(3);
+                ctx.waitTicks(5);
                 boolean cast = sp.getServer().computeOnServer(server -> {
                     ServerPlayer p = player(server);
                     return p.getMainHandItem().getItem() instanceof lightborn.StaffItem
-                            && p.getCooldowns().isOnCooldown(new ItemStack(ModItems.TOMES.get(Spell.ARCANE_BOLT)))
-                            && Progression.mana(p) < 49;
+                            && (p.getCooldowns().isOnCooldown(new ItemStack(ModItems.TOMES.get(Spell.ARCANE_BOLT)))
+                                    || Progression.mana(p) < manaBeforeBolt - 1);
                 });
                 Soft.require(cast, "Q with a staff and Spellstone casts slot three and keeps the staff");
+                sp.getServer().runOnServer(server -> Progression.setMana(player(server), 100));
+                ctx.getInput().pressKey(InputConstants.KEY_C);
+                ctx.waitTicks(5);
+                Soft.require(
+                        sp.getServer()
+                                .computeOnServer(server -> player(server)
+                                        .getCooldowns()
+                                        .isOnCooldown(new ItemStack(ModItems.TOMES.get(Spell.OWL_SIGHT)))),
+                        "C did not cast Spellstone slot five");
                 // Used from the main hand, it opens on its slots.
                 sp.getServer().runOnServer(server -> {
                     ServerPlayer p = player(server);
@@ -1448,7 +1489,19 @@ public class VisualTest implements FabricClientGameTest {
                 sp.getServer().runCommand("title @a clear");
                 ctx.getInput().lookAt(cores[0].above());
                 ctx.waitTicks(5);
+                sp.getServer()
+                        .runOnServer(server ->
+                                player(server).setAttached(lightborn.DarkNests.SMOKE, List.of(cores[0], cores[1])));
+                ctx.waitTicks(12);
                 ctx.takeScreenshot("lightborn_nest");
+                sp.getServer().runOnServer(server -> {
+                    var p = player(server);
+                    p.setAttached(lightborn.DarkNests.SMOKE, List.of(cores[0], cores[1]));
+                    p.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                            net.minecraft.world.effect.MobEffects.NIGHT_VISION, 1000, 0, false, false));
+                });
+                ctx.waitTicks(12);
+                ctx.takeScreenshot("lightborn_nest_night_vision");
                 Soft.require(
                         sp.getServer()
                                         .computeOnServer(

@@ -118,7 +118,7 @@ public final class Spells {
 
     /** Twincast's echo: the spell again, from a copy of the tome, at the given power, with no mana or cooldown. */
     static void recast(ServerPlayer player, Spell spell, ItemStack tome, double power) {
-        CastContext.perform(player, spell, tome, power, () -> perform(player, spell));
+        CastContext.perform(player, spell, tome, power, true, () -> perform(player, spell));
     }
 
     /** The tome's cooldown: the spell's own, shortened by its cooldown upgrades and the player's Cooldown Speed. */

@@ -79,19 +79,19 @@ final class SelfTestSpells {
         menu.setCarried(tome.apply(Spell.FIREBALL));
         click.accept(0);
         boolean first = menu.getCarried().isEmpty() && stoneSlot(slot, 0) == Spell.FIREBALL;
-        Spellstone.pick(caster, at, 2);
+        Spellstone.pick(caster, at, 4);
         menu.setCarried(tome.apply(Spell.ARCANE_BOLT));
         click.accept(0);
         boolean picked =
-                menu.getCarried().isEmpty() && stoneSlot(slot, 2) == Spell.ARCANE_BOLT && stoneSlot(slot, 1) == null;
+                menu.getCarried().isEmpty() && stoneSlot(slot, 4) == Spell.ARCANE_BOLT && stoneSlot(slot, 1) == null;
         Spellstone.pick(caster, at, 0);
         menu.setCarried(tome.apply(Spell.TAUNT));
         click.accept(0);
         boolean swapped = TomeItem.spellOf(menu.getCarried()) == Spell.FIREBALL && stoneSlot(slot, 0) == Spell.TAUNT;
         menu.setCarried(ItemStack.EMPTY);
-        Spellstone.pick(caster, at, 2);
+        Spellstone.pick(caster, at, 4);
         click.accept(1);
-        boolean out = TomeItem.spellOf(menu.getCarried()) == Spell.ARCANE_BOLT && stoneSlot(slot, 2) == null;
+        boolean out = TomeItem.spellOf(menu.getCarried()) == Spell.ARCANE_BOLT && stoneSlot(slot, 4) == null;
         Spellstone.pick(caster, at, -1);
         menu.setCarried(new ItemStack(Items.TORCH));
         click.accept(0);
@@ -102,6 +102,38 @@ final class SelfTestSpells {
                 "spellstone_fills_like_a_bag",
                 first && picked && swapped && out && torch,
                 "first=" + first + " picked=" + picked + " swapped=" + swapped + " out=" + out + " torch=" + torch);
+    }
+
+    private static void testArcaneEcho() {
+        var tome = new ItemStack(ModItems.TOMES.get(Spell.ARCANE_BOLT));
+        SpellUpgrades.write(tome, new int[] {0, 0, 1});
+        int first = Spells.PROJECTILES.size();
+        var fired = new java.util.ArrayList<Integer>();
+        for (int cast = 1; cast <= 7; cast++) {
+            int before = Spells.PROJECTILES.size();
+            var source = tome;
+            CastContext.perform(
+                    caster,
+                    Spell.ARCANE_BOLT,
+                    source,
+                    5,
+                    () -> ArcaneSpells.arcaneBolt(level, caster, Spell.ARCANE_BOLT, 5));
+            fired.add(Spells.PROJECTILES.size() - before);
+            if (cast == 5) {
+                int echo = Spells.PROJECTILES.size();
+                CastContext.perform(
+                        caster,
+                        Spell.ARCANE_BOLT,
+                        tome.copy(),
+                        5,
+                        true,
+                        () -> ArcaneSpells.arcaneBolt(level, caster, Spell.ARCANE_BOLT, 5));
+                check("arcane_echo_ignores_twincast_replay", Spells.PROJECTILES.size() - echo == 1, null);
+                tome = tome.copy();
+            }
+        }
+        check("arcane_echo_fires_three_on_every_sixth_cast", fired.equals(List.of(1, 1, 1, 1, 1, 3, 1)), fired);
+        Spells.PROJECTILES.subList(first, Spells.PROJECTILES.size()).clear();
     }
 
     /** The owner's round of 2026-11-18: tiers, tome drops, the Spellstone in the upgrade tree, hints, night, tabs. */
@@ -280,7 +312,7 @@ final class SelfTestSpells {
             {100, 3600}, // Bear Form
             {100, 2400}, // Spider Form
             {100, 3600}, // Blaze Form
-            {100, 2400}, // Spirit Walk
+            {100, 1200}, // Spirit Walk
             {100, 1200}, // Shrinking
             {10, 3000}, // Gills
             {15, 600}, // Purify
@@ -329,6 +361,7 @@ final class SelfTestSpells {
         caster.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.TORCH));
         check("spells_need_tome", !Spells.cast(caster, caster.getOffhandItem()), null);
         testSpellstoneBag();
+        testArcaneEcho();
         testRound18();
 
         // Spell damage carries the global half-damage scale.

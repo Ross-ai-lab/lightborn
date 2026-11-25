@@ -36,7 +36,12 @@ public final class Net {
 
     /** Client -> server, from the chest's book: take one or all of an item out, or put in every one carried. */
     public record ChestMove(BlockPos chest, String item, int action) implements CustomPacketPayload {
-        public static final int TAKE_ONE = 0, TAKE_ALL = 1, PUT_IN = 2, GIVE_NEW = 3, GIVE_NON_ESSENTIAL = 4;
+        public static final int TAKE_ONE = 0,
+                TAKE_ALL = 1,
+                PUT_IN = 2,
+                GIVE_NEW = 3,
+                GIVE_NON_ESSENTIAL = 4,
+                DEPOSIT_SPARKS = 5;
         public static final Type<ChestMove> TYPE = new Type<>(ModItems.id("chest_move"));
         public static final StreamCodec<ByteBuf, ChestMove> CODEC = StreamCodec.composite(
                 BlockPos.STREAM_CODEC,
@@ -105,7 +110,7 @@ public final class Net {
 
     public record Gift(ItemStack stack, boolean first) {
         static final StreamCodec<RegistryFriendlyByteBuf, Gift> CODEC =
-                StreamCodec.composite(ItemStack.STREAM_CODEC, Gift::stack, ByteBufCodecs.BOOL, Gift::first, Gift::new);
+                StreamCodec.composite(ModData.CHEST_STACK, Gift::stack, ByteBufCodecs.BOOL, Gift::first, Gift::new);
     }
 
     /** Server -> client: everything stored by one bulk donation, with first gifts marked. */
@@ -189,7 +194,10 @@ public final class Net {
             if (p.action() == ChestMove.PUT_IN) Collection.deposit(ctx.player(), p.item(), p.chest());
             else if (p.action() == ChestMove.GIVE_NEW) Collection.giveAllNew(ctx.player(), p.chest());
             else if (p.action() == ChestMove.GIVE_NON_ESSENTIAL) Collection.giveNonEssential(ctx.player(), p.chest());
-            else if (p.action() == ChestMove.TAKE_ONE || p.action() == ChestMove.TAKE_ALL) {
+            else if (p.action() == ChestMove.DEPOSIT_SPARKS) {
+                int moved = Collection.deposit(ctx.player(), Collection.idOf(ModItems.SPARK), p.chest());
+                if (moved > 0) ctx.player().sendOverlayMessage(Component.literal("Deposited " + moved + " Sparks"));
+            } else if (p.action() == ChestMove.TAKE_ONE || p.action() == ChestMove.TAKE_ALL) {
                 Collection.withdraw(ctx.player(), p.item(), p.action() == ChestMove.TAKE_ALL, p.chest());
             }
         });

@@ -80,6 +80,17 @@ public final class NightSpawns {
         });
     }
 
+    private static final net.minecraft.resources.Identifier MUTANT_CREEPER =
+            net.minecraft.resources.Identifier.parse("mutantmonsters:mutant_creeper");
+
+    /** Natural nighttime mutants are rare within 96 horizontal blocks of a home. */
+    public static boolean rejectHomeMutant(ServerLevel level, Mob mob) {
+        return active(level)
+                && BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).equals(MUTANT_CREEPER)
+                && LightWards.nearHome(level, mob.blockPosition(), 96)
+                && mob.getRandom().nextInt(12) != 0;
+    }
+
     static void init() {
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((s, r, ok) -> clear());
         ServerLifecycleEvents.SERVER_STOPPING.register(s -> clear());

@@ -117,7 +117,7 @@ public final class SpellUpgrades {
                 perk(
                         "Splitting Bolt",
                         "A bolt that strikes splits into two shards that seek the nearest monsters within 8 blocks, each for half the damage."),
-                perk("Arcane Echo", "A second bolt follows the first along your aim a moment later."),
+                perk("Arcane Echo", "Every sixth cast fires three bolts at once in a tight spread."),
                 perk("Mana Leech", "Each creature a bolt strikes gives you 3 mana back, 10 if it dies."));
         spell(
                 Spell.FIREBALL,

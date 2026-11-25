@@ -12,14 +12,19 @@ public final class CastContext {
     private CastContext() {}
 
     /** {@code upgrades}: the choice kept in each tier of the tome ({@link SpellUpgrades#chosen}). */
-    record Cast(ServerPlayer player, Spell spell, ItemStack tome, double power, int[] upgrades) {}
+    record Cast(ServerPlayer player, Spell spell, ItemStack tome, double power, int[] upgrades, boolean replay) {}
 
     private static final ThreadLocal<Cast> CAST = new ThreadLocal<>();
 
     static boolean perform(ServerPlayer player, Spell spell, ItemStack tome, double power, BooleanSupplier work) {
+        return perform(player, spell, tome, power, false, work);
+    }
+
+    static boolean perform(
+            ServerPlayer player, Spell spell, ItemStack tome, double power, boolean replay, BooleanSupplier work) {
         Cast before = CAST.get();
         int[] chosen = SpellUpgrades.chosen(tome);
-        CAST.set(new Cast(player, spell, tome, power, chosen));
+        CAST.set(new Cast(player, spell, tome, power, chosen, replay));
         SpellUpgrades.armed(player, spell, chosen);
         try {
             return work.getAsBoolean();

@@ -141,6 +141,10 @@ public class Lightborn implements ModInitializer {
         });
 
         ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> {
+            if (LightWards.rejectsCreeperMinion(level, entity)) {
+                entity.discard();
+                return;
+            }
             if (entity instanceof Warden && DragonStory.sleepingWarden(level, entity.blockPosition())) {
                 entity.discard();
                 return;

@@ -53,7 +53,7 @@ final class CollectionTab extends ChestTab {
     private int scroll;
     private String picked;
     private int recipeIndex;
-    private Button takeOne, takeAll, putIn, giveNew, giveNonEssential;
+    private Button takeOne, takeAll, putIn, giveNew, giveNonEssential, depositSparks;
 
     CollectionTab(CollectionScreen s) {
         super(s);
@@ -92,6 +92,12 @@ final class CollectionTab extends ChestTab {
                 giveNew.getX() - 4,
                 footerY,
                 b -> ClientPlayNetworking.send(new Net.ChestMove(s.chest, "", Net.ChestMove.GIVE_NON_ESSENTIAL))));
+        depositSparks = s.add(new DonationButton(
+                font(),
+                "Deposit Sparks",
+                giveNonEssential.getX() - 4,
+                footerY,
+                b -> ClientPlayNetworking.send(new Net.ChestMove(s.chest, "", Net.ChestMove.DEPOSIT_SPARKS))));
         giveNonEssential.setTooltip(Tooltip.create(
                 Component.literal("Store every non-essential collectible that fits, including past gifts.")));
     }
@@ -234,21 +240,16 @@ final class CollectionTab extends ChestTab {
     void layout(boolean on) {
         boolean show = on && picked != null && mc().player != null;
         int kept = show ? Collection.stored(mc().player, picked).getCount() : 0;
-        int carried = 0;
-        if (show) {
-            var inv = mc().player.getInventory();
-            for (int i = 0; i < inv.getContainerSize(); i++) {
-                ItemStack st = inv.getItem(i);
-                if (!st.isEmpty() && Collection.idOf(st.getItem()).equals(picked)) carried += st.getCount();
-            }
-        }
         for (Button b : List.of(takeOne, takeAll, putIn)) {
             b.visible = show;
             b.setY(s.detailY() + 26); // under the name and count, inside the short panel
         }
-        giveNew.visible = giveNonEssential.visible = on;
+        giveNew.visible = giveNonEssential.visible = depositSparks.visible = on;
+        depositSparks.active = on
+                && mc().player != null
+                && Collection.canDeposit(mc().player, Collection.idOf(lightborn.ModItems.SPARK));
         takeOne.active = takeAll.active = kept > 0;
-        putIn.active = carried > 0 && picked != null && kept < new ItemStack(Collection.item(picked)).getMaxStackSize();
+        putIn.active = show && Collection.canDeposit(mc().player, picked);
         giveNew.active = giveNonEssential.active = false;
         if (on && mc().player != null) {
             var inventory = mc().player.getInventory();
@@ -301,8 +302,8 @@ final class CollectionTab extends ChestTab {
         Category c = category();
         drawChips(g, mouseX, mouseY);
         String hint = "Ctrl + right-click to give one";
-        int hintX = Math.clamp(giveNonEssential.getX() - 110, s.left() + 8, s.gridX() + 1);
-        float hintScale = Math.min(.75f, (giveNonEssential.getX() - hintX - 5) / (float) font().width(hint));
+        int hintX = Math.clamp(depositSparks.getX() - 110, s.left() + 8, s.gridX() + 1);
+        float hintScale = Math.min(.75f, (depositSparks.getX() - hintX - 5) / (float) font().width(hint));
         if (hintScale > 0) {
             g.pose().pushMatrix();
             g.pose().translate(hintX, s.top() + s.h() - HELP + 4);
@@ -372,7 +373,7 @@ final class CollectionTab extends ChestTab {
         g.text(font(), font().plainSubstrByWidth(stack.getHoverName().getString(), nameRoom), tx, py + 4, IVORY, false);
         String status = has ? "Given" : "Not yet given";
         int kept = Collection.stored(mc().player, picked).getCount();
-        String count = "  ·  " + kept + " / " + stack.getMaxStackSize() + " kept";
+        String count = "  ·  " + kept + " / " + Collection.STORAGE_LIMIT + " kept";
         g.text(font(), status, tx, py + 14, has ? GOLD : DIM, false);
         g.text(
                 font(),

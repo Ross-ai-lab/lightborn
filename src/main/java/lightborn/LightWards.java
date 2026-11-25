@@ -113,8 +113,11 @@ public final class LightWards {
         if (e == null) return false;
         if (Monsters.isAtmosphericProp(e)) return false;
         if (e instanceof LightDragon dragon && dragon.role() != 1) return false;
-        if (e instanceof TamableAnimal pet && pet.isTame() && !(pet.getTarget() instanceof Player)) return false;
-        return (hostile(e)
+        boolean hostileMinion = hostileCreeperMinion(e);
+        if (!hostileMinion && e instanceof TamableAnimal pet && pet.isTame() && !(pet.getTarget() instanceof Player))
+            return false;
+        return (hostileMinion
+                        || hostile(e)
                         || e instanceof LightDragon d && d.role() == 1
                         || e instanceof Animal animal && (animal.isAggressive() || animal.getTarget() != null)
                         || e instanceof NeutralMob neutral && neutral.isAngry()
@@ -123,6 +126,35 @@ public final class LightWards {
                                 && !Monsters.isAtmosphericProp(e))
                 && e.getAttached(ModData.THRALL_MASTER) == null
                 && !Souls.summoned(e);
+    }
+
+    private static final net.minecraft.resources.Identifier CREEPER_MINION =
+            net.minecraft.resources.Identifier.parse("mutantmonsters:creeper_minion");
+
+    static boolean hostileCreeperMinion(Entity e) {
+        if (!(e instanceof TamableAnimal pet)
+                || !net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE
+                        .getKey(e.getType())
+                        .equals(CREEPER_MINION)) return false;
+        var owner = pet.getOwner();
+        if (owner instanceof Player) return false;
+        if (owner instanceof Mob mob) return mob.getAttached(ModData.THRALL_MASTER) == null && !Souls.summoned(mob);
+        return !pet.isTame();
+    }
+
+    static boolean rejectsCreeperMinion(ServerLevel level, Entity e) {
+        return hostileCreeperMinion(e)
+                && blocked(e)
+                && (shields(level, e.blockPosition())
+                        || contains(level, e.getBoundingBox().getCenter()));
+    }
+
+    static boolean nearHome(ServerLevel level, BlockPos pos, int blocks) {
+        for (var home : level.getAttachedOrElse(ModData.LIGHT_WARDS, List.of())) {
+            double dx = home.getX() - pos.getX(), dz = home.getZ() - pos.getZ();
+            if (dx * dx + dz * dz <= (double) blocks * blocks) return true;
+        }
+        return false;
     }
 
     public static Vec3 limitMovement(Entity e, Vec3 move) {

@@ -173,10 +173,14 @@ public final class ChestWardClientTest implements FabricClientGameTest {
                 for (var at : BlockPos.betweenClosed(cave.offset(-1, 0, -1), cave.offset(1, 1, 1)))
                     l.setBlockAndUpdate(at, Blocks.AIR.defaultBlockState());
                 // Fabric's flat preset is a test platform; construct a generated-rock cave roof and floor explicitly.
-                for (var at : BlockPos.betweenClosed(cave.offset(-1, 2, -1), cave.offset(1, 2, 1)))
+                for (var at : BlockPos.betweenClosed(cave.offset(-1, 2, -1), cave.offset(1, 4, 1)))
                     l.setBlockAndUpdate(at, Blocks.STONE.defaultBlockState());
                 l.setBlockAndUpdate(cave.below(), Blocks.STONE.defaultBlockState());
                 l.setBlockAndUpdate(cave, Blocks.TORCH.defaultBlockState());
+                for (var at : BlockPos.betweenClosed(house.offset(-2, 0, -2), house.offset(2, 1, 2))) {
+                    if (Math.abs(at.getX() - house.getX()) == 2 || at.getZ() == house.getZ() - 2)
+                        l.setBlockAndUpdate(at, Blocks.STONE.defaultBlockState());
+                }
                 for (var at : BlockPos.betweenClosed(house.offset(-2, 2, -2), house.offset(2, 2, 2)))
                     l.setBlockAndUpdate(at, Blocks.STONE.defaultBlockState());
                 for (var at : BlockPos.betweenClosed(village.offset(-2, -1, -3), village.offset(2, -1, 3)))
@@ -242,10 +246,30 @@ public final class ChestWardClientTest implements FabricClientGameTest {
                             s -> s.overworld().setBlockAndUpdate(surface.above(2), Blocks.GLASS.defaultBlockState()));
             ctx.waitTicks(25);
             sp.getServer().runOnServer(s -> {
+                var l = s.overworld();
                 check(
-                        s.overworld().getBrightness(LightLayer.BLOCK, surface) == 14,
-                        "Building a glass roof at night did not relight the torch");
-                s.overworld().setBlockAndUpdate(surface.above(2), Blocks.AIR.defaultBlockState());
+                        l.getBrightness(LightLayer.BLOCK, surface) == 0,
+                        "A single glass block sheltered an outdoor torch");
+                l.setBlockAndUpdate(surface.above(2), Blocks.DIRT.defaultBlockState());
+            });
+            ctx.waitTicks(25);
+            sp.getServer().runOnServer(s -> {
+                var l = s.overworld();
+                check(
+                        l.getBrightness(LightLayer.BLOCK, surface) == 0,
+                        "A single dirt block sheltered an outdoor torch");
+                for (var at : BlockPos.betweenClosed(surface.offset(-2, 0, -2), surface.offset(2, 2, 2))) {
+                    if (at.getY() == surface.getY() + 2
+                            || Math.abs(at.getX() - surface.getX()) == 2
+                            || at.getZ() == surface.getZ() - 2)
+                        l.setBlockAndUpdate(at, Blocks.GLASS.defaultBlockState());
+                }
+            });
+            ctx.waitTicks(25);
+            sp.getServer().runOnServer(s -> {
+                var l = s.overworld();
+                check(l.getBrightness(LightLayer.BLOCK, surface) == 14, "A glass room did not shelter its torch");
+                l.setBlockAndUpdate(surface.above(2), Blocks.AIR.defaultBlockState());
             });
             ctx.waitTicks(25);
             sp.getServer()

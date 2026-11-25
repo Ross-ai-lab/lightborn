@@ -216,6 +216,7 @@ public final class LootRoller {
                     default -> ARMOR_AFFIXES;
                 });
         if (noMana) pool.remove(MANA);
+        if (kind != Kind.BOOTS) pool.remove(SPEED);
         // Start from the item's own stats (base damage, armour, staff spell power) so they are kept. An affix never
         // lands
         // on one of them (owner, 2026-11-18): folded into the base line it would hide, and a Rare must show two new
@@ -317,6 +318,7 @@ public final class LootRoller {
     static boolean refresh(ItemStack stack) {
         if (stack.isEmpty()) return false;
         boolean changed = relabel(stack);
+        changed |= stripNonBootSpeed(stack);
         var tag =
                 stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         boolean starter = stack.is(ModItems.STARTER_STAFF);
@@ -375,6 +377,26 @@ public final class LootRoller {
             }
         }
         return LightGearTree.refresh(stack) || changed;
+    }
+
+    private static boolean stripNonBootSpeed(ItemStack stack) {
+        var original = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
+        if (original == null
+                || LightGearTree.kind(stack) == LightGearTree.BOOTS
+                || original.modifiers().stream().noneMatch(LootRoller::movementAffix)) return false;
+        var builder = ItemAttributeModifiers.builder();
+        for (var entry : original.modifiers()) {
+            if (movementAffix(entry)) continue;
+            if (entry.display() == null) builder.add(entry.attribute(), entry.modifier(), entry.slot());
+            else builder.add(entry.attribute(), entry.modifier(), entry.slot(), entry.display());
+        }
+        stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
+        return true;
+    }
+
+    private static boolean movementAffix(ItemAttributeModifiers.Entry entry) {
+        var id = entry.modifier().id();
+        return id.getNamespace().equals(Lightborn.MOD_ID) && id.getPath().startsWith("affix_move_speed_");
     }
 
     static String trim(double v) {

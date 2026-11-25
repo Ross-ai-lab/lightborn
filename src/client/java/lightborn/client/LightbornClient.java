@@ -40,7 +40,7 @@ import net.minecraft.resources.Identifier;
 public class LightbornClient implements ClientModInitializer {
     static final KeyMapping.Category CATEGORY =
             KeyMapping.Category.register(Identifier.fromNamespaceAndPath("lightborn", "keys"));
-    static KeyMapping storyPower, dragonBreath;
+    static KeyMapping storyPower, dragonBreath, spellstoneFive;
 
     @Override
     public void onInitializeClient() {
@@ -68,6 +68,8 @@ public class LightbornClient implements ClientModInitializer {
                 new KeyMapping("key.lightborn.story_power", InputConstants.KEY_R, CATEGORY));
         dragonBreath = KeyMappingHelper.registerKeyMapping(
                 new KeyMapping("key.lightborn.dragon_breath", InputConstants.KEY_V, CATEGORY));
+        spellstoneFive = KeyMappingHelper.registerKeyMapping(
+                new KeyMapping("key.lightborn.spellstone_five", InputConstants.KEY_C, CATEGORY));
         ModelLayerRegistry.registerModelLayer(LastScribeRenderer.LAYER, LastScribeRenderer::layer);
         EntityRendererRegistry.register(ModEntities.LAST_SCRIBE, LastScribeRenderer::new);
         // Tome tooltips show what this player would actually deal: level, Spell Power (staff included) and masteries.

@@ -454,7 +454,7 @@ public final class FormSpells {
 
     static final String BODY_TAG = "lightborn_spirit_body";
     static final double POUNCE_REACH = 12, ROAR_RADIUS = 5, WEB_REACH = 24, BOOM_REACH = 16, BOOM_WIDTH = 1.5;
-    static final int WOLF_TICKS = 600, BEAR_TICKS = 600, SPIDER_TICKS = 900, BLAZE_TICKS = 600, SPIRIT_TICKS = 300;
+    static final int WOLF_TICKS = 600, BEAR_TICKS = 600, SPIDER_TICKS = 900, BLAZE_TICKS = 600, SPIRIT_TICKS = 600;
     static final int WARDEN_TICKS = 600;
     static final int POUNCE_EVERY = 60, ROAR_EVERY = 80, WEB_EVERY = 60, VOLLEY_EVERY = 30, BOOM_EVERY = 60;
     /** Swift Spirit's flying speed (vanilla's is 0.05), and Sculk Sense's reach. */

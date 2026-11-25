@@ -50,6 +50,7 @@ public abstract class NaturalSpawnerMixin {
     @Inject(method = "isValidPositionForMob", at = @At("HEAD"), cancellable = true)
     private static void lightborn$protectWard(
             ServerLevel level, Mob mob, double distanceSquared, CallbackInfoReturnable<Boolean> result) {
-        if (LightWards.preventsNaturalSpawn(level, mob)) result.setReturnValue(false);
+        if (LightWards.preventsNaturalSpawn(level, mob) || NightSpawns.rejectHomeMutant(level, mob))
+            result.setReturnValue(false);
     }
 }

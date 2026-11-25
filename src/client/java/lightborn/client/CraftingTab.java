@@ -10,8 +10,13 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.renderer.entity.state.ItemEntityRenderState;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 final class CraftingTab extends ChestTab {
     private static final int BRASS = 0xFFC19648, EDGE = 0xFF574021, AMBER_INK = 0xFF130F0A;
@@ -196,12 +201,41 @@ final class CraftingTab extends ChestTab {
         g.fill(x + 2, y + h - 3, x + w - 2, y + h - 1, 0xFF3F2D17);
     }
 
-    private void largeItem(GuiGraphicsExtractor g, ItemStack stack, int x, int y) {
-        g.pose().pushMatrix();
-        g.pose().translate(x, y);
-        g.pose().scale(2.25f, 2.25f);
-        g.item(stack, 0, 0);
-        g.pose().popMatrix();
+    private void resultPreview(GuiGraphicsExtractor g, ItemStack stack, int x, int y, float age) {
+        var state = new ItemEntityRenderState();
+        state.entityType = EntityTypes.ITEM;
+        state.count = 1;
+        state.ageInTicks = age;
+        state.lightCoords = 0xF000F0;
+        mc().getItemModelResolver().updateForTopItem(state.item, stack, ItemDisplayContext.GROUND, mc().level, null, 0);
+        g.entity(
+                state,
+                96f,
+                new Vector3f(0, .31f, 0),
+                new Quaternionf().rotationZ((float) Math.PI).rotateX(-.25f),
+                null,
+                x - 26,
+                y - 36,
+                x + 26,
+                y + 15);
+    }
+
+    private static void glow(GuiGraphicsExtractor g, int x, int y, float pulse) {
+        for (int dy = -18; dy <= 18; dy++) {
+            int width = (int) (28 * Math.sqrt(1 - dy * dy / 361.0));
+            if (width < 2) continue;
+            int alpha = (int) ((30 - Math.abs(dy)) * pulse);
+            g.fill(x - width, y + dy, x + width, y + dy + 1, alpha << 24 | 0xEAB34D);
+            g.fill(x - width / 2, y + dy, x + width / 2, y + dy + 1, alpha << 24 | 0xFFD982);
+        }
+    }
+
+    private void craftingArrow(GuiGraphicsExtractor g, int tip, int y) {
+        g.fill(gridX() + 60, y, tip + 1, y + 1, BRASS);
+        for (int offset = 1; offset <= 4; offset++) {
+            g.fill(tip - offset, y - offset, tip - offset + 1, y - offset + 1, GOLD);
+            g.fill(tip - offset, y + offset, tip - offset + 1, y + offset + 1, GOLD);
+        }
     }
 
     @Override
@@ -251,9 +285,10 @@ final class CraftingTab extends ChestTab {
             if (mx >= gx && mx < gx + CELL && my >= gy && my < gy + CELL && !stack.isEmpty()) hovered = stack;
         }
         int rx = resultX(), ry = gridY() + 27;
-        g.fill(gridX() + 58, ry, rx - 22, ry + 1, BRASS);
-        centered(g, ">", rx - 29, ry - 4, GOLD);
+        craftingArrow(g, rx - 27, ry);
         boolean ready = !view.output().isEmpty() && !pending;
+        float age = (float) ((System.nanoTime() / 1_000_000_000d % (Math.PI * 2)) * 20);
+        if (ready) glow(g, rx, ry - 8, .85f + .15f * (float) Math.sin(age * .1f));
         // A staggered, lit plinth keeps block models and tools floating apart from the working grid.
         for (int i = 0; i < 7; i++) {
             int half = 12 + i * 2;
@@ -262,7 +297,7 @@ final class CraftingTab extends ChestTab {
         g.fill(rx - 24, ry + 17, rx + 24, ry + 20, ready ? BRASS : EDGE);
         g.fill(rx - 24, ry + 20, rx + 24, ry + 23, 0xFF332518);
         if (ready) {
-            largeItem(g, view.output(), rx - 18, ry - 26);
+            resultPreview(g, view.output(), rx, ry, age);
             centered(g, "×" + view.output().getCount(), rx, ry + 25, GOLD);
             int labelWidth = 2 * Math.min(rx - divider() - 4, right() - rx - 4);
             centered(

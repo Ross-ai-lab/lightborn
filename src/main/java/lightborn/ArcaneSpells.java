@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.UUID;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -48,6 +49,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.AABB;
@@ -125,23 +127,34 @@ public final class ArcaneSpells {
         Vec3 look = p.getLookAngle();
         Spells.sound(level, p, SoundEvents.AMETHYST_BLOCK_CHIME, 1.2f, 1.6f);
         Spells.sound(level, p, SoundEvents.ILLUSIONER_CAST_SPELL, 0.5f, 1.8f);
-        var bolt = new Spells.Projectile(
-                p, spell, eye.add(look.scale(0.5)), look.scale(2.2), dmg, 0, SpellUpgrades.scaleInt(spell, REACH, 20));
-        bolt.pierce = SpellUpgrades.add(spell, COUNT, TomeAwakening.awake(p, spell) ? 3 : 0); // Arcane Lance
-        Spells.PROJECTILES.add(bolt);
-        if (SpellUpgrades.perk(p, spell, "Arcane Echo")) {
-            int pierce = bolt.pierce, reach = SpellUpgrades.scaleInt(spell, REACH, 20);
-            Scheduler.later(8, () -> {
-                if (!p.isAlive() || p.level() != level) return;
-                Vec3 l = p.getLookAngle();
-                var echoBolt = new Spells.Projectile(
-                        p, Spell.ARCANE_BOLT, p.getEyePosition().add(l.scale(.5)), l.scale(2.2), dmg, 0, reach);
-                echoBolt.pierce = pierce;
-                Spells.PROJECTILES.add(echoBolt);
-                Spells.sound(level, p, SoundEvents.AMETHYST_BLOCK_CHIME, .9f, 1.9f);
-            });
+        int reach = SpellUpgrades.scaleInt(spell, REACH, 20);
+        int pierce = SpellUpgrades.add(spell, COUNT, TomeAwakening.awake(p, spell) ? 3 : 0);
+        fireArcaneBolt(p, spell, dmg, eye, look, reach, pierce);
+        if (SpellUpgrades.perk(p, spell, "Arcane Echo") && sixthArcaneCast()) {
+            float spread = 4 * net.minecraft.util.Mth.DEG_TO_RAD;
+            fireArcaneBolt(p, spell, dmg, eye, look.yRot(-spread), reach, pierce);
+            fireArcaneBolt(p, spell, dmg, eye, look.yRot(spread), reach, pierce);
+            Spells.sound(level, p, SoundEvents.AMETHYST_BLOCK_CHIME, .9f, 1.9f);
         }
         return true;
+    }
+
+    private static boolean sixthArcaneCast() {
+        var cast = CastContext.current();
+        if (cast == null || cast.replay() || cast.tome().isEmpty()) return false;
+        var tome = cast.tome();
+        var data =
+                tome.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        int next = (Math.floorMod(data.getIntOr("arcane_echo_casts", 0), 6) + 1) % 6;
+        CustomData.update(DataComponents.CUSTOM_DATA, tome, tag -> tag.putInt("arcane_echo_casts", next));
+        return next == 0;
+    }
+
+    private static void fireArcaneBolt(
+            ServerPlayer player, Spell spell, double damage, Vec3 eye, Vec3 look, int reach, int pierce) {
+        var bolt = new Spells.Projectile(player, spell, eye.add(look.scale(.5)), look.scale(2.2), damage, 0, reach);
+        bolt.pierce = pierce;
+        Spells.PROJECTILES.add(bolt);
     }
 
     /** Mirror Ward's tier II branches, acting once as it is cast (owner, 2026-11-23: one aspect per upgrade tree). */

@@ -39,7 +39,7 @@ public final class ChestCrafting {
 
     public record Entry(String key, ItemStack stack) {
         static final StreamCodec<RegistryFriendlyByteBuf, Entry> CODEC = StreamCodec.composite(
-                ByteBufCodecs.stringUtf8(192), Entry::key, ItemStack.STREAM_CODEC, Entry::stack, Entry::new);
+                ByteBufCodecs.stringUtf8(192), Entry::key, ModData.CHEST_STACK, Entry::stack, Entry::new);
     }
 
     public record Ask(

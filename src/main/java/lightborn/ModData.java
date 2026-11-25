@@ -1,6 +1,7 @@
 package lightborn;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,9 @@ import net.fabricmc.fabric.api.attachment.v1.AttachmentSyncPredicate;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
@@ -65,16 +68,28 @@ public final class ModData {
     static final AttachmentType<List<CollectionLight.Placed>> COLLECTION_LIGHTS = AttachmentRegistry.create(
             id("collection_lights"), b -> b.persistent(CollectionLight.Placed.CODEC.listOf()));
 
-    /**
-     * On a player: what they keep in the Chest of Light, at most one stack per item. Saved, kept through death (it
-     * lives in the chest, not on the body), synced to its player so the book can show it.
-     */
+    private static final Codec<ItemStack> COUNTED_ITEM = RecordCodecBuilder.create(i -> i.group(
+                    ItemStack.CODEC.fieldOf("item").forGetter(stack -> stack.copyWithCount(1)),
+                    Codec.intRange(1, Collection.STORAGE_LIMIT)
+                            .fieldOf("quantity")
+                            .forGetter(ItemStack::getCount))
+            .apply(i, ItemStack::copyWithCount));
+
+    /** Counts in the chest can exceed the same item's physical stack limit. */
+    static final StreamCodec<RegistryFriendlyByteBuf, ItemStack> CHEST_STACK = StreamCodec.composite(
+            ItemStack.STREAM_CODEC,
+            stack -> stack.copyWithCount(1),
+            ByteBufCodecs.VAR_INT,
+            ItemStack::getCount,
+            ItemStack::copyWithCount);
+
+    /** Chest items are stored per player and survive death. The old stack format still decodes. */
     public static final AttachmentType<List<ItemStack>> STORAGE = AttachmentRegistry.<List<ItemStack>>create(
             id("chest_storage"),
-            b -> b.persistent(ItemStack.CODEC.listOf())
+            b -> b.persistent(
+                            Codec.withAlternative(COUNTED_ITEM, ItemStack.CODEC).listOf())
                     .copyOnDeath()
-                    .syncWith(
-                            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), AttachmentSyncPredicate.targetOnly()));
+                    .syncWith(CHEST_STACK.apply(ByteBufCodecs.list()), AttachmentSyncPredicate.targetOnly()));
 
     /** On a player: has been welcomed into the hut. */
     public static final AttachmentType<Boolean> ARRIVED = AttachmentRegistry.<Boolean>create(

@@ -731,7 +731,7 @@ public final class DarkNests {
 
     /** The first guard party is small. Later wins add guards before health and damage take over. */
     static int guardCount(ServerLevel level, RandomSource random) {
-        return (int) Math.min(MAX_GUARDS, (dark(level) ? 3L : 2L) + random.nextInt(2) + victories(level));
+        return (int) Math.min(MAX_GUARDS, (dark(level) ? 6L : 5L) + random.nextInt(2) + victories(level));
     }
 
     static int fightRank(ServerLevel level, int stage) {
@@ -813,24 +813,20 @@ public final class DarkNests {
         var themed = pool(level, nest.core, true);
         var all = new ArrayList<>(base);
         all.addAll(themed);
+        var champions = wins >= 2
+                ? all
+                : all.stream()
+                        .filter(page -> page.weight() == 3 && !mutant(page))
+                        .toList();
+        if (wins < 2) {
+            base = base.stream().filter(page -> page.weight() <= 2).toList();
+            themed = themed.stream().filter(page -> page.weight() <= 2).toList();
+        }
         boolean overworld = level.dimension() == Level.OVERWORLD;
         for (int i = 0; i < want * 3 && woke < want; i++) {
-            var type = woke == 0 && wins >= 2
-                    ? championKind(random, week, all)
-                    : guardKind(
-                            random,
-                            rank,
-                            week,
-                            wins < 2
-                                    ? base.stream()
-                                            .filter(page -> page.weight() <= 2)
-                                            .toList()
-                                    : base,
-                            wins < 2
-                                    ? themed.stream()
-                                            .filter(page -> page.weight() <= 2)
-                                            .toList()
-                                    : themed);
+            var type = woke == 0 && !champions.isEmpty()
+                    ? championKind(random, week, champions)
+                    : guardKind(random, rank, week, base, themed);
             Mob mob = VariantCompat.keepKind(type.create(level, EntitySpawnReason.MOB_SUMMONED));
             if (mob == null) continue;
             double a = random.nextDouble() * Math.PI * 2, r = 3 + random.nextDouble() * 4;
