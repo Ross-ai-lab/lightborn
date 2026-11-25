@@ -90,8 +90,6 @@ public class CollectionScreen extends Screen {
         fixedTabs.put(UPGRADE_SPELLS, spells);
         fixedTabs.put(UPGRADE_GEAR, gear);
         fixedTabs.put(CRAFTING, crafting);
-        fixedTabs.put(FURNACE, new StationTab(this, ChestStations.Station.FURNACE));
-        fixedTabs.put(ANVIL, new StationTab(this, ChestStations.Station.ANVIL));
         fixedTabs.put(CLEANSE, cleanse);
         fixedTabs.put(SHOP, shopTab);
         fixedTabs.put(TRAVEL, travel);
@@ -216,6 +214,12 @@ public class CollectionScreen extends Screen {
      * has not reached yet).
      */
     public void select(int index) {
+        if (index == FURNACE || index == ANVIL) {
+            var station = index == FURNACE ? ChestStations.Station.FURNACE : ChestStations.Station.ANVIL;
+            if (minecraft != null && minecraft.player != null && ChestStations.owned(minecraft.player, station))
+                ClientPlayNetworking.send(new ChestStations.Open(chest, station.ordinal()));
+            return;
+        }
         selected = index;
         if (index >= 0) collection.show(index);
         var tab = open();

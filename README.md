@@ -183,7 +183,7 @@ heading. The recipe browser and the crafting grid use the space for their contro
 **The tome and gear selectors use 20-pixel item icons.** **Upgrade Spells sees the tomes inside a carried Spellstone** (owner, 2026-11-18), each in its stone's place in the
 strip on a violet rim, and upgrades them where they sit (`Spellstone.tomeAt`). **Upgrade Gear groups its strip by
 kind** (owner, 2026-11-18: the staffs lay scattered): helms, chests, leggings, boots and so on together, each kind in
-carried order. **Double-clicking an item in the Collection takes what the chest keeps of it** into the bag (owner,
+carried order. The bar below each damageable gear icon shows its remaining durability. **Double-clicking an item in the Collection takes what the chest keeps of it** into the bag (owner,
 2026-11-18). **An item no hand can make says where it is found** in the recipe's place (owner, 2026-11-18): a Lightborn
 item where the mod hands it out (dropped by monsters, by a named boss, a gift from the Dragon), anything else read from
 the loot tables, the mods' included: which monsters drop it, which blocks it is mined from, which chests hold it,
@@ -364,8 +364,9 @@ when the player crafts. Outputs and remainders such as milk buckets go into the 
 
 The Furnace uses vanilla furnace ingredients, fuel, timings, and output slots. Load it from your inventory.
 It continues smelting while you play elsewhere, saves its contents and progress, and pauses while you are signed out.
-The Anvil uses the same naming, combining, and Light gear repair rules as a placed anvil. Both menus require the
-player to stay near the Chest of Light.
+The Anvil uses the same naming, combining, and Light gear repair rules as a placed anvil. Both stations open directly
+from their sidebar tabs. Their rotating 3D previews and sparks respond to lit fuel and ready results. Stay near the
+Chest of Light while working.
 
 ### Salvage gear
 

@@ -1,4 +1,6 @@
 {
+  "lightborn.chest.furnace": "Furnace of Light",
+  "lightborn.chest.anvil": "Anvil of Light",
   "attribute.name.movement_speed": "Movement Speed",
   "container.repair.cost": "%s lapis",
   "lightborn.anvil.free": "Free",

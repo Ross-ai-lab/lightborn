@@ -204,12 +204,8 @@ final class UpgradeTab extends ChestTab {
         return at(altarSlot());
     }
 
-    private int upgradeY() {
-        return s.top() + HEAD + 3;
-    }
-
     private int stripY() {
-        return upgradeY() + (gear ? 10 : 0);
+        return s.top() + HEAD + 3;
     }
 
     private int perRow() {
@@ -302,7 +298,7 @@ final class UpgradeTab extends ChestTab {
 
     @Override
     void draw(GuiGraphicsExtractor g, int mouseX, int mouseY) {
-        int x = s.gridX() + 4, y = upgradeY(), w = s.gridW() - 12;
+        int x = s.gridX() + 4, w = s.gridW() - 12;
         int free = free();
         var slots = treeSlots();
         if (slots.isEmpty()) {
@@ -395,12 +391,6 @@ final class UpgradeTab extends ChestTab {
         }
         int nameX = x + Math.min(perRow(), slots.size()) * UP_TOME + 6;
         // Gear shows no name or tier here (owner, 2026-11-17): the strip's icons and their tooltips say it.
-        if (gear && item.isDamageableItem()) {
-            String wear = Math.max(0, item.getMaxDamage() - item.getDamageValue()) + " / " + item.getMaxDamage()
-                    + " durability";
-            int right = s.gridX() + s.gridW() - 8;
-            g.text(font(), wear, right - font().width(wear), y, item.isBroken() ? UP_RED : DIM, false);
-        }
         if (!gear && nameX + 40 < s.gridX() + s.gridW() - 8)
             g.text(
                     font(),

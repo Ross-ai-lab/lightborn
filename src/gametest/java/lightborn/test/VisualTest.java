@@ -311,15 +311,55 @@ public class VisualTest implements FabricClientGameTest {
                                         player(server), lightborn.ChestStations.Station.FURNACE)),
                         "Shop purchase did not unlock Furnace");
                 ctx.runOnClient(mc -> ((CollectionScreen) mc.gui.screen()).select(CollectionScreen.FURNACE));
-                ctx.waitTicks(5);
-                ctx.takeScreenshot("lightborn_chest_furnace_tab");
-                chestButton(ctx, "Open Furnace");
                 ctx.waitTicks(12);
                 Soft.require(
                         ctx.computeOnClient(
-                                mc -> mc.player.containerMenu instanceof net.minecraft.world.inventory.FurnaceMenu),
-                        "Chest Furnace did not open a usable furnace menu");
+                                mc -> mc.gui.screen() instanceof lightborn.client.LightStationScreens.Furnace),
+                        "Selecting Furnace did not open its working screen directly");
+                sp.getServer().runOnServer(server -> {
+                    var player = player(server);
+                    if (player.containerMenu instanceof net.minecraft.world.inventory.FurnaceMenu furnace) {
+                        furnace.getSlot(0).set(new ItemStack(Items.RAW_IRON, 4));
+                        furnace.getSlot(1).set(new ItemStack(Items.COAL, 2));
+                    }
+                });
+                ctx.waitTicks(25);
+                Soft.require(
+                        ctx.computeOnClient(mc ->
+                                mc.player.containerMenu instanceof net.minecraft.world.inventory.FurnaceMenu furnace
+                                        && furnace.isLit()),
+                        "The Chest furnace did not start smelting");
                 ctx.takeScreenshot("lightborn_chest_furnace");
+                ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
+                sp.getServer()
+                        .runOnServer(server -> lightborn.ChestStations.purchase(
+                                player(server), chestAt, lightborn.ChestStations.Station.ANVIL.ordinal()));
+                ctx.waitTicks(10);
+                ctx.runOnClient(mc -> {
+                    var screen = new CollectionScreen(chestAt);
+                    mc.gui.setScreen(screen);
+                    screen.select(CollectionScreen.ANVIL);
+                });
+                ctx.waitTicks(12);
+                Soft.require(
+                        ctx.computeOnClient(
+                                mc -> mc.gui.screen() instanceof lightborn.client.LightStationScreens.Anvil),
+                        "Selecting Anvil did not open its working screen directly");
+                sp.getServer().runOnServer(server -> {
+                    if (player(server).containerMenu instanceof net.minecraft.world.inventory.AnvilMenu anvil) {
+                        var tool = new ItemStack(Items.IRON_SWORD);
+                        tool.setDamageValue(100);
+                        anvil.getSlot(0).set(tool);
+                        anvil.getSlot(1).set(new ItemStack(Items.IRON_INGOT, 2));
+                    }
+                });
+                ctx.waitTicks(12);
+                Soft.require(
+                        ctx.computeOnClient(
+                                mc -> mc.player.containerMenu instanceof net.minecraft.world.inventory.AnvilMenu anvil
+                                        && anvil.getSlot(2).hasItem()),
+                        "The Chest anvil did not preview the repaired sword");
+                ctx.takeScreenshot("lightborn_chest_anvil");
                 ctx.getInput().pressKey(InputConstants.KEY_ESCAPE);
                 ctx.waitTicks(3);
             }

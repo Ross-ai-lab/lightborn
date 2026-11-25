@@ -36,6 +36,7 @@ public final class ChestStations {
     private ChestStations() {}
 
     public static final int PRICE = 20, OFFER_START = 10;
+    public static final String FURNACE_TITLE = "lightborn.chest.furnace", ANVIL_TITLE = "lightborn.chest.anvil";
 
     public enum Station {
         CRAFTING("Crafting", Items.CRAFTING_TABLE, "Craft using your chest storage and inventory."),
@@ -110,11 +111,11 @@ public final class ChestStations {
                             return viewer == p && p.level() == level && LightShop.near(p, chest);
                         }
                     },
-                    Component.literal("Anvil of Light")));
+                    Component.translatable(ANVIL_TITLE)));
         } else if (station == Station.FURNACE) {
             var furnace = FURNACES.computeIfAbsent(p, Furnace::new);
             p.openMenu(new SimpleMenuProvider(
-                    (id, inv, player) -> furnace.open(id, inv, chest), Component.literal("Furnace of Light")));
+                    (id, inv, player) -> furnace.open(id, inv, chest), Component.translatable(FURNACE_TITLE)));
         }
     }
 
