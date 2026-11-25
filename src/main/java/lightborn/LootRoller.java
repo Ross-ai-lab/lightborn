@@ -122,7 +122,6 @@ public final class LootRoller {
 
     static final List<Affix> MELEE_AFFIXES = List.of(
             a("damage", "Attack Damage", Attributes.ATTACK_DAMAGE, 1, 2.5, Style.FLAT),
-            HEALTH,
             LUCK,
             FIND,
             LEECH,
@@ -134,7 +133,6 @@ public final class LootRoller {
             MANA,
             REGEN,
             HASTE,
-            HEALTH,
             LEECH,
             a("spell_crit", "Spell Crit Chance", ModAttributes.SPELL_CRIT, 0.02, 0.05, Style.CHANCE),
             // Rolls scaled with the base multiplier (1.5 to 3.0, owner 2026-11-17); the bonus now counts for weapon
@@ -318,7 +316,7 @@ public final class LootRoller {
     static boolean refresh(ItemStack stack) {
         if (stack.isEmpty()) return false;
         boolean changed = relabel(stack);
-        changed |= stripNonBootSpeed(stack);
+        changed |= stripDisallowedAffixes(stack);
         var tag =
                 stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         boolean starter = stack.is(ModItems.STARTER_STAFF);
@@ -379,14 +377,24 @@ public final class LootRoller {
         return LightGearTree.refresh(stack) || changed;
     }
 
-    private static boolean stripNonBootSpeed(ItemStack stack) {
+    private static boolean stripDisallowedAffixes(ItemStack stack) {
         var original = stack.get(DataComponents.ATTRIBUTE_MODIFIERS);
-        if (original == null
-                || LightGearTree.kind(stack) == LightGearTree.BOOTS
-                || original.modifiers().stream().noneMatch(LootRoller::movementAffix)) return false;
+        if (original == null) return false;
+        int kind = LightGearTree.kind(stack);
+        boolean weapon = switch (kind) {
+            case LightGearTree.WEAPON,
+                    LightGearTree.STAFF,
+                    LightGearTree.AXE,
+                    LightGearTree.SPEAR,
+                    LightGearTree.TRIDENT,
+                    LightGearTree.MACE,
+                    LightGearTree.RANGED -> true;
+            default -> false;
+        };
+        if (original.modifiers().stream().noneMatch(entry -> disallowedAffix(entry, kind, weapon))) return false;
         var builder = ItemAttributeModifiers.builder();
         for (var entry : original.modifiers()) {
-            if (movementAffix(entry)) continue;
+            if (disallowedAffix(entry, kind, weapon)) continue;
             if (entry.display() == null) builder.add(entry.attribute(), entry.modifier(), entry.slot());
             else builder.add(entry.attribute(), entry.modifier(), entry.slot(), entry.display());
         }
@@ -394,9 +402,11 @@ public final class LootRoller {
         return true;
     }
 
-    private static boolean movementAffix(ItemAttributeModifiers.Entry entry) {
+    private static boolean disallowedAffix(ItemAttributeModifiers.Entry entry, int kind, boolean weapon) {
         var id = entry.modifier().id();
-        return id.getNamespace().equals(Lightborn.MOD_ID) && id.getPath().startsWith("affix_move_speed_");
+        return id.getNamespace().equals(Lightborn.MOD_ID)
+                && (kind != LightGearTree.BOOTS && id.getPath().startsWith("affix_move_speed_")
+                        || weapon && id.getPath().startsWith("affix_max_health_"));
     }
 
     static String trim(double v) {

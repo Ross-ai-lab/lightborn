@@ -152,7 +152,9 @@ final class SelfTestFormSpells {
         faceFresh();
         Vec3 start = caster.position();
         boolean cast = cast(Spell.SPIRIT_WALK);
-        boolean out = caster.isSpectator() && caster.hasAttached(FormSpells.SPIRIT_HOME);
+        boolean out = caster.isSpectator()
+                && caster.hasAttached(FormSpells.SPIRIT_HOME)
+                && caster.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION);
         var bodies = level.getEntitiesOfClass(
                 Mannequin.class,
                 new AABB(caster.blockPosition()).inflate(3),
@@ -161,7 +163,8 @@ final class SelfTestFormSpells {
         FormSpells.end(caster);
         boolean home = !caster.isSpectator()
                 && caster.position().distanceTo(start) < .1
-                && !caster.hasAttached(FormSpells.SPIRIT_HOME);
+                && !caster.hasAttached(FormSpells.SPIRIT_HOME)
+                && !caster.hasEffect(net.minecraft.world.effect.MobEffects.NIGHT_VISION);
         boolean bodyGone = bodies.size() == 1 && bodies.get(0).isRemoved();
         check(
                 "spell_spirit_walk_leaves_and_returns",

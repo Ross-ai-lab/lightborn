@@ -16,6 +16,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -40,7 +41,7 @@ final class CollectionTab extends ChestTab {
     /** Set chips: 40% bigger, then 10% more (owner, 2026-11-17). */
     private static final float CHIP_SCALE = .924f;
 
-    private static final int CHIP_H = 14, CHIP_GAP = 3;
+    private static final int CHIP_H = 14, CHIP_GAP = 3, SEARCH_W = 52;
 
     /** Recipes the server sent, by item id (empty list = none), and where a recipe-less item comes from. */
     private static final Map<String, List<RecipeDisplay>> RECIPES = new HashMap<>();
@@ -55,6 +56,11 @@ final class CollectionTab extends ChestTab {
     private int recipeIndex;
     private Button takeOne, takeAll, putIn, giveNew, giveNonEssential, depositSparks;
 
+    private Button searchButton;
+    private EditBox searchBox;
+    private List<String> searchResults = List.of();
+    private boolean searching, focusSearch;
+
     CollectionTab(CollectionScreen s) {
         super(s);
     }
@@ -66,6 +72,23 @@ final class CollectionTab extends ChestTab {
 
     @Override
     void init() {
+        String query = searchBox == null ? "" : searchBox.getValue();
+        int searchY = s.top() + HEAD;
+        int right = s.gridX() + s.gridW() - 4;
+        searchButton = s.add(Button.builder(Component.literal("Search"), b -> toggleSearch())
+                .bounds(right - SEARCH_W, searchY, SEARCH_W, CHIP_H)
+                .build());
+        searchBox = s.add(new EditBox(
+                font(),
+                s.gridX(),
+                searchY,
+                right - SEARCH_W - 5 - s.gridX(),
+                CHIP_H,
+                Component.literal("Search collection")));
+        searchBox.setHint(Component.literal("Search all items"));
+        searchBox.setMaxLength(80);
+        searchBox.setValue(query);
+        searchBox.setResponder(this::search);
         // The three buttons share the room left of the recipe's divider, so they never run into it on narrow screens.
         int bx = s.gridX() + 42, by = s.detailY() + 26;
         int room = s.gridW() - RECIPE_W - 52;
@@ -156,6 +179,54 @@ final class CollectionTab extends ChestTab {
         picked = null;
     }
 
+    boolean closeSearch() {
+        if (!searching) return false;
+        toggleSearch();
+        return true;
+    }
+
+    private void toggleSearch() {
+        searching = !searching;
+        if (searching) {
+            search(searchBox.getValue());
+            focusSearch = true;
+        } else {
+            focusSearch = false;
+            searchBox.setFocused(false);
+            searchBox.setValue("");
+            scroll = 0;
+            picked = null;
+        }
+    }
+
+    private void search(String text) {
+        String query = text.strip().toLowerCase(java.util.Locale.ROOT);
+        searchResults = query.isEmpty()
+                ? Collection.all()
+                : Collection.all().stream()
+                        .filter(id -> id.contains(query)
+                                || new ItemStack(Collection.item(id))
+                                        .getHoverName()
+                                        .getString()
+                                        .toLowerCase(java.util.Locale.ROOT)
+                                        .contains(query))
+                        .toList();
+        scroll = 0;
+        picked = null;
+    }
+
+    @Override
+    void tick(int ticks) {
+        if (focusSearch) {
+            focusSearch = false;
+            s.setFocused(searchBox);
+        }
+    }
+
+    private List<String> shownItems() {
+        return searching ? searchResults : category().items();
+    }
+
     private Category category() {
         var cats = Collection.categories();
         return cats.get(Math.clamp(set, 0, cats.size() - 1));
@@ -182,7 +253,8 @@ final class CollectionTab extends ChestTab {
         int x = s.gridX(), y = s.top() + HEAD, right = s.gridX() + s.gridW() - 4;
         for (Category c : Collection.categories()) {
             int w = Math.round((4 + 10 + 3 + font().width(c.name()) + 4 + font().width(chipCount(c)) + 5) * CHIP_SCALE);
-            if (x + w > right && x > s.gridX()) {
+            int rowRight = y == s.top() + HEAD ? right - SEARCH_W - CHIP_GAP : right;
+            if (x + w > rowRight && x > s.gridX()) {
                 x = s.gridX();
                 y += CHIP_H + CHIP_GAP;
             }
@@ -193,6 +265,7 @@ final class CollectionTab extends ChestTab {
     }
 
     private int stripH() {
+        if (searching) return CHIP_H + 5;
         var chips = chips();
         return chips.isEmpty() ? 0 : chips.getLast()[1] - (s.top() + HEAD) + CHIP_H + 5;
     }
@@ -214,7 +287,7 @@ final class CollectionTab extends ChestTab {
 
     private int maxScroll() {
         if (Collection.categories().isEmpty()) return 0;
-        int rows = (category().items().size() + cols() - 1) / cols();
+        int rows = (shownItems().size() + cols() - 1) / cols();
         return Math.max(0, rows - visibleRows());
     }
 
@@ -238,6 +311,11 @@ final class CollectionTab extends ChestTab {
     /** Take buttons need something stored; Put in needs some of it carried. */
     @Override
     void layout(boolean on) {
+        searchButton.visible = on;
+        searchButton.setMessage(Component.literal(searching ? "Close" : "Search"));
+        searchBox.setVisible(on && searching);
+        searchBox.active = on && searching;
+        if (!on && searchBox.isFocused()) searchBox.setFocused(false);
         boolean show = on && picked != null && mc().player != null;
         int kept = show ? Collection.stored(mc().player, picked).getCount() : 0;
         for (Button b : List.of(takeOne, takeAll, putIn)) {
@@ -299,8 +377,7 @@ final class CollectionTab extends ChestTab {
     @Override
     void draw(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         Set<String> got = Collection.collected(mc().player);
-        Category c = category();
-        drawChips(g, mouseX, mouseY);
+        if (!searching) drawChips(g, mouseX, mouseY);
         String hint = "Ctrl + right-click to give one";
         int hintX = Math.clamp(depositSparks.getX() - 110, s.left() + 8, s.gridX() + 1);
         float hintScale = Math.min(.75f, (depositSparks.getX() - hintX - 5) / (float) font().width(hint));
@@ -316,8 +393,10 @@ final class CollectionTab extends ChestTab {
         int gx = s.gridX(), gy = gridTop(), cols = cols(), rows = visibleRows();
         scroll = Math.max(0, Math.min(scroll, maxScroll()));
         hovered = null;
-        for (int i = scroll * cols; i < c.items().size() && i < (scroll + rows) * cols; i++) {
-            String id = c.items().get(i);
+        var items = shownItems();
+        if (items.isEmpty()) g.text(font(), "No matching items", gx + 4, gy + 4, DIM, false);
+        for (int i = scroll * cols; i < items.size() && i < (scroll + rows) * cols; i++) {
+            String id = items.get(i);
             int x = gx + (i % cols) * CELL, y = gy + (i / cols - scroll) * CELL;
             boolean has = got.contains(id);
             boolean pick = id.equals(picked);
@@ -356,7 +435,11 @@ final class CollectionTab extends ChestTab {
         g.fill(px, py, px + pw, py + ph, 0xFF0E0B06);
         g.fill(px, py, px + pw, py + 1, 0xFF3A3020);
         if (picked == null) {
-            milestones(g, got, px, py, pw, ph);
+            if (searching) {
+                int matches = shownItems().size();
+                if (matches > 0)
+                    g.text(font(), matches == 1 ? "1 match" : matches + " matches", px + 4, py + 5, DIM, false);
+            } else milestones(g, got, px, py, pw, ph);
             return ItemStack.EMPTY;
         }
         ItemStack stack = new ItemStack(Collection.item(picked));
@@ -585,7 +668,7 @@ final class CollectionTab extends ChestTab {
     boolean click(double mx, double my, boolean doubleClick) {
         var cats = Collection.categories();
         if (cats.isEmpty()) return false;
-        int chip = chipAt(mx, my);
+        int chip = searching ? -1 : chipAt(mx, my);
         if (chip >= 0) {
             if (chip != set) {
                 s.select(chip);
@@ -593,12 +676,12 @@ final class CollectionTab extends ChestTab {
             }
             return true;
         }
-        Category c = category();
+        var items = shownItems();
         int gx = s.gridX(), gy = gridTop(), cols = cols();
         if (mx >= gx && mx < gx + cols * CELL && my >= gy && my < gy + visibleRows() * CELL) {
             int i = (scroll + (int) (my - gy) / CELL) * cols + (int) (mx - gx) / CELL;
-            if (i < c.items().size()) {
-                String id = c.items().get(i);
+            if (i < items.size()) {
+                String id = items.get(i);
                 // A double-click takes what the chest keeps of it into the bag (owner, 2026-11-18).
                 if (doubleClick && id.equals(picked)) {
                     move(Net.ChestMove.TAKE_ALL);

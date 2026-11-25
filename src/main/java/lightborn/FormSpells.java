@@ -49,6 +49,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.Mannequin;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
@@ -477,6 +478,7 @@ public final class FormSpells {
 
         int preyTicks;
         Mannequin body;
+        boolean spiritSightGranted;
 
         Shape(Form form, long until, double dmg, double reach, double area, Set<String> perks) {
             this.form = form;
@@ -631,6 +633,10 @@ public final class FormSpells {
         FormSpells.modifyScale(p, attribute, id, amount, op);
     }
 
+    public static boolean spiritSight(Player player) {
+        return player != null && player.getAttachedOrElse(FORM, 0) == Form.SPIRIT.ordinal();
+    }
+
     /** Ends {@code p}'s shape, if any: the beast's gifts go and a walking spirit returns to its body. */
     public static void end(ServerPlayer p) {
         var sh = SHAPES.remove(p);
@@ -649,11 +655,12 @@ public final class FormSpells {
             comeHome(p);
             return;
         }
-        var gifts = switch (sh.form) {
+        List<net.minecraft.core.Holder<MobEffect>> gifts = switch (sh.form) {
             case WOLF -> List.of(MobEffects.SPEED, MobEffects.JUMP_BOOST, MobEffects.NIGHT_VISION, MobEffects.STRENGTH);
             case BEAR, WARDEN -> List.of(MobEffects.RESISTANCE);
             case SPIDER -> List.of(MobEffects.NIGHT_VISION, MobEffects.SPEED, MobEffects.JUMP_BOOST);
             case BLAZE -> List.of(MobEffects.FIRE_RESISTANCE, MobEffects.LEVITATION, MobEffects.SLOW_FALLING);
+            case SPIRIT -> sh.spiritSightGranted ? List.of(MobEffects.NIGHT_VISION) : List.of();
             default -> List.<net.minecraft.core.Holder<MobEffect>>of();
         };
         for (var g : gifts) {
@@ -726,8 +733,16 @@ public final class FormSpells {
             level.addFreshEntity(body);
         }
         p.setGameMode(GameType.SPECTATOR);
+        giveSpiritSight(p, sh, level.getGameTime());
         sound(level, p.position(), SoundEvents.SOUL_ESCAPE.value(), 1.4f, .8f);
         SpellKit.forOthers(p, ParticleTypes.SOUL, p.position().add(0, 1, 0), 20, .3, .03);
+    }
+
+    private static void giveSpiritSight(ServerPlayer player, Shape shape, long now) {
+        if (!player.hasEffect(MobEffects.NIGHT_VISION)) {
+            effect(player, MobEffects.NIGHT_VISION, (int) (shape.until - now), 0);
+            shape.spiritSightGranted = true;
+        }
     }
 
     /** A walking spirit goes back into its body: where it stood, in its own game mode. */
@@ -787,6 +802,7 @@ public final class FormSpells {
                 }
                 case SPIRIT -> {
                     if (!p.isSpectator()) p.setGameMode(GameType.SPECTATOR);
+                    giveSpiritSight(p, sh, now);
                     if (sh.has("Restful Spirit") && now % 40 == 0) p.heal(2);
                     if (sh.has("Mana Well") && now % 20 == 0) Perks.mana(p, 2);
                     if (sh.has("Spirit Sense") && now % 20 == 0)

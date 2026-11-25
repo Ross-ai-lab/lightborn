@@ -144,7 +144,12 @@ final class SelfTestMonsters {
         var drops = Lightborn.dropLoot(level, champ, Monsters.info(champ), caster);
         check("giant_drops", !drops.isEmpty(), drops.size());
         var bossDrops = Lightborn.dropLoot(level, boss, Monsters.info(boss), caster);
-        check("boss_drops", bossDrops.size() == Balance.BOSS_DROPS, bossDrops.size());
+        check(
+                "boss_drops",
+                bossDrops.size() == Balance.BOSS_DROPS
+                        && LootRoller.rarity(bossDrops.getFirst()) == LootRoller.Rarity.LEGENDARY
+                        && bossDrops.stream().allMatch(stack -> LightGearTree.level(stack) == 1),
+                bossDrops.size());
         caster.setAttached(OreTiers.MINED, mined);
         champ.discard();
     }

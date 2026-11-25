@@ -156,8 +156,7 @@ public final class LightShop {
                 .toList();
         Spell tome = spells.get(random.nextInt(spells.size()));
         all.add(new Offer(new ItemStack(ModItems.TOMES.get(tome)), (tome.shopTier <= 5 ? 12 : 24) + tome.shopTier * 2));
-        int staffCap = Math.min(cap, levelCap(5 * 7 - 7));
-        all.add(new Offer(staff(level, day, weekTier(week)), week == 1 ? 12 : 24 + staffCap * 2));
+        all.add(new Offer(staff(level, day, weekTier(week), weekRarity(week)), staffPrice(week) / 2));
         // Six wares (owner, 2026-11-16: the armour piece and the second curio are gone; their row holds the ward).
         if (week == 1) all.add(new Offer(new ItemStack(Items.AMETHYST_SHARD, 8), 4));
         else {
@@ -326,27 +325,51 @@ public final class LightShop {
      * The day's staff in a given material. It rolls from its own seed, so the same day gives the same staff whatever
      * material a player's ore caps it at, and the other wares never shift with it.
      */
-    static ItemStack staff(ServerLevel level, long day, ModItems.Tier tier) {
-        int week = week(day);
-        if (week == 1)
-            return new ItemStack(ModItems.GEAR.get(ModItems.Tier.IRON).get(ModItems.Kind.STAFF));
+    private static ItemStack staff(ServerLevel level, long day, ModItems.Tier tier, LootRoller.Rarity rarity) {
+        if (rarity == LootRoller.Rarity.PLAIN)
+            return new ItemStack(ModItems.GEAR.get(tier).get(ModItems.Kind.STAFF));
         var random = RandomSource.create(level.getServer().overworld().getSeed() ^ (day * 0x5DEECE66DL) ^ 0x57AFFL);
-        return LootRoller.roll(
-                random,
-                week < 4 ? LootRoller.Rarity.UNCOMMON : week < 5 ? LootRoller.Rarity.RARE : LootRoller.Rarity.LEGENDARY,
-                tier,
-                ModItems.Kind.STAFF);
+        return LootRoller.roll(random, rarity, tier, ModItems.Kind.STAFF);
+    }
+
+    private static LootRoller.Rarity weekRarity(int week) {
+        return week == 1
+                ? LootRoller.Rarity.PLAIN
+                : week < 4
+                        ? LootRoller.Rarity.UNCOMMON
+                        : week < 5 ? LootRoller.Rarity.RARE : LootRoller.Rarity.LEGENDARY;
+    }
+
+    private static int staffPrice(int week) {
+        return week == 1 ? 24 : 48 + levelCap((Math.min(week, 5) - 1) * 7) * 4;
+    }
+
+    private static Offer staffOffer(ServerPlayer p, long day, int bestRank) {
+        int week = week(day);
+        var rank = weekRarity(week);
+        int promotedWeek = week;
+        if (bestRank > rank.ordinal()) {
+            var rarities = LootRoller.Rarity.values();
+            rank = rarities[Math.min(bestRank + 1, rarities.length - 1)];
+            promotedWeek = switch (rank) {
+                case PLAIN -> 1;
+                case UNCOMMON -> 2;
+                case RARE -> 4;
+                case LEGENDARY, MYTHIC -> 5;
+            };
+        }
+        var mined = OreTiers.best(p);
+        var cap = mined == null ? ModItems.Tier.IRON : mined;
+        var tier = weekTier(promotedWeek);
+        if (tier.ordinal() > cap.ordinal()) tier = cap;
+        int price = staffPrice(promotedWeek) + (rank == LootRoller.Rarity.MYTHIC ? 40 : 0);
+        return new Offer(staff(p.level(), day, tier, rank), price);
     }
 
     static List<Offer> waresFor(ServerPlayer p, long day) {
         var list = new ArrayList<>(wares(p.level(), day));
         // The staff's material is capped by the ore this player has mined (owner, 2026-11-17), the same rule as
         // dropped gear; iron is the floor, since the shop sells an iron staff from the first day.
-        var mined = OreTiers.best(p);
-        var cap = mined == null ? ModItems.Tier.IRON : mined;
-        var weekly = weekTier(week(day));
-        if (weekly.ordinal() > cap.ordinal())
-            list.set(1, new Offer(staff(p.level(), day, cap), list.get(1).price()));
         if (DragonStory.ending(p.level()) == 2
                 && DragonStory.hasFlag(p, 16)
                 && !LightGear.has(p, DragonStory.LIGHT_KEY))
@@ -361,10 +384,12 @@ public final class LightShop {
         Collection.storage(p).forEach(stack -> addOwned(owned, stack, 0));
         Spell offered = TomeItem.spellOf(list.getFirst().stack());
         if (owned.stream().anyMatch(s -> TomeItem.spellOf(s) == offered)) list.set(0, new Offer(ItemStack.EMPTY, 0));
-        int rank = LootRoller.rarity(list.get(1).stack()).ordinal();
-        if (owned.stream()
-                .anyMatch(s -> ModItems.isStaff(s) && LootRoller.rarity(s).ordinal() > rank))
-            list.set(1, new Offer(ItemStack.EMPTY, 0));
+        int bestRank = owned.stream()
+                .filter(ModItems::isStaff)
+                .mapToInt(s -> LootRoller.rarity(s).ordinal())
+                .max()
+                .orElse(0);
+        list.set(1, staffOffer(p, day, bestRank));
         return List.copyOf(list);
     }
 

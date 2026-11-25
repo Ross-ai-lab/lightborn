@@ -121,7 +121,7 @@ public final class Balance {
     static final int HUNTER_LIGHT_LIMIT = 8;
     static final double HUNTER_FOLLOW_RANGE = 64;
     static final double SCOUT_GROAN_DISTANCE = 10;
-    static final double SCOUT_SHARD_CHANCE = 0.15;
+    static final double SCOUT_SHARD_CHANCE = 0.075;
     /**
      * The ward (owner, 2026-11-16): it starts at radius 9, half the old 18, and grows only when bought with Sparks in
      * the chest's Shop tab, five steps to 48. Gifts to the collection no longer grow it.
@@ -159,7 +159,7 @@ public final class Balance {
     static final int HUNT_PACK_TICKS = 4 * 20;
     static final int HUNT_DEATH_PAUSE_TICKS = 15 * 20, HUNT_DEATH_LIMIT = 2;
     static final int HUNT_RANGED_DIVISOR = 4, HUNT_GIANT_DIVISOR = 6;
-    static final int BOSS_SHARDS = 1;
+    static final double BOSS_SHARD_CHANCE = 0.5;
 
     // ---- The Cleanse (owner, 2026-11-15): one continuous wave, sized by the dark shards fed to the chest ----
     public static final int CLEANSE_MAX_SHARDS = 10;
@@ -205,7 +205,7 @@ public final class Balance {
     /** A Cleanse's wave counts as beaten when this share of it is down (owner, 2026-11-18). */
     public static final double CLEANSE_BEATEN_SHARE = 0.9;
     /** Chance that any structure chest holds dark shards (one to SHARD_CHEST_MAX), the Cleanse's fuel. */
-    public static final double SHARD_CHEST_CHANCE = 0.25;
+    public static final double SHARD_CHEST_CHANCE = 0.125;
 
     public static final int SHARD_CHEST_MAX = 2;
     /** Monsters a tome must slay itself (its own spell, from the off hand) before it awakens. */
@@ -230,10 +230,10 @@ public final class Balance {
     public static final int[] KILL_SPARKS_MIN = {0, 1, 3, 7, 11, 20}, KILL_SPARKS_MAX = {0, 2, 6, 10, 19, 35};
 
     /**
-     * Chance a tier 5 monster that is not a boss drops a Relic, times Item Find (owner, 2026-11-20: one in five): a
-     * Legendary piece of the best ore mined that arrives with all three upgrade tiers bought. A boss always drops one.
+     * Chance a tier 5 monster drops a bonus Legendary piece, times Item Find.
+     * Bosses have a separate guaranteed Legendary roll.
      */
-    public static final double RELIC_CHANCE = 0.2;
+    public static final double TIER_FIVE_LEGENDARY_CHANCE = 0.2;
     /** After dawn a Cleanse-cracked ward heals one crack this often (ten seconds; must be a multiple of 10). */
     public static final int SCAR_HEAL_TICKS = 200;
     /** Share of the carried Sparks that burn away for good on death; the rest drop where you fell. */

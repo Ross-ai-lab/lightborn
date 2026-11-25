@@ -256,8 +256,12 @@ public class VisualTest implements FabricClientGameTest {
                     player.setAttached(
                             ModData.STORAGE,
                             List.of(
-                                    new ItemStack(Items.OAK_PLANKS, 32), new ItemStack(Items.COBBLESTONE, 32),
-                                    new ItemStack(Items.IRON_INGOT, 16), new ItemStack(Items.STICK, 12)));
+                                    new ItemStack(Items.OAK_PLANKS, 32),
+                                    new ItemStack(Items.COBBLESTONE, 32),
+                                    new ItemStack(Items.IRON_INGOT, 16),
+                                    new ItemStack(Items.STICK, 12),
+                                    new ItemStack(Items.BUCKET, 2)));
+                    player.getInventory().setItem(16, new ItemStack(Items.BUCKET));
                 });
                 ctx.getInput().resizeWindow(1920, 1080);
                 ctx.runOnClient(mc -> {
@@ -268,7 +272,7 @@ public class VisualTest implements FabricClientGameTest {
                     screen.select(CollectionScreen.CRAFTING);
                 });
                 ctx.waitTicks(20);
-                ctx.runOnClient(mc -> ((CollectionScreen) mc.gui.screen()).previewCraft("minecraft:crafting_table"));
+                ctx.runOnClient(mc -> ((CollectionScreen) mc.gui.screen()).previewCraft("minecraft:bucket"));
                 ctx.waitTicks(20);
                 ctx.getInput().setCursorPos(15, 15);
                 ctx.takeScreenshot("lightborn_chest_crafting");
@@ -276,7 +280,7 @@ public class VisualTest implements FabricClientGameTest {
                 ctx.takeScreenshot("lightborn_chest_crafting_rotated");
                 Soft.require(
                         ctx.computeOnClient(mc -> ((CollectionScreen) mc.gui.screen()).canCraft()),
-                        "The Crafting tab could not preview a crafting table from only stored planks");
+                        "The Crafting tab could not preview a bucket from stored iron");
                 ctx.setScreen(() -> null);
             }
 
@@ -293,6 +297,14 @@ public class VisualTest implements FabricClientGameTest {
                     player.getInventory().setItem(11, new ItemStack(Items.ROTTEN_FLESH, 12));
                     player.getInventory().setItem(12, new ItemStack(ModItems.SPARK, 64));
                     player.getInventory().setItem(13, new ItemStack(ModItems.SPARK, 32));
+                    player.getInventory()
+                            .setItem(
+                                    14,
+                                    lightborn.LootRoller.roll(
+                                            net.minecraft.util.RandomSource.create(12),
+                                            lightborn.LootRoller.Rarity.RARE,
+                                            ModItems.Tier.IRON,
+                                            ModItems.Kind.STAFF));
                 });
                 ctx.getInput().resizeWindow(1920, 1080);
                 ctx.runOnClient(mc -> {
@@ -383,6 +395,27 @@ public class VisualTest implements FabricClientGameTest {
                                                         .getCount()
                                                 == 98),
                                 "Deposit Sparks failed to store more than a vanilla stack");
+                        double[] search = ctx.computeOnClient(mc -> {
+                            var button = mc.gui.screen().children().stream()
+                                    .filter(Button.class::isInstance)
+                                    .map(Button.class::cast)
+                                    .filter(b -> b.visible
+                                            && b.getMessage().getString().equals("Search"))
+                                    .findFirst()
+                                    .orElseThrow();
+                            double scale = mc.getWindow().getGuiScale();
+                            return new double[] {
+                                (button.getX() + button.getWidth() / 2.0) * scale,
+                                (button.getY() + button.getHeight() / 2.0) * scale
+                            };
+                        });
+                        ctx.getInput().setCursorPos(search[0], search[1]);
+                        ctx.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
+                        ctx.waitTicks(5);
+                        ctx.getInput().typeChars("ender pearl");
+                        ctx.waitTicks(5);
+                        ctx.getInput().setCursorPos(8, 8);
+                        ctx.takeScreenshot("lightborn_collection_search");
                     }
                 }
                 ctx.setScreen(() -> null);

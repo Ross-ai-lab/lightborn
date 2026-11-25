@@ -29,7 +29,8 @@ import net.minecraft.world.item.ItemStack;
  * pulse; passed-over and locked ones are dim. The panel below reads out whichever branch is under the pointer.
  */
 final class UpgradeTab extends ChestTab {
-    private static final int UP_RED = 0xFFE0443C, UP_RED_DEEP = 0xFF3A1210, UP_TOME = 20;
+    private static final int UP_RED = 0xFFE0443C, UP_RED_DEEP = 0xFF3A1210, UP_TOME = 25, UP_ICON_TILE = 22;
+    private static final float UP_ICON_SCALE = 1.25f;
     private static final int UP_LABEL_W = 30, UP_NODE = 18;
 
     /** The Upgrade Gear tab, else Upgrade Spells. */
@@ -336,11 +337,11 @@ final class UpgradeTab extends ChestTab {
 
         // the branches first, so the strip and nodes sit on top of them
         long now = System.currentTimeMillis();
-        int rootX = x + UP_TOME / 2 - 1, rootY = stripY() + 18;
+        int rootX = x + UP_ICON_TILE / 2, rootY = stripY() + UP_ICON_TILE;
         for (int i = 0; i < slots.size() && i < perRow() * 2; i++)
             if (slots.get(i) == slot) {
-                rootX = x + (i % perRow()) * UP_TOME + 9;
-                rootY = stripY() + (i / perRow()) * UP_TOME + 18;
+                rootX = x + (i % perRow()) * UP_TOME + UP_ICON_TILE / 2;
+                rootY = stripY() + (i / perRow()) * UP_TOME + UP_ICON_TILE;
             }
         var path = new ArrayList<int[]>(); // the lit route, for the running spark
         path.add(new int[] {rootX, rootY});
@@ -372,22 +373,31 @@ final class UpgradeTab extends ChestTab {
             var stack = at(slots.get(i));
             boolean on = slots.get(i) == slot;
             boolean inStone = !gear && slots.get(i) >= Spellstone.IN_STONE;
-            boolean hover = mouseX >= cx && mouseX < cx + 18 && mouseY >= cy && mouseY < cy + 18;
-            g.fill(cx, cy, cx + 18, cy + 18, on ? UP_RED : hover ? 0xFF6A3A30 : inStone ? 0xFF4A3C5E : SLOT);
-            g.fill(cx + 1, cy + 1, cx + 17, cy + 17, on ? UP_RED_DEEP : SLOT_IN);
-            g.item(stack, cx + 1, cy + 1);
+            boolean hover = mouseX >= cx && mouseX < cx + UP_ICON_TILE && mouseY >= cy && mouseY < cy + UP_ICON_TILE;
+            g.fill(
+                    cx,
+                    cy,
+                    cx + UP_ICON_TILE,
+                    cy + UP_ICON_TILE,
+                    on ? UP_RED : hover ? 0xFF6A3A30 : inStone ? 0xFF4A3C5E : SLOT);
+            g.fill(cx + 1, cy + 1, cx + UP_ICON_TILE - 1, cy + UP_ICON_TILE - 1, on ? UP_RED_DEEP : SLOT_IN);
+            g.pose().pushMatrix();
+            g.pose().translate(cx + 1, cy + 1);
+            g.pose().scale(UP_ICON_SCALE, UP_ICON_SCALE);
+            g.item(stack, 0, 0);
+            g.pose().popMatrix();
             if (gear && stack.isDamageableItem()) {
                 int remaining = Math.max(0, stack.getMaxDamage() - stack.getDamageValue());
-                int bar = Math.round(14f * remaining / stack.getMaxDamage());
-                g.fill(cx + 2, cy + 15, cx + 16, cy + 17, 0xFF0D0A07);
+                int bar = Math.round((UP_ICON_TILE - 4f) * remaining / stack.getMaxDamage());
+                g.fill(cx + 2, cy + UP_ICON_TILE - 3, cx + UP_ICON_TILE - 2, cy + UP_ICON_TILE - 1, 0xFF0D0A07);
                 g.fill(
                         cx + 2,
-                        cy + 15,
+                        cy + UP_ICON_TILE - 3,
                         cx + 2 + Math.max(1, bar),
-                        cy + 16,
+                        cy + UP_ICON_TILE - 2,
                         remaining == 0 ? UP_RED : 0xFF000000 | stack.getBarColor());
             }
-            if (upgraded(stack)) g.fill(cx + 13, cy + 1, cx + 17, cy + 5, UP_RED);
+            if (upgraded(stack)) g.fill(cx + UP_ICON_TILE - 5, cy + 1, cx + UP_ICON_TILE - 1, cy + 5, UP_RED);
             if (hover) hoverItem = stack;
         }
         int nameX = x + Math.min(perRow(), slots.size()) * UP_TOME + 6;
@@ -403,7 +413,7 @@ final class UpgradeTab extends ChestTab {
                     font(),
                     font().plainSubstrByWidth(item.getHoverName().getString(), s.gridX() + s.gridW() - 8 - nameX),
                     nameX,
-                    stripY() + 5,
+                    stripY() + (UP_ICON_TILE - 8) / 2,
                     IVORY,
                     false);
 
@@ -572,7 +582,7 @@ final class UpgradeTab extends ChestTab {
         int x = s.gridX() + 4;
         for (int i = 0; i < slots.size() && i < perRow() * 2; i++) {
             int cx = x + (i % perRow()) * UP_TOME, cy = stripY() + (i / perRow()) * UP_TOME;
-            if (mx >= cx && mx < cx + 18 && my >= cy && my < cy + 18) {
+            if (mx >= cx && mx < cx + UP_ICON_TILE && my >= cy && my < cy + UP_ICON_TILE) {
                 altar = slots.get(i);
                 sound(SoundEvents.BOOK_PAGE_TURN, 1f);
                 return true;

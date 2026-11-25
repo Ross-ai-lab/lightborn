@@ -238,23 +238,23 @@ final class SelfTest {
                         + e.modifier().operation())) doubled++;
         }
         check("loot_one_line_per_stat", doubled == 0, doubled);
-        // Rarity alone sets the strength: the same rarity rolls the same range at any item level. Measured on Max
-        // Health,
-        // since a sword no longer rolls Attack Damage onto its own line (owner, 2026-11-18).
+        // Rarity alone sets the strength. Compare the Max Health suffix on iron and netherite helmets.
         double[] low = new double[2], highSum = new double[2];
         for (int i = 0; i < 600; i++) {
             damageAffix(
-                    LootRoller.roll(level.getRandom(), LootRoller.Rarity.RARE, ModItems.Tier.IRON, ModItems.Kind.SWORD),
+                    LootRoller.roll(
+                            level.getRandom(), LootRoller.Rarity.RARE, ModItems.Tier.IRON, ModItems.Kind.HELMET),
                     low);
             damageAffix(
-                    LootRoller.roll(level.getRandom(), LootRoller.Rarity.RARE, ModItems.Tier.IRON, ModItems.Kind.SWORD),
+                    LootRoller.roll(
+                            level.getRandom(), LootRoller.Rarity.RARE, ModItems.Tier.NETHERITE, ModItems.Kind.HELMET),
                     highSum);
         }
         double lowMean = low[0] / Math.max(1, low[1]), highMean = highSum[0] / Math.max(1, highSum[1]);
         check(
                 "loot_power_from_rarity_only",
                 low[1] > 0 && Math.abs(lowMean - highMean) / lowMean < .12,
-                String.format("lvl1=%.2f lvl90=%.2f", lowMean, highMean));
+                String.format("iron=%.2f netherite=%.2f", lowMean, highMean));
         // Specialist staffs: about 3 netherite staff drops in 10 are the Storm Rod, with its signature stat.
         int storms = 0;
         for (int i = 0; i < 400; i++) {

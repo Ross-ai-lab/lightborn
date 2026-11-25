@@ -809,8 +809,8 @@ public enum Spell {
             0,
             1, // Basic (owner, 2026-11-23)
             true,
-            "For 30 seconds your spirit leaves your body: it flies through walls and nothing can touch it. Then it"
-                    + " returns to your body, which waits where you stood. Right-click returns early.",
+            "For 30 seconds your spirit flies through walls with Night Vision while your body waits. Nothing can touch"
+                    + " your spirit. Right-click to return early.",
             Kind.UTILITY),
     SHRINKING(
             "Shrinking",

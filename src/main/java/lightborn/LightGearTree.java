@@ -404,19 +404,6 @@ public final class LightGearTree {
         return n;
     }
 
-    /** Makes a piece a Relic: one random node of each tier bought and in use (owner, 2026-11-20). */
-    public static void relic(ItemStack s, net.minecraft.util.RandomSource random) {
-        int kind = kind(s);
-        if (kind < 0) return;
-        int[] chosen = new int[TIERS], owned = new int[TIERS];
-        for (int t = 0; t < TIERS; t++) {
-            chosen[t] = random.nextInt(CHOICES);
-            owned[t] = 1 << chosen[t];
-        }
-        write(s, chosen, owned);
-        s.set(DataComponents.ATTRIBUTE_MODIFIERS, stats(kind, s));
-    }
-
     static void write(ItemStack s, int[] chosen, int[] owned) {
         CustomData.update(DataComponents.CUSTOM_DATA, s, tag -> {
             tag.putIntArray(KEY, chosen.clone());

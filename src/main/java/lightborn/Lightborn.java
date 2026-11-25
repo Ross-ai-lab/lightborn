@@ -357,7 +357,8 @@ public class Lightborn implements ModInitializer {
         if (killer != null) Souls.killed(killer, dead);
         if (info != null && info.rank() == MonsterInfo.BOSS) {
             if (dead instanceof Mob mob) Bosses.untrack(mob);
-            dead.spawnAtLocation(level, new ItemStack(ModItems.DARK_SHARD, Balance.BOSS_SHARDS));
+            if (level.getRandom().nextDouble() < Balance.BOSS_SHARD_CHANCE)
+                dead.spawnAtLocation(level, new ItemStack(ModItems.DARK_SHARD));
             var identity = Bosses.identity(dead);
             dead.spawnAtLocation(
                     level,
@@ -404,16 +405,14 @@ public class Lightborn implements ModInitializer {
         int strength = info.rank() == MonsterInfo.BOSS ? OreTiers.BOSS : monsterTier(dead);
         for (int i = 0; i < count; i++) {
             ModItems.Tier tier = OreTiers.pick(random, killer, strength);
-            // A strong kind's gear is certain, and a boss's Relic: before any ore is mined it is the first tier.
-            boolean bossRelic = info.rank() == MonsterInfo.BOSS && i == 0;
-            if (tier == null && (monsterTier(dead) >= 3 || bossRelic)) tier = ModItems.Tier.values()[0];
+            // The guaranteed first drop falls back to iron before the player mines ore.
+            boolean bossLegendary = info.rank() == MonsterInfo.BOSS && i == 0;
+            if (tier == null && (monsterTier(dead) >= 3 || bossLegendary)) tier = ModItems.Tier.values()[0];
             if (tier == null) continue; // no ore mined yet that this monster could carry
             LootRoller.Rarity r = LootRoller.rollRarity(random, rarity);
             if (floor != null && r == LootRoller.Rarity.UNCOMMON) r = floor;
-            if (bossRelic) r = LootRoller.Rarity.LEGENDARY;
+            if (bossLegendary) r = LootRoller.Rarity.LEGENDARY;
             ItemStack stack = LootRoller.roll(random, tier, r);
-            // Every boss drops at least one tier 5 piece, a Relic (owner, 2026-11-20: "bosses always drop cool gear").
-            if (bossRelic) LightGearTree.relic(stack, random);
             LootBeams.onDrop(dead.spawnAtLocation(level, stack), r);
             dropped.add(stack);
             if (r.top()) {
@@ -434,16 +433,15 @@ public class Lightborn implements ModInitializer {
                     : TomeItem.roll(random, Souls.tierOf(dead));
             if (!tome.isEmpty()) dead.spawnAtLocation(level, tome);
         }
-        // A Relic now and then from a tier 5 monster (owner, 2026-11-20): Legendary, all three upgrade tiers bought.
+        // Tier-five monsters can drop an extra Legendary roll.
         var best = OreTiers.best(killer);
         if (info.rank() != MonsterInfo.BOSS
                 && monsterTier(dead) == 5
                 && best != null
-                && random.nextDouble() < Balance.RELIC_CHANCE * find) {
-            ItemStack relic = LootRoller.roll(random, best, LootRoller.Rarity.LEGENDARY);
-            LightGearTree.relic(relic, random);
-            LootBeams.onDrop(dead.spawnAtLocation(level, relic), LootRoller.Rarity.LEGENDARY);
-            dropped.add(relic);
+                && random.nextDouble() < Balance.TIER_FIVE_LEGENDARY_CHANCE * find) {
+            ItemStack bonus = LootRoller.roll(random, best, LootRoller.Rarity.LEGENDARY);
+            LootBeams.onDrop(dead.spawnAtLocation(level, bonus), LootRoller.Rarity.LEGENDARY);
+            dropped.add(bonus);
         }
         return dropped;
     }

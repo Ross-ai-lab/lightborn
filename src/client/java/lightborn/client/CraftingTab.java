@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import lightborn.ChestCrafting;
+import lightborn.Collection;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -215,9 +216,9 @@ final class CraftingTab extends ChestTab {
                 new Quaternionf().rotationZ((float) Math.PI).rotateX(-.25f),
                 null,
                 x - 26,
-                y - 36,
+                y - 56,
                 x + 26,
-                y + 15);
+                y + 35);
     }
 
     private static void glow(GuiGraphicsExtractor g, int x, int y, float pulse) {
@@ -306,7 +307,13 @@ final class CraftingTab extends ChestTab {
                     rx,
                     ry + 37,
                     IVORY);
-            if (mx >= rx - 23 && mx <= rx + 23 && my >= ry - 23 && my <= ry + 25) hovered = view.output();
+            if (mc().player != null) {
+                var item = view.output().getItem();
+                int owned = mc().player.getInventory().countItem(item)
+                        + Collection.stored(mc().player, Collection.idOf(item)).getCount();
+                centered(g, "Owned: " + owned, rx, ry + 49, DIM);
+            }
+            if (mx >= rx - 26 && mx <= rx + 26 && my >= ry - 43 && my <= ry + 23) hovered = view.output();
         }
         String hint = status.isEmpty()
                 ? manual ? "Pick an ingredient, then click a cell." : "Uses the Chest of Light and your inventory."

@@ -147,21 +147,30 @@ final class SelfTestStory {
                     "light_gear_grows_with_best_ore",
                     grown[0] == 5 && grown[1] == 6 && grown[2] == 7 && named,
                     java.util.Arrays.toString(grown) + " " + named);
-            // Every boss drops a Relic and a tier 5 spell (owner, 2026-11-20: "bosses always drop cool gear").
+            // A boss still drops a tier-five spell.
             var bossTome = TomeItem.spellOf(TomeItem.rollTier(p.getRandom(), 5));
             check("boss_tome_is_tier_5", bossTome != null && bossTome.tier == 5, bossTome);
-            // A Relic (owner, 2026-11-20): Legendary, all three upgrade tiers bought and in use.
-            var relic = LootRoller.roll(p.getRandom(), ModItems.Tier.NETHERITE, LootRoller.Rarity.LEGENDARY);
-            LightGearTree.relic(relic, p.getRandom());
-            int[] relicChosen = LightGearTree.chosen(relic);
+            var weapon = LootRoller.roll(
+                    p.getRandom(), LootRoller.Rarity.LEGENDARY, ModItems.Tier.IRON, ModItems.Kind.SWORD);
+            var original = weapon.getOrDefault(
+                    net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS,
+                    net.minecraft.world.item.component.ItemAttributeModifiers.EMPTY);
+            var healthAffix = new net.minecraft.world.entity.ai.attributes.AttributeModifier(
+                    ModItems.id("affix_max_health_mainhand"),
+                    6,
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE);
+            weapon.set(
+                    net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS,
+                    original.withModifierAdded(
+                            Attributes.MAX_HEALTH,
+                            healthAffix,
+                            net.minecraft.world.entity.EquipmentSlotGroup.MAINHAND));
+            LootRoller.refresh(weapon);
             check(
-                    "relic_has_every_upgrade_tier",
-                    LightGearTree.kind(relic) >= 0
-                            && relicChosen[0] >= 0
-                            && relicChosen[1] >= 0
-                            && relicChosen[2] >= 0
-                            && LightGearTree.level(relic) == 4,
-                    java.util.Arrays.toString(relicChosen) + " " + relic);
+                    "legacy_weapon_loses_only_the_max_health_roll",
+                    weapon.get(net.minecraft.core.component.DataComponents.ATTRIBUTE_MODIFIERS)
+                            .equals(original),
+                    null);
             // Light gear breaks but never vanishes (owner, 2026-11-20); broken it does nothing until mended.
             var worn = LightGear.gift(4, 1);
             p.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, worn);
@@ -270,8 +279,12 @@ final class SelfTestStory {
                     seen
                             && DarkShards.menuChoice(p) == null
                             && DarkShards.chance(2) == 0
-                            && DarkShards.chance(3) > 0
-                            && DarkShards.chance(10) > DarkShards.chance(3),
+                            && DarkShards.chance(3) == .0075
+                            && DarkShards.chance(10) > DarkShards.chance(3)
+                            && DarkShards.chance(99) == .05
+                            && Balance.SHARD_CHEST_CHANCE == .125
+                            && Balance.SCOUT_SHARD_CHANCE == .075
+                            && Balance.BOSS_SHARD_CHANCE == .5,
                     seen);
             p.getInventory().clearContent();
             // Treasure Thread finds a chest that still holds its generated loot, and not one already opened.

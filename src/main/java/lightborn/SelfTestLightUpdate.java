@@ -173,10 +173,12 @@ final class SelfTestLightUpdate {
                                     LootRoller.Rarity.RARE,
                                     ModItems.Tier.IRON,
                                     ModItems.Kind.STAFF));
+            var promoted = LightShop.waresFor(p, 0);
             SelfTest.check(
-                    "shop_hides_spellstone_tomes_and_lower_rarity",
-                    LightShop.waresFor(p, 0).subList(0, 2).stream()
-                                    .allMatch(o -> o.stack().isEmpty())
+                    "shop_hides_owned_tomes_and_promotes_staff_past_week_limit",
+                    promoted.getFirst().stack().isEmpty()
+                            && LootRoller.rarity(promoted.get(1).stack()) == LootRoller.Rarity.LEGENDARY
+                            && promoted.get(1).price() > offers.get(1).price()
                             && offers.getFirst().price() == 28
                             && offers.get(1).price() == 24
                             && Balance.WARD_PRICES[0] == 40,

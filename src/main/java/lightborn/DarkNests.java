@@ -913,7 +913,9 @@ public final class DarkNests {
             shards = shards * 3 / 2;
         }
         drop(level, at, new ItemStack(ModItems.SPARK, sparks));
-        drop(level, at, new ItemStack(ModItems.DARK_SHARD, shards));
+        // Round odd payouts in either direction so their long-run average is also halved.
+        int shardDrop = (shards + (shards % 2 == 1 && random.nextBoolean() ? 1 : 0)) / 2;
+        if (shardDrop > 0) drop(level, at, new ItemStack(ModItems.DARK_SHARD, shardDrop));
         for (int i = 0; i < items; i++) {
             var rarity = i == 0 && wins >= 12
                     ? LootRoller.Rarity.MYTHIC

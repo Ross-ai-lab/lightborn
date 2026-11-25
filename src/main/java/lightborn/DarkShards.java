@@ -57,9 +57,9 @@ public final class DarkShards {
         }
     }
 
-    /** The chance a second that the shards whisper: about once a minute at three, every ten seconds at ten. */
+    /** The chance a second that the shards whisper: about every two minutes at three and every twenty seconds at ten. */
     static double chance(int shards) {
-        return shards < WHISPER_FROM ? 0 : Math.min(.1, .015 + (shards - WHISPER_FROM) * .012);
+        return shards < WHISPER_FROM ? 0 : .5 * Math.min(.1, .015 + (shards - WHISPER_FROM) * .012);
     }
 
     /** A soul's sigh only this player hears. */

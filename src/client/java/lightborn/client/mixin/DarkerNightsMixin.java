@@ -19,8 +19,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class DarkerNightsMixin {
     @Inject(method = "extract", at = @At("RETURN"))
     private void lightborn$nightAmbient(LightmapRenderState state, float partialTick, CallbackInfo ci) {
+        var minecraft = Minecraft.getInstance();
+        if (lightborn.FormSpells.spiritSight(minecraft.player)) state.nightVisionEffectIntensity = 1;
         if (!state.needsUpdate) return;
-        var level = Minecraft.getInstance().level;
+        var level = minecraft.level;
         if (level == null || level.dimension() != Level.OVERWORLD || lightborn.DragonStory.nightLifted(level)) return;
         long time = Math.floorMod(level.getOverworldClockTime(), 24000);
         // Ease over dusk and dawn so there is no brightness jump at the night boundary.

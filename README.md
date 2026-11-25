@@ -180,7 +180,7 @@ Souls has been carried (loose or in a Spellstone). The server refuses a hidden t
 all seven. A chest opens on the Shop once it is there, else on the Collection. Each tab is its own class
 (`CollectionScreen` keeps the frame, column and scrollbar; `UpgradeTab`, `CleanseTab`, `ShopTab`, `TravelTab`,
 `SpiritsTab`, `CollectionTab`, `UnlockedWindow`).
-**Upgrade Spells sees the tomes inside a carried Spellstone** (owner, 2026-11-18), each in its stone's place in the
+**The tome and gear selectors use 20-pixel item icons.** **Upgrade Spells sees the tomes inside a carried Spellstone** (owner, 2026-11-18), each in its stone's place in the
 strip on a violet rim, and upgrades them where they sit (`Spellstone.tomeAt`). **Upgrade Gear groups its strip by
 kind** (owner, 2026-11-18: the staffs lay scattered): helms, chests, leggings, boots and so on together, each kind in
 carried order. **Double-clicking an item in the Collection takes what the chest keeps of it** into the bag (owner,
@@ -289,7 +289,7 @@ apparent width at any range, and by day it burns 1.6 times brighter so it reads 
 ### Collection
 
 "Collect them all", for the Light. The chest stores up to 999 copies of every catalogue item for each player.
-Each deposit holds matching item variants. Withdrawals split into ordinary Minecraft stacks. The Collection footer's
+Each deposit holds matching item variants. Withdrawals split into ordinary Minecraft stacks. **Search** finds items across all sets by name or item ID. The Collection footer's
 **Deposit Sparks** button stores carried Sparks up to the same cap. The book has a tab per set
 with its reward, given items lit and the rest dimmed, the count kept shown on each, in a scrolling grid. Clicking an
 item opens it below the grid: Take 1, Take all (back into the inventory, dropped at your feet when full), Put in
@@ -352,7 +352,8 @@ than merely the full-set prize. There is no generic footer help text.
 
 ### Crafting
 
-The Crafting tab opens from the start. Search craftable recipes and select one to lay its ingredients on the plate.
+The Crafting tab opens from the start. Search craftable recipes and select one to lay its ingredients on the plate. The result shows how many you
+already own across your inventory and the Chest of Light.
 Craft once or use Craft all (up to 64 operations per click). Ordinary crafting pulls ingredients from the
 player's Chest of Light first and then carried inventory. The manual grid chooses exact stacks for recipes such
 as dyeing, maps or named materials. Grid slots are previews, and the server verifies the inputs and recipe again
@@ -418,8 +419,8 @@ button reads "Upgrade ward · 40 Sparks", and its line reads "Next: 13 blocks" (
 text is blue. The world seed and Minecraft day determine the roster. It refreshes at dawn; the tab's one line of text says
 "New wares every dawn" (owner, 2026-11-16: no title, week, countdown or Spark count). Every card prefixes its name with the bundle quantity. The price pays for
 that entire bundle, not one item from it. Repeat purchases of ordinary wares need payment and inventory room each time. The shop hides
-tomes the player owns, including inside carried or stored Spellstones, and staffs below the player's best
-owned staff rarity. All paid shop costs are twice the earlier prices. **Nothing is level-gated** (owner, 2026-11-16): every ware sells to anyone with the
+tomes the player owns, including inside carried or stored Spellstones. If the daily staff is below the player's
+best owned rarity, the slot offers one rarity higher than their best, up to Mythic. The mined-ore material cap still applies. All paid shop costs are twice the earlier prices. **Nothing is level-gated** (owner, 2026-11-16): every ware sells to anyone with the
 Sparks. The server validates the chest, distance, day, offer, price and capacity before
 transferring anything.
 
@@ -971,7 +972,7 @@ crash, logout or death still returns you; the body is a vanilla mannequin wearin
 | Bear Form | attack | 6 a roar | 100 | 3 min | Legendary | 30 s as a polar bear: +10 hearts (healed in), Resistance I, no knockback, melee twice as hard; right-click roars, striking and throwing back every monster within 5 (4 s between) |
 | Spider Form | utility | - | 100 | 2 min | Legendary | 45 s as a spider: climbs any wall it walks into, Night Vision, no fall damage, melee poisons (Poison I 3 s); right-click webs the monster you look at (24): Slowness VI and Weakness II under a cobweb for as long as you stay a spider (owner, 2026-11-23), all lifted when the form ends (3 s between) |
 | Blaze Form | attack | 5 a fireball | 100 | 3 min | Legendary | 30 s as a blaze: no fire or fall damage, Slow Falling in the air and Levitation while jump is held; right-click throws three fireballs where you look (1.5 s between). Fireballs never set blocks alight |
-| Spirit Walk | utility | - | 100 | 1 min | Basic (owner, 2026-11-23) | 30 s of spectator flight through walls while your body waits where you stood; then you return to it; right-click returns early |
+| Spirit Walk | utility | - | 100 | 1 min | Basic (owner, 2026-11-23) | 30 s of spectator flight and Night Vision while your body waits where you stood. Right-click returns early |
 | Shrinking | utility | - | 100 | 60 s | Basic | 30 s at a sixth of your size (`scale` 1/6; owner, 2026-11-23, was a fifth); it ends only once a full-size body fits where you are |
 | Gills | utility | - | 10 | 2.5 min | Basic | 2 min of Conduit Power and Dolphin's Grace |
 | Purify | defence | - | 15 | 30 s | Basic | every harmful effect, fire and freezing gone, and no harmful effect takes hold for 8 s (owner, 2026-11-23; was 5). Its tome is the Tome of Purify (was "of Purity") |
@@ -1035,9 +1036,9 @@ Twincast never twins Comet Dash, Doom or Lifebloom: a second would only replace 
 ### Night Vision is scarce
 
 **Night Vision comes from almost nothing** (owner, 2026-11-23: "the whole game is about night; a lot of night vision
-defeats the purpose of it and light gear as well"). Only three things give it: **Owl Sight** (the spell whose whole
-job is seeing at night), **Spider Form** (spiders see in the dark) and Wolf Form's tier III **Moon Wolf**. No other
-spell, upgrade, form, gear node or reward may give it; a new one needs the owner's word. **The brewed potion is
+defeats the purpose of it and light gear as well"). **Owl Sight**, **Spider Form**, **Spirit Walk** and Wolf Form's
+tier III **Moon Wolf** grant it. Adding it to another spell, upgrade, form, gear node or reward needs the owner's
+word. **The brewed potion is
 dear** (owner, 2026-11-23: "make it more expensive to brew", "1 per potion", then "a golden apple to brew, and golden
 carrot to extend"): a **golden apple** brews Awkward into Night Vision (the golden carrot no longer does), and a
 **golden carrot** takes Night Vision to its 8-minute form in place of redstone, for plain, splash and lingering bottles
@@ -1121,7 +1122,7 @@ the Sparks it pays, the gear and tomes it may drop, and when it may guard a Dark
 | 2 | Deadeye Skeleton, Enderman, Witch, Drowned Captain, Dark Phantom, Blister Zombie, Split Head Zombie, Rotten Mutant, Giant Bogged, Giant Parched, Giant Spider, Giant Cave Spider, Piglin, Corsair, Frozen Zombie (Mob Variants), Armored Spider, Infected Piglin, Zombified Piglin, Wither Skeleton, Vindicator, Vex, Phantom, Blaze, Ghast, Breeze, Magma Cube, Guardian, Shulker, Hoglin, Zoglin, Creaking, Forgotten, Undead Warrior, Illusioner (Friends & Foes), Iceologer, Barnacle, Orvane, the Last Scribe, Giant (38) | 30 | 2 | 2 or 3 Sparks | from the first day |
 | 3 | Giant Zombie, Giant Skeleton, Giant Stray, Giant Husk, Giant Drowned, Giant Creeper, Giant Witch, Spitter, Illusioner, Evoker, Piglin Brute, Executioner, Infected Piglin Brute, Zombified Piglin Brute, Elder Guardian (15) | 20 | 3 | 5 Sparks and an item, every kill | from the first day (half weight on a stage-1 fountain) |
 | 4 | Giant Enderman, Ravager, Wildfire (3) | 10 | 4 | 10 Sparks and an item | **from the second week** (a third weight on a stage-1 fountain) |
-| 5 | Zombie Brute, Mutant Brute, Mutant Zombie, Mutant Skeleton, Mutant Creeper, Mutant Enderman, Warden, Wither, Dark Dragon (9) | 3 | 5 (a whole bought-out book) | 25 Sparks and an item; a 20% Relic | **from the third week** |
+| 5 | Zombie Brute, Mutant Brute, Mutant Zombie, Mutant Skeleton, Mutant Creeper, Mutant Enderman, Warden, Wither, Dark Dragon (9) | 3 | 5 (a whole bought-out book) | 20–35 Sparks and an item, with a 20% chance of an additional Legendary piece | **from the third week** |
 
 **How every kind is placed** (owner, 2026-11-20: "judge for real all", no kind kept as an anchor): a **health
 band** from health x (1 + armour / 20), cut at 25, 50, 90 and 150, and a **hit band** from one Normal hit, cut at
@@ -1294,16 +1295,13 @@ upgraded mana, cooldown and power and lists the branches in use, without tier or
      before the first diamond ore), it drops the best tier the player has unlocked instead, so the ore caps the tier
      and strength only lifts the odds. A Cleanse cache counts as tier 2, tier 3 from 4 shards and Boss from the
      Legendary threshold; a Dark Fountain's stage 1 as tier 2, stage 2 as tier 3, stage 3 as Boss. So a plain zombie never drops diamond or netherite.
-- **Relics** (owner, 2026-11-20): a tier 5 monster that is not a boss has a 20% chance (times Item Find) to drop a Relic,
-  a Legendary piece of the best ore its killer has mined that arrives with one branch of each of the three upgrade
-  tiers already bought and in use (`Balance.RELIC_CHANCE`, `LightGearTree.relic`, `relic_has_every_upgrade_tier`).
-  None before the first iron ore. **Every boss drops one**: its first rolled item is always a Relic (iron before any
-  ore is mined), and its tome is always a tier 5 spell (`TomeItem.rollTier`, `boss_tome_is_tier_5`), with its Sparks
-  (owner, 2026-11-20: "bosses must drop at least 1 tier 5 tool and 1 tier 5 spell and sparks"). Boss trophies and
-  fully upgraded gear are the other Relics.
+- **Legendary monster loot.** A tier-five monster has a 20% chance, multiplied by Item Find, to drop an extra
+  Legendary piece of the best material its killer has mined. A boss's first roll is always Legendary and its
+  tome is always tier five. Gear from monsters and bosses comes with empty upgrade trees.
+
 - **Gear tiers** (owner, 2026-11-20), a ladder beside the monster tiers, never shown on items: 1 Crude (wood, stone,
   leather, copper, gold: crafted, never dropped), 2 Iron (iron, chainmail, the Apprentice staff), 3 Diamond, 4
-  Netherite, 5 Relic. Rarity (Uncommon, Rare, Legendary, Mythic: 1, 2, 3, 4 bonus stats) is a second scale on top. The Dragon's
+  Netherite. Rarity (Uncommon, Rare, Legendary, Mythic: 1, 2, 3, 4 bonus stats) is a second scale on top. The Dragon's
   Light gear is always the tier of its holder's best ore.
   Plus **Staffs** for the mage (one per tier: Apprentice, Adept, Archmage) with built-in Spell Power and Max Mana
   (0 / 20 / 30). Three **specialist staffs** replace about 3 in 10 staff drops of their tier, a little stronger than
@@ -1504,7 +1502,7 @@ strength and the collection hint (owner, 2026-11-20; `LightGear.hideStatsWhileBr
 `light_gear_breaks_never_vanishes`). If a piece is destroyed (lava, void), the Dragon replaces it the next night he visits; after the fight ending, the Chest of Light's
 shop offers the replacement instead, free. Light gear belongs to the Lightborn collection set.
 
-Movement Speed rolls only on boots. Weapon and staff affixes skip attack speed. Rolled mana affixes are half their previous size and
+Movement Speed rolls only on boots. Weapon and staff affixes exclude extra Max Health and attack speed. Rolled mana affixes are half their previous size and
 critical damage affixes are 20% lower across rarities. These changes update existing rolls. Gear shows remaining
 durability, and paxels have a tree focused on breaking blocks, working reach, mining underwater and resisting wear.
 The staff's first branches grant +10% spell power, +15 mana or +5 percentage points of spell crit chance. The
@@ -1634,7 +1632,7 @@ only).
 
 - Scout packs have 2 to 3 zombies or 4 to 5 on the Eve. They arrive at staggered, randomized times, with a groan.
   They spawn on dark surface ground 24 to 48 blocks away and chase from 64 blocks. Scouts skip players inside a ward
-  and players in a Cleanse. Player kills of scouts drop a Dark Shard 15% of the time.
+  and players in a Cleanse. Player kills of scouts drop a Dark Shard 7.5% of the time.
 
 ### The Cleanse
 
@@ -1657,15 +1655,16 @@ inventory and starts it: after dusk only, in the Overworld, at a chest that hold
 - **Pay.** Clearing it drops a cache at the chest: `3 + shards` rolled items (an Uncommon first roll becomes Rare; from
   8 shards the first is always Legendary; rarity +8% per extra shard), a tome and 2 Sparks per item. Dawn ends an unfinished Cleanse with 3 Sparks for surviving; fed
   shards are never returned. A restart during the same night resumes it.
-- **Dark Shards** (`lightborn:dark_shard`): a quarter of structure chests hold 1 to 2, scouts drop them (15%), every
-  Lightborn boss drops one, Dark Fountains pay them, and the shop sells them from week 2.
+- **Dark Shards** (`lightborn:dark_shard`): 12.5% of structure chests hold 1 to 2, scouts can drop one (7.5%), and each Lightborn boss has
+  a 50% chance to drop one. Dark Fountains pay half their earlier shard quantities on average, and the shop sells
+  them from week 2.
 - **Shards are pieces of the Dark's soul** (owner, 2026-11-16: "like horcruxes"). The first time a player carries
   one, a violet line says it is listening and to ask the Dragon; his menu then offers "I found a shard of something
   dark.", and he explains: the Dark tore itself apart long ago and hid the pieces in its creatures so it could never
   wholly die; each shard is a little of it still alive, it talks the more you carry, and the Cleanse burns it out
   (`DarkShards`). Carrying **3 or more**, they whisper: an italic violet line over the hotbar ("Keep us. Keep us
-  close.", "Why burn what makes you strong?") with a soul's sigh only that player hears, about once a minute at 3
-  and every ten seconds at 10, but never while a Cleanse holds them (owner, 2026-11-17: they drowned the fight's own
+  close.", "Why burn what makes you strong?") with a soul's sigh only that player hears, about every two minutes at 3
+  and every twenty seconds at 10, but never while a Cleanse holds them (owner, 2026-11-17: they drowned the fight's own
   lines); and the screen's edges darken in a slow, breathing violet-black that creeps in as
   they are picked up and deepens with the count (`ShardWhisperView`).
 - **The dome scars.** As a Cleanse wears on, cracks run open across its ward's dome: two at the start, then more as
@@ -1791,7 +1790,7 @@ Cleanse ([The Dragon's Tale](#orvane-the-last-scribe)).
 - **Grudge.** A boss that kills you comes back as the boss of your next boss Cleanse, as strong as before, with
   "remembers you" on its bar. Its trophy is guaranteed. When several players share a Cleanse, the caller's grudge
   comes and the others wait for their own.
-- **Rewards.** Every boss kill pays three rolled items, a Dark Shard and a tome, plus 3 Sparks; a named
+- **Rewards.** Every boss kill pays three rolled items and a tome, plus 3 Sparks and a 50% chance of a Dark Shard; a named
   boss adds 5 more. Your first credited kill of each named boss grants its trophy (25% after that) and its
   **mounted head**: the boss's face, cut from its own skin and glowing eyes by `tools/make_heads.py`, on an oak and
   ivory plaque (legendary beam; inventory fallback). Trophies and heads join the Chest of Light's Lightborn set, and a

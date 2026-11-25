@@ -419,6 +419,7 @@ public class CollectionScreen extends Screen {
             unlocked.close();
             return true;
         }
+        if (selected >= 0 && event.isEscape() && collection.closeSearch()) return true;
         return super.keyPressed(event);
     }
 
